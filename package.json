@@ -10,6 +10,7 @@
     "lint": "node -e \"console.log('Lint passed')\""
   },
   "dependencies": {
+    "pdfjs-dist": "^6.3.289",
     "vite": "^5.4.14"
   }
 }

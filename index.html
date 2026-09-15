@@ -199,36 +199,74 @@
       }
     </script>
   
+    <!-- PDF.js library for Canvas-based in-page rendering (immune to browser iframe/sandbox blocking) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    </script>
+  
+    <script src="./doc_viewer.js"></script>
     <script>
       window.qapPdfUpload = (e, histId, instrument, onUpdate) => {
-          const file = e.target.files[0];
-          if(!file) return;
+          const file = e && e.target && e.target.files && e.target.files[0];
+          if (!file || !instrument) return;
           const reader = new FileReader();
           reader.onload = (ev) => {
               const base64 = ev.target.result;
-              const newHistory = instrument.history.map(h => 
-                  h.id === histId ? { ...h, certFileData: base64, certFileName: file.name } : h
+              const histList = Array.isArray(instrument.history) && instrument.history.length > 0 
+                  ? instrument.history 
+                  : Array.isArray(instrument.calibrationHistory) && instrument.calibrationHistory.length > 0 
+                  ? instrument.calibrationHistory 
+                  : [{ id: histId || 'hist-curr', certNo: instrument.certNo || 'CERT-CURRENT', calDate: instrument.calDate || new Date().toISOString().split('T')[0], dueDate: instrument.dueDate || '' }];
+              const newHistory = histList.map(h => 
+                  h.id === histId ? { ...h, certFileData: base64, certFileName: file.name, pdfUrl: base64 } : h
               );
-              onUpdate({ ...instrument, history: newHistory });
+              if (typeof onUpdate === 'function') {
+                  onUpdate({ ...instrument, history: newHistory, calibrationHistory: newHistory, certFileData: base64, certFileName: file.name, pdfUrl: base64 });
+              }
           };
           reader.readAsDataURL(file);
       };
 
       window.qapPdfRemove = (histId, instrument, onUpdate) => {
-          if(!confirm('ยืนยันลบไฟล์ PDF นี้หรือไม่?')) return;
-          const newHistory = instrument.history.map(h => 
-              h.id === histId ? { ...h, certFileData: null, certFileName: null } : h
+          if (!confirm('ยืนยันลบไฟล์ PDF นี้หรือไม่?')) return;
+          if (!instrument) return;
+          const histList = Array.isArray(instrument.history) && instrument.history.length > 0 
+              ? instrument.history 
+              : Array.isArray(instrument.calibrationHistory) && instrument.calibrationHistory.length > 0 
+              ? instrument.calibrationHistory 
+              : [];
+          const newHistory = histList.map(h => 
+              h.id === histId ? { ...h, certFileData: null, certFileName: null, pdfUrl: null } : h
           );
-          onUpdate({ ...instrument, history: newHistory });
+          if (typeof onUpdate === 'function') {
+              onUpdate({ ...instrument, history: newHistory, calibrationHistory: newHistory, certFileData: null, certFileName: null, pdfUrl: null });
+          }
       };
 
-      window.qapPdfView = (base64) => {
-          const win = window.open();
-          if(win) {
-              win.document.write('<iframe src="' + base64 + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
-              win.document.title = 'Certificate PDF';
+      window.qapPdfView = (base64, certNo, instrument) => {
+          if (typeof window.qapOpenDocViewer === 'function') {
+              window.qapOpenDocViewer({ pdfUrl: base64, certFileData: base64, certNo: certNo || 'CERT-PDF' }, instrument || {});
           } else {
-              alert('กรุณาอนุญาต Pop-ups เพื่อดูไฟล์ PDF');
+              try {
+                  const parts = (base64 || '').split(',');
+                  const mime = (parts[0] && parts[0].match(/:(.*?);/)) ? parts[0].match(/:(.*?);/)[1] : 'application/pdf';
+                  const bstr = atob(parts[1] || '');
+                  let n = bstr.length;
+                  const u8arr = new Uint8Array(n);
+                  while (n--) u8arr[n] = bstr.charCodeAt(n);
+                  const blob = new Blob([u8arr], { type: mime });
+                  const blobUrl = URL.createObjectURL(blob);
+                  window.open(blobUrl, '_blank');
+              } catch(e) {
+                  const win = window.open();
+                  if (win) {
+                      win.document.write('<iframe src="' + base64 + '" frameborder="0" style="border:0; width:100%; height:100vh;" allowfullscreen></iframe>');
+                      win.document.title = certNo || 'Certificate PDF';
+                  }
+              }
           }
       };
     </script>
