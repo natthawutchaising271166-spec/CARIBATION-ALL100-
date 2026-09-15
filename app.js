@@ -4582,9 +4582,26 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
   m.jsxDEV("td",{className:"py-1.5 px-2.5 border-r border-slate-100 dark:border-slate-800",children:Y.labCal||Y.calibratedBy||"-"},"td_lab_cal_"+be,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:510,columnNumber:25},void 0)
 ]:[]),m.jsxDEV("td",{className:"py-1.5 px-2.5 text-center",children:m.jsxDEV("span",{className:`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${Y.status==="normal"?"bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300":Y.status==="due_soon"?"bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 animate-pulse":Y.status==="overdue"?"bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300":Y.status==="in_calibration"?"bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300":"bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`,children:Y.status==="normal"?"IN SPEC":Y.status==="due_soon"?"DUE SOON":Y.status==="overdue"?"OVERDUE":Y.status==="in_calibration"?"IN CAL":"INACTIVE"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:512,columnNumber:27},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:511,columnNumber:25},void 0)]},be,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:490,columnNumber:23},void 0))},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:488,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:464,columnNumber:17},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:463,columnNumber:15},void 0),m.jsxDEV("div",{className:"flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium px-1 pt-1",children:[m.jsxDEV("span",{className:"inline-flex items-center gap-1.5",children:[m.jsxDEV("span",{className:"w-2 h-2 rounded-full bg-blue-500"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:533,columnNumber:19},void 0),m.jsxDEV("span",{children:["แสดงข้อมูลนำเข้าทั้งหมด ",m.jsxDEV("strong",{className:"text-slate-800 dark:text-slate-200 font-bold"},v.length.toLocaleString(),void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:534,columnNumber:21},void 0)," รายการ (เลื่อนแถบเลื่อนแนวตั้งเพื่อตรวจทานข้อมูล)"]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:534,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:533,columnNumber:17},void 0),m.jsxDEV("span",{className:"text-slate-400 dark:text-slate-500 font-mono text-[10px]",children:"↔️ เลื่อนแถบแนวนอนเพื่อตรวจครบ 18 คอลัมน์"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:535,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:532,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:425,columnNumber:13},void 0),R&&m.jsxDEV("div",{className:"absolute inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-6 animate-in fade-in duration-200",children:m.jsxDEV("div",{className:"max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 text-center space-y-5",children:[m.jsxDEV("div",{className:"relative w-16 h-16 mx-auto flex items-center justify-center",children:he?m.jsxDEV("div",{className:"w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border-2 border-emerald-500 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-lg animate-in zoom-in duration-300",children:m.jsxDEV(hl,{className:"w-9 h-9 stroke-[3]"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:555,columnNumber:23},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:554,columnNumber:21},void 0):m.jsxDEV(m.Fragment,{children:[m.jsxDEV("div",{className:"absolute inset-0 rounded-full border-4 border-blue-200 dark:border-blue-900/50 animate-ping opacity-30"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:548,columnNumber:23},void 0),m.jsxDEV("div",{className:"w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-950/60 border-2 border-blue-500 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-lg",children:m.jsxDEV(lv,{className:"w-8 h-8 animate-bounce"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:550,columnNumber:25},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:549,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:547,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:545,columnNumber:17},void 0),m.jsxDEV("div",{children:[m.jsxDEV("h4",{className:"text-base font-bold text-slate-900 dark:text-slate-100",children:he?"นำเข้าข้อมูลสำเร็จเรียบร้อย!":"กำลังนำเข้าข้อมูลสู่หน้า CALIBRATION ALL..."},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:562,columnNumber:19},void 0),m.jsxDEV("p",{className:"text-xs text-slate-500 dark:text-slate-400 mt-1",children:he?`บันทึกข้อมูลจากหน้า "DATABASE" ครบถ้วน ${v.length} รายการ`:`กำลังอ่านและบันทึกแถวข้อมูลจากหน้า "DATABASE" (${W} / ${v.length} แถว)`},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:569,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:561,columnNumber:17},void 0),m.jsxDEV("div",{className:"space-y-2",children:[m.jsxDEV("div",{className:"flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300",children:[m.jsxDEV("span",{children:"ความคืบหน้า"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:581,columnNumber:21},void 0),m.jsxDEV("span",{className:"font-mono text-blue-600 dark:text-blue-400 text-sm",children:[I,"%"]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:582,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:580,columnNumber:19},void 0),m.jsxDEV("div",{className:"w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700",children:m.jsxDEV("div",{className:`h-full rounded-full transition-all duration-150 ${he?"bg-emerald-500":"bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 animate-pulse"}`,style:{width:`${I}%`}},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:587,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:586,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:579,columnNumber:17},void 0),!he&&oe&&m.jsxDEV("div",{className:"p-2.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 text-left text-[11px] flex items-center gap-2",children:[m.jsxDEV("span",{className:"w-2 h-2 rounded-full bg-blue-500 animate-ping shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:601,columnNumber:21},void 0),m.jsxDEV("span",{className:"text-slate-500 dark:text-slate-400 shrink-0",children:"กำลังโหลด:"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:602,columnNumber:21},void 0),m.jsxDEV("span",{className:"font-semibold text-slate-800 dark:text-slate-200 truncate",title:oe,children:oe},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:603,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:600,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:543,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:542,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:230,columnNumber:9},void 0),m.jsxDEV("div",{className:"px-6 py-3.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0",children:[m.jsxDEV("div",{className:"text-xs text-slate-500 dark:text-slate-400",children:v.length>0&&m.jsxDEV("span",{children:["พร้อมนำเข้าข้อมูลจากหน้า DATABASE ",m.jsxDEV("strong",{children:v.length},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:617,columnNumber:55},void 0)," รายการ"]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:617,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:615,columnNumber:11},void 0),m.jsxDEV("div",{className:"flex items-center gap-2.5",children:[m.jsxDEV("button",{type:"button",onClick:t,disabled:R,className:"px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition disabled:opacity-50 cursor-pointer",children:"ยกเลิก"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:622,columnNumber:13},void 0),m.jsxDEV("button",{type:"button",disabled:v.length===0||R,onClick:K,className:"inline-flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95 cursor-pointer",children:[m.jsxDEV(Td,{className:"w-4 h-4"},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:636,columnNumber:15},void 0),m.jsxDEV("span",{children:["ยืนยันการนำเข้า ",v.length>0?`(${v.length} รายการ)`:" ",` เข้าหน้า ${activeTarget==="centralized"?"CENTRALIZED":activeTarget==="each_section"?"EACH SECTION":activeTarget==="normal_standard"?"NORMAL STANDARD":"CALIBRATION ALL"}`]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:637,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:630,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:621,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:614,columnNumber:9},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:195,columnNumber:7},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ImportModal.tsx",lineNumber:194,columnNumber:5},void 0)},tSe=({isOpen:e,onClose:t,instrument:r})=>{const[n,l]=A.useState("certificate"),[o,u]=A.useState("standard"),[c,f]=A.useState(80),p=A.useRef(null);if(A.useEffect(()=>{e&&p.current&&(p.current.scrollTop=0)},[e,n]),!e||!r)return null;const h=()=>{window.print()},v=()=>{f(w=>Math.min(w+10,130))},g=()=>{f(w=>Math.max(w-10,50))},N=()=>{f(78),p.current&&(p.current.scrollTop=0)},y=()=>{f(100)};Ek(r.status||"normal"),ga(r.dueDate);const E=r.calibratedPoints||[{nominal:"25.000 mm",reading:"25.001 mm",error:"+0.001 mm",tolerance:"±0.010 mm",result:"PASS"},{nominal:"50.000 mm",reading:"50.002 mm",error:"+0.002 mm",tolerance:"±0.010 mm",result:"PASS"},{nominal:"75.000 mm",reading:"74.999 mm",error:"-0.001 mm",tolerance:"±0.015 mm",result:"PASS"},{nominal:"100.000 mm",reading:"100.002 mm",error:"+0.002 mm",tolerance:"±0.015 mm",result:"PASS"},{nominal:"150.000 mm",reading:"150.003 mm",error:"+0.003 mm",tolerance:"±0.020 mm",result:"PASS"}];return m.jsxDEV("div",{className:"fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150",children:m.jsxDEV("div",{className:"print-modal-container relative max-w-5xl w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 my-auto overflow-hidden flex flex-col h-[95vh] max-h-[95vh]",onClick:w=>w.stopPropagation(),children:[m.jsxDEV("div",{className:"no-print px-4 sm:px-5 py-3 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 shrink-0",children:[m.jsxDEV("div",{className:"flex items-center gap-2.5",children:[m.jsxDEV("div",{className:"p-2 bg-blue-600 rounded-lg text-white shadow-sm",children:m.jsxDEV(S0,{className:"w-5 h-5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:94,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:93,columnNumber:13},void 0),m.jsxDEV("div",{children:[m.jsxDEV("h3",{className:"text-sm sm:text-base font-bold text-white tracking-tight",children:"ศูนย์พิมพ์เอกสารการสอบเทียบ (Calibration Print Center)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:97,columnNumber:15},void 0),m.jsxDEV("p",{className:"text-xs text-blue-200/80 font-mono",children:[r.codeNo," • ",r.instrumentName]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:100,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:96,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:92,columnNumber:11},void 0),m.jsxDEV("div",{className:"flex items-center gap-2 flex-wrap",children:[m.jsxDEV("div",{className:"bg-slate-800/90 p-1 rounded-xl flex items-center border border-slate-700 text-xs",children:[m.jsxDEV("button",{onClick:()=>l("certificate"),className:`flex items-center gap-1.5 px-3 py-1 rounded-lg font-semibold transition ${n==="certificate"?"bg-blue-600 text-white shadow-sm":"text-slate-300 hover:text-white"}`,children:[m.jsxDEV(S0,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:116,columnNumber:17},void 0),m.jsxDEV("span",{children:"ใบรับรอง A4"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:117,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:110,columnNumber:15},void 0),m.jsxDEV("button",{onClick:()=>l("sticker"),className:`flex items-center gap-1.5 px-3 py-1 rounded-lg font-semibold transition ${n==="sticker"?"bg-blue-600 text-white shadow-sm":"text-slate-300 hover:text-white"}`,children:[m.jsxDEV(FR,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:125,columnNumber:17},void 0),m.jsxDEV("span",{children:"ป้ายสติ๊กเกอร์"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:126,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:119,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:109,columnNumber:13},void 0),n==="sticker"&&m.jsxDEV("div",{className:"bg-slate-800/90 p-1 rounded-xl flex items-center border border-slate-700 text-xs",children:[m.jsxDEV("button",{onClick:()=>u("standard"),className:`px-2.5 py-1 rounded-lg font-semibold transition ${o==="standard"?"bg-slate-700 text-white":"text-slate-400 hover:text-white"}`,children:"มาตรฐาน (85x50mm)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:133,columnNumber:17},void 0),m.jsxDEV("button",{onClick:()=>u("compact"),className:`px-2.5 py-1 rounded-lg font-semibold transition ${o==="compact"?"bg-slate-700 text-white":"text-slate-400 hover:text-white"}`,children:"กะทัดรัด (50x30mm)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:141,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:132,columnNumber:15},void 0),n==="certificate"&&m.jsxDEV("div",{className:"bg-slate-800/90 p-1 rounded-xl flex items-center gap-1 border border-slate-700 text-xs",children:[m.jsxDEV("button",{onClick:N,className:`px-2.5 py-1 rounded-lg font-medium transition ${c<85?"bg-blue-600/80 text-white font-bold":"text-slate-300 hover:text-white"}`,title:"ย่อให้พอดีกับความสูงของหน้าจอ ไม่ต้องเลื่อนเมาส์",children:"พอดีหน้า (Fit)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:155,columnNumber:17},void 0),m.jsxDEV("button",{onClick:y,className:`px-2 py-1 rounded-lg font-medium transition ${c===100?"bg-blue-600/80 text-white font-bold":"text-slate-300 hover:text-white"}`,title:"ขนาดจริง 100% (A4)",children:"100%"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:162,columnNumber:17},void 0),m.jsxDEV("div",{className:"flex items-center gap-0.5 border-l border-slate-700 pl-1",children:[m.jsxDEV("button",{onClick:g,className:"p-1 text-slate-300 hover:text-white rounded hover:bg-slate-700/80 transition",title:"ย่อขนาด",children:m.jsxDEV(mK,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:175,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:170,columnNumber:19},void 0),m.jsxDEV("span",{className:"text-[11px] font-mono px-1 text-slate-300 min-w-[36px] text-center",children:[c,"%"]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:177,columnNumber:19},void 0),m.jsxDEV("button",{onClick:v,className:"p-1 text-slate-300 hover:text-white rounded hover:bg-slate-700/80 transition",title:"ขยายขนาด",children:m.jsxDEV(dK,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:185,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:180,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:169,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:154,columnNumber:15},void 0),m.jsxDEV("button",{onClick:h,className:"inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md transition active:scale-95",children:[m.jsxDEV(bd,{className:"w-4 h-4"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:196,columnNumber:15},void 0),m.jsxDEV("span",{children:"พิมพ์ / ออก PDF"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:197,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:192,columnNumber:13},void 0),m.jsxDEV("button",{onClick:t,className:"p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition",title:"ปิด",children:m.jsxDEV(Xl,{className:"w-4 h-4"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:206,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:201,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:107,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:91,columnNumber:9},void 0),m.jsxDEV("div",{ref:p,className:"print-scroll-container flex-1 overflow-y-auto overflow-x-auto p-4 sm:p-6 bg-slate-200/90 dark:bg-slate-950/90 flex flex-col items-center min-h-0",children:m.jsxDEV("div",{id:"printable-certificate",style:{transform:n==="certificate"?`scale(${c/100})`:void 0,transformOrigin:"top center",marginBottom:n==="certificate"&&c<100?`${-(100-c)*9}px`:void 0},className:"bg-white text-slate-900 w-full max-w-[210mm] shadow-2xl border border-slate-300 p-5 sm:p-8 print:p-0 print:border-none print:shadow-none font-sans text-xs transition-transform duration-100 ease-out",children:n==="certificate"?m.jsxDEV("div",{className:"print-section border-4 border-double border-blue-900 p-4 sm:p-5 rounded-lg bg-white relative space-y-2.5 sm:space-y-3",children:[m.jsxDEV("div",{className:"border-b-2 border-blue-900 pb-3",children:[m.jsxDEV("div",{className:"flex items-start justify-between",children:[m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("div",{className:"w-9 h-9 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold text-sm shadow-xs",children:"QAP"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:234,columnNumber:25},void 0),m.jsxDEV("div",{children:[m.jsxDEV("h1",{className:"text-base sm:text-lg font-black tracking-wide text-blue-950 uppercase leading-none",children:"CARRIER METROLOGY LABORATORY"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:238,columnNumber:27},void 0),m.jsxDEV("p",{className:"text-[10px] text-slate-600 font-semibold mt-0.5",children:"QUALITY ASSURANCE & PRECISION METROLOGY CENTER"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:241,columnNumber:27},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:237,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:233,columnNumber:23},void 0),m.jsxDEV("p",{className:"text-[9px] text-slate-500 mt-1 max-w-md",children:"Accredited under ISO/IEC 17025 for Calibration Services • Traceable to National Institute of Metrology (Thailand)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:246,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:232,columnNumber:21},void 0),m.jsxDEV("div",{className:"text-right",children:[m.jsxDEV("div",{className:"inline-block border border-blue-900 px-3 py-1 rounded bg-blue-50/70",children:[m.jsxDEV("div",{className:"text-[8px] font-bold text-blue-950 uppercase",children:"CERTIFICATE NO."},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:253,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-xs font-mono font-black text-blue-800",children:r.certNo||"CERT-QAP-2026"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:254,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:252,columnNumber:23},void 0),m.jsxDEV("div",{className:"text-[9px] text-slate-500 mt-0.5 font-medium",children:"Page 1 of 1"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:256,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:251,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:231,columnNumber:19},void 0),m.jsxDEV("div",{className:"mt-2.5 text-center",children:m.jsxDEV("h2",{className:"text-xs sm:text-sm font-black tracking-wider text-slate-900 uppercase border-y border-slate-300 py-1 bg-slate-50",children:"CERTIFICATE OF CALIBRATION (ใบรายงานผลการสอบเทียบ)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:263,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:262,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:230,columnNumber:17},void 0),m.jsxDEV("div",{className:"border border-slate-300 rounded overflow-hidden",children:[m.jsxDEV("div",{className:"bg-slate-100 px-3 py-1 font-bold text-[10px] uppercase text-slate-800 border-b border-slate-300",children:"1. IDENTIFICATION OF INSTRUMENT (ข้อมูลเครื่องมือวัด)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:271,columnNumber:19},void 0),m.jsxDEV("div",{className:"p-2.5 grid grid-cols-2 sm:grid-cols-3 gap-y-1.5 gap-x-4 text-[11px]",children:[m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"ชื่อเครื่องมือวัด:"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:276,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-bold text-slate-900",children:r.instrumentName},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:277,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:275,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"รหัสควบคุม (Code No.):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:280,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-mono font-bold text-blue-900 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200",children:r.codeNo},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:281,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:279,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"หมายเลขเครื่อง (Serial No.):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:284,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-mono font-bold text-slate-800",children:r.serialNo||"-"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:285,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:283,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"ผู้ผลิต (Maker) / รุ่น (Model):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:289,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-semibold text-slate-800",children:[r.makerName," / ",r.model]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:290,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:288,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"ขนาดและย่านวัด (Range):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:293,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-bold text-slate-800",children:r.size||"-"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:294,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:292,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"เกณฑ์ความเผื่อ (Accuracy Limit):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:297,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-bold text-slate-800",children:r.accuracy||"± 0.01 mm"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:298,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:296,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"แผนกผู้ครอบครอง (Section):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:302,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-semibold text-slate-800",children:[r.section," (",r.subSection,")"]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:303,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:301,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"สถานที่ติดตั้ง/จัดเก็บ (Location):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:306,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-semibold text-slate-800",children:r.location||"คลังเครื่องมือ QAP"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:307,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:305,columnNumber:21},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"รอบการสอบเทียบ (Interval):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:310,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-bold text-slate-800",children:r.frequency||"1 ปี"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:311,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:309,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:274,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:270,columnNumber:17},void 0),m.jsxDEV("div",{className:"grid grid-cols-1 sm:grid-cols-2 gap-2.5",children:[m.jsxDEV("div",{className:"border border-slate-300 rounded overflow-hidden",children:[m.jsxDEV("div",{className:"bg-slate-100 px-3 py-1 font-bold text-[10px] uppercase text-slate-800 border-b border-slate-300 flex items-center justify-between",children:[m.jsxDEV("span",{children:"2. สภาวะแวดล้อมห้องปฏิบัติการ"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:320,columnNumber:23},void 0),m.jsxDEV("span",{className:"text-[9px] font-normal text-slate-500",children:"ISO 17025 Spec"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:321,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:319,columnNumber:21},void 0),m.jsxDEV("div",{className:"p-2 space-y-1 text-[11px]",children:[m.jsxDEV("div",{className:"flex justify-between",children:[m.jsxDEV("span",{className:"text-slate-500",children:"อุณหภูมิห้อง (Temperature):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:325,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-bold text-slate-800",children:r.temperature||"20.0 °C ± 1.0 °C"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:326,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:324,columnNumber:23},void 0),m.jsxDEV("div",{className:"flex justify-between",children:[m.jsxDEV("span",{className:"text-slate-500",children:"ความชื้นสัมพัทธ์ (Relative Humidity):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:329,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-bold text-slate-800",children:r.humidity||"50% RH ± 5%"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:330,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:328,columnNumber:23},void 0),m.jsxDEV("div",{className:"flex justify-between",children:[m.jsxDEV("span",{className:"text-slate-500",children:"ความไม่แน่นอน (Uncertainty):"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:333,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-bold text-blue-900",children:r.uncertainty||"U = ±0.005 mm (k=2)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:334,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:332,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:323,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:318,columnNumber:19},void 0),m.jsxDEV("div",{className:"border border-slate-300 rounded overflow-hidden",children:[m.jsxDEV("div",{className:"bg-slate-100 px-3 py-1 font-bold text-[10px] uppercase text-slate-800 border-b border-slate-300",children:"3. เกจมาตรฐานอ้างอิงและการสอบกลับได้"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:340,columnNumber:21},void 0),m.jsxDEV("div",{className:"p-2 space-y-1 text-[11px]",children:[m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"Reference Standard:"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:345,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-semibold text-slate-800",children:r.standardUsed||"Calibration Foils Set Class 1"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:346,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:344,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-500 text-[10px] block",children:"Traceability:"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:349,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-semibold text-slate-800",children:"Traceable to NIMT (สถาบันมาตรวิทยาแห่งชาติ)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:350,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:348,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:343,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:339,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:317,columnNumber:17},void 0),m.jsxDEV("div",{className:"border border-slate-300 rounded overflow-hidden",children:[m.jsxDEV("div",{className:"bg-slate-100 px-3 py-1 font-bold text-[10px] uppercase text-slate-800 border-b border-slate-300 flex items-center justify-between",children:[m.jsxDEV("span",{children:"4. CALIBRATION RESULTS (ผลการวัดค่าความคลาดเคลื่อนจริง)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:359,columnNumber:21},void 0),m.jsxDEV("span",{className:"text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200",children:"✓ ผ่านตามเกณฑ์ข้อกำหนด"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:360,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:358,columnNumber:19},void 0),m.jsxDEV("table",{className:"w-full text-left text-[11px] border-collapse",children:[m.jsxDEV("thead",{className:"bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[10px]",children:m.jsxDEV("tr",{children:[m.jsxDEV("th",{className:"py-1 px-3 text-center",children:"Point"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:367,columnNumber:25},void 0),m.jsxDEV("th",{className:"py-1 px-3",children:"Nominal Standard Value"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:368,columnNumber:25},void 0),m.jsxDEV("th",{className:"py-1 px-3",children:"Instrument Indicated Value"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:369,columnNumber:25},void 0),m.jsxDEV("th",{className:"py-1 px-3",children:"Measurement Error"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:370,columnNumber:25},void 0),m.jsxDEV("th",{className:"py-1 px-3",children:"Acceptance Tolerance"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:371,columnNumber:25},void 0),m.jsxDEV("th",{className:"py-1 px-3 text-center",children:"Result"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:372,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:366,columnNumber:23},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:365,columnNumber:21},void 0),m.jsxDEV("tbody",{className:"divide-y divide-slate-200",children:E.map((w,k)=>m.jsxDEV("tr",{children:[m.jsxDEV("td",{className:"py-1 px-3 text-center font-mono text-slate-500",children:k+1},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:378,columnNumber:27},void 0),m.jsxDEV("td",{className:"py-1 px-3 font-mono font-bold text-slate-800",children:w.nominal},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:379,columnNumber:27},void 0),m.jsxDEV("td",{className:"py-1 px-3 font-mono text-slate-800",children:w.reading},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:380,columnNumber:27},void 0),m.jsxDEV("td",{className:"py-1 px-3 font-mono font-bold text-blue-700",children:w.error},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:381,columnNumber:27},void 0),m.jsxDEV("td",{className:"py-1 px-3 font-mono text-slate-600",children:w.tolerance},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:382,columnNumber:27},void 0),m.jsxDEV("td",{className:"py-1 px-3 text-center",children:m.jsxDEV("span",{className:"px-1.5 py-0.2 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800",children:"PASS"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:384,columnNumber:29},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:383,columnNumber:27},void 0)]},k,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:377,columnNumber:25},void 0))},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:375,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:364,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:357,columnNumber:17},void 0),m.jsxDEV("div",{className:"bg-blue-50/70 border border-blue-200 rounded p-2.5 flex items-center justify-between",children:[m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"text-[9px] text-slate-500 uppercase font-semibold",children:"วันที่ทำการสอบเทียบ (CALIBRATION DATE)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:397,columnNumber:21},void 0),m.jsxDEV("div",{className:"font-mono font-bold text-blue-950 text-sm",children:r.calDate},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:398,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:396,columnNumber:19},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"text-[9px] text-slate-500 uppercase font-semibold",children:"วันครบกำหนดรอบถัดไป (NEXT DUE DATE)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:401,columnNumber:21},void 0),m.jsxDEV("div",{className:"font-mono font-bold text-rose-700 text-sm",children:r.dueDate},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:402,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:400,columnNumber:19},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"text-[9px] text-slate-500 uppercase font-semibold",children:"สถานะการรับรอง (ACCREDITATION)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:405,columnNumber:21},void 0),m.jsxDEV("div",{className:"font-bold text-emerald-700 text-sm",children:"● ได้รับการรับรอง (IN SPEC)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:406,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:404,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:395,columnNumber:17},void 0),m.jsxDEV("div",{className:"pt-2 sm:pt-3 grid grid-cols-3 gap-4 border-t border-slate-300",children:[m.jsxDEV("div",{className:"text-center space-y-1.5",children:[m.jsxDEV("div",{className:"h-8 flex items-end justify-center",children:m.jsxDEV("span",{className:"font-serif italic text-sm text-blue-900 border-b border-slate-400 px-6",children:"Natthawut Ch."},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:414,columnNumber:23},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:413,columnNumber:21},void 0),m.jsxDEV("div",{className:"text-[10px] font-bold text-slate-800",children:"ผู้ทำการสอบเทียบ (Calibrated By)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:418,columnNumber:21},void 0),m.jsxDEV("div",{className:"text-[9px] text-slate-500",children:"Metrology Technician"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:419,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:412,columnNumber:19},void 0),m.jsxDEV("div",{className:"text-center flex flex-col items-center justify-center",children:[m.jsxDEV("div",{className:"w-12 h-12 rounded-full border-2 border-dashed border-blue-900/60 flex flex-col items-center justify-center text-blue-900 font-bold text-[7px] leading-tight",children:[m.jsxDEV("span",{children:"QAP LAB"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:424,columnNumber:23},void 0),m.jsxDEV("span",{className:"text-[6px]",children:"SEAL"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:425,columnNumber:23},void 0),m.jsxDEV("span",{className:"text-[5px] font-mono",children:"APPROVED"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:426,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:423,columnNumber:21},void 0),m.jsxDEV("span",{className:"text-[7px] text-slate-400 mt-0.5",children:"ตราประทับควบคุม"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:428,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:422,columnNumber:19},void 0),m.jsxDEV("div",{className:"text-center space-y-1.5",children:[m.jsxDEV("div",{className:"h-8 flex items-end justify-center",children:m.jsxDEV("span",{className:"font-serif italic text-sm text-blue-900 border-b border-slate-400 px-6",children:"Sompong P."},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:433,columnNumber:23},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:432,columnNumber:21},void 0),m.jsxDEV("div",{className:"text-[10px] font-bold text-slate-800",children:"ผู้ตรวจสอบและอนุมัติ (Approved By)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:437,columnNumber:21},void 0),m.jsxDEV("div",{className:"text-[9px] text-slate-500",children:"Quality Assurance Manager"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:438,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:431,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:411,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:228,columnNumber:15},void 0):m.jsxDEV("div",{className:"space-y-6 flex flex-col items-center py-4",children:[m.jsxDEV("div",{className:"text-center no-print",children:[m.jsxDEV("span",{className:"text-xs font-bold text-slate-700",children:"ตัวอย่างป้ายสติ๊กเกอร์สอบเทียบ (Ready for Label Printer)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:446,columnNumber:19},void 0),m.jsxDEV("p",{className:"text-[11px] text-slate-500",children:"สามารถสั่งพิมพ์ลงบนสติ๊กเกอร์กันน้ำ เพื่อติดที่ตัวเครื่องมือวัดได้ทันที"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:447,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:445,columnNumber:17},void 0),o==="standard"?m.jsxDEV("div",{className:"w-[85mm] h-[50mm] border-2 border-slate-800 rounded-lg bg-white p-3 flex flex-col justify-between shadow-md relative overflow-hidden print:shadow-none print:m-0",children:[m.jsxDEV("div",{className:`absolute top-0 left-0 right-0 h-1.5 ${r.status==="normal"?"bg-emerald-600":r.status==="due_soon"?"bg-amber-500":r.status==="overdue"?"bg-rose-600":"bg-blue-600"}`},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:454,columnNumber:21},void 0),m.jsxDEV("div",{className:"flex items-center justify-between border-b border-slate-200 pb-1 pt-0.5",children:[m.jsxDEV("div",{className:"flex items-center gap-1.5",children:[m.jsxDEV("div",{className:"w-5 h-5 rounded bg-[#1c2a78] text-white flex items-center justify-center font-bold text-[9px]",children:"QAP"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:463,columnNumber:25},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-black text-[10px] text-[#1c2a78] tracking-tight leading-none uppercase",children:"CALIBRATION PASSED"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:467,columnNumber:27},void 0),m.jsxDEV("div",{className:"text-[7px] text-slate-500 leading-none mt-0.5",children:"ISO/IEC 17025 METROLOGY"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:470,columnNumber:27},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:466,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:462,columnNumber:23},void 0),m.jsxDEV("div",{className:"w-7 h-7 bg-slate-900 text-white rounded flex items-center justify-center",children:m.jsxDEV(TX,{className:"w-5 h-5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:478,columnNumber:25},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:477,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:461,columnNumber:21},void 0),m.jsxDEV("div",{className:"grid grid-cols-2 gap-1 text-[9px] py-1",children:[m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-400 block text-[7px] uppercase font-bold",children:"ID / CODE NO."},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:485,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-mono font-black text-blue-900 text-[11px]",children:r.codeNo},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:486,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:484,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-400 block text-[7px] uppercase font-bold",children:"SERIAL NO."},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:489,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-mono font-bold text-slate-800",children:r.serialNo||"-"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:490,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:488,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("span",{className:"text-slate-400 block text-[7px] uppercase font-bold",children:"CAL. DATE (วันที่สอบเทียบ)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:494,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-mono font-bold text-slate-900",children:r.calDate},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:495,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:493,columnNumber:23},void 0),m.jsxDEV("div",{className:"bg-rose-50 p-0.5 rounded border border-rose-200",children:[m.jsxDEV("span",{className:"text-rose-600 block text-[7px] uppercase font-black",children:"DUE DATE (ครบกำหนด)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:498,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-mono font-black text-rose-700 text-[10px]",children:r.dueDate},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:499,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:497,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:483,columnNumber:21},void 0),m.jsxDEV("div",{className:"border-t border-slate-200 pt-1 flex items-center justify-between text-[7px] text-slate-500",children:[m.jsxDEV("div",{children:["INSPECTOR: ",m.jsxDEV("span",{className:"font-bold text-slate-800",children:"NATTHAWUT CH."},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:506,columnNumber:36},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:505,columnNumber:23},void 0),m.jsxDEV("div",{className:"font-mono font-bold text-slate-400 tracking-tighter",children:"VOID IF SEAL BROKEN"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:508,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:504,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:452,columnNumber:19},void 0):m.jsxDEV("div",{className:"w-[50mm] h-[30mm] border-2 border-slate-800 rounded bg-white p-1.5 flex flex-col justify-between shadow-md relative overflow-hidden print:shadow-none print:m-0 text-[8px]",children:[m.jsxDEV("div",{className:"flex items-center justify-between border-b border-slate-200 pb-0.5",children:[m.jsxDEV("span",{className:"font-black text-[#1c2a78] text-[9px]",children:"CALIBRATED"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:517,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-mono font-bold text-blue-900 text-[8px]",children:r.codeNo},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:518,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:516,columnNumber:21},void 0),m.jsxDEV("div",{className:"space-y-0.5 my-auto",children:[m.jsxDEV("div",{className:"flex justify-between",children:[m.jsxDEV("span",{className:"text-slate-500 text-[7px]",children:"CAL:"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:523,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-mono font-bold text-slate-800 text-[8px]",children:r.calDate},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:524,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:522,columnNumber:23},void 0),m.jsxDEV("div",{className:"flex justify-between bg-rose-50 px-1 py-0.5 rounded",children:[m.jsxDEV("span",{className:"text-rose-600 font-bold text-[7px]",children:"DUE:"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:527,columnNumber:25},void 0),m.jsxDEV("span",{className:"font-mono font-black text-rose-700 text-[8px]",children:r.dueDate},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:528,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:526,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:521,columnNumber:21},void 0),m.jsxDEV("div",{className:"border-t border-slate-200 pt-0.5 flex justify-between text-[6px] text-slate-400",children:[m.jsxDEV("span",{children:"QAP LAB"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:533,columnNumber:23},void 0),m.jsxDEV("span",{className:"font-bold text-slate-700",children:"PASS"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:534,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:532,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:515,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:444,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:216,columnNumber:11},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:212,columnNumber:9},void 0),m.jsxDEV("div",{className:"no-print px-5 py-2.5 bg-slate-100 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0",children:[m.jsxDEV("div",{className:"flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs",children:[m.jsxDEV("span",{className:"font-medium",children:n==="certificate"?"ขนาดมาตรฐาน: A4 (210 x 297 mm)":`ขนาดสติ๊กเกอร์: ${o==="standard"?"85 x 50 mm":"50 x 30 mm"}`},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:547,columnNumber:13},void 0),m.jsxDEV("span",{className:"hidden sm:inline text-slate-300 dark:text-slate-600",children:"•"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:550,columnNumber:13},void 0),m.jsxDEV("span",{className:"hidden sm:inline text-slate-400 dark:text-slate-500",children:n==="certificate"?"ระบบปรับสัดส่วนอัตโนมัติ 1 หน้าพอดี (ไม่ตกขอบ/ไม่ล้น)":"พร้อมพิมพ์สติ๊กเกอร์กันน้ำ"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:551,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:546,columnNumber:11},void 0),m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("button",{onClick:h,className:"px-3.5 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-bold shadow-xs active:scale-95 transition flex items-center gap-1.5",children:[m.jsxDEV(bd,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:560,columnNumber:15},void 0),m.jsxDEV("span",{children:"พิมพ์หน้านี้ (Print / Save PDF)"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:561,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:556,columnNumber:13},void 0),m.jsxDEV("button",{onClick:t,className:"px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg font-medium border border-slate-300 dark:border-slate-600 transition",children:"ปิด"},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:563,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:555,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:545,columnNumber:9},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:86,columnNumber:7},void 0)},void 0,!1,{fileName:"/app/applet/src/components/CertificatePrintModal.tsx",lineNumber:85,columnNumber:5},void 0)},rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, onViewImage: o, onUpdateInstrument: u }) => {
   const h = A.createElement;
+  const [instData, setInstData] = A.useState(r);
   const [copiedCode, setCopiedCode] = A.useState(false);
+  const [isProcessing, setIsProcessing] = A.useState(false);
 
-  if (!e || !r) return null;
+  // Keep instData in sync when prop r changes
+  A.useEffect(() => {
+    setInstData(r);
+  }, [r]);
+
+  if (!e || !instData) return null;
+
+  const currentInst = instData;
+
+  const formatBytes = (bytes) => {
+    if (!bytes || bytes === 0) return '';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
 
   const copyText = (text) => {
     if (!text) return;
@@ -4676,12 +4693,12 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
 
-  const daysRemaining = calculateDays(r.dueDate);
+  const daysRemaining = calculateDays(currentInst.dueDate);
 
   // Calibration progress
   const getProgress = () => {
-    const startD = parseSmartDate(r.calDate);
-    const endD = parseSmartDate(r.dueDate);
+    const startD = parseSmartDate(currentInst.calDate);
+    const endD = parseSmartDate(currentInst.dueDate);
     if (!startD || !endD) return { percent: 100, color: 'bg-blue-600' };
 
     const start = startD.getTime();
@@ -4738,23 +4755,159 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     };
   };
 
-  const statusInfo = getStatusInfo(r.status);
+  const statusInfo = getStatusInfo(currentInst.status);
+
+  // Handle PDF Upload with in-browser compression
+  const handleFileUpload = async (e, histId) => {
+    const file = e && e.target && e.target.files && e.target.files[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    try {
+      let base64 = null;
+      let compSize = file.size;
+      let origSize = file.size;
+
+      if (typeof window.qapCompressPdf === 'function') {
+        const res = await window.qapCompressPdf(file);
+        base64 = res.dataUrl;
+        compSize = res.compressedSize;
+        origSize = res.originalSize;
+      } else {
+        base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
+        ? [...currentInst.history]
+        : Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0
+        ? [...currentInst.calibrationHistory]
+        : [{
+            id: histId || 'hist-curr',
+            certNo: currentInst.certNo || ('CERT-' + (currentInst.codeNo || '1')),
+            calDate: currentInst.calDate || new Date().toISOString().split('T')[0],
+            dueDate: currentInst.dueDate || '',
+            calibratedBy: currentInst.labCal || currentInst.calibratedBy || '-',
+            result: 'PASS'
+          }];
+
+      const updatedHistory = existingHistory.map(item => {
+        if (item.id === histId || (!histId && existingHistory.length === 1)) {
+          return {
+            ...item,
+            certFileData: base64,
+            certFileName: file.name,
+            pdfUrl: base64,
+            fileSize: compSize,
+            originalFileSize: origSize
+          };
+        }
+        return item;
+      });
+
+      const updatedInst = {
+        ...currentInst,
+        history: updatedHistory,
+        calibrationHistory: updatedHistory,
+        certFileData: base64,
+        certFileName: file.name,
+        pdfUrl: base64,
+        fileSize: compSize
+      };
+
+      setInstData(updatedInst);
+      if (typeof u === 'function') {
+        u(updatedInst);
+      }
+    } catch (err) {
+      console.error('File upload error:', err);
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ' + err.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle PDF Removal
+  const handleFileRemove = (histId) => {
+    if (!confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้หรือไม่?')) return;
+
+    const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
+      ? [...currentInst.history]
+      : Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0
+      ? [...currentInst.calibrationHistory]
+      : [{
+          id: histId || 'hist-curr',
+          certNo: currentInst.certNo || ('CERT-' + (currentInst.codeNo || '1')),
+          calDate: currentInst.calDate || '',
+          dueDate: currentInst.dueDate || ''
+        }];
+
+    const updatedHistory = existingHistory.map(item => {
+      if (item.id === histId || (!histId && existingHistory.length === 1)) {
+        const copy = { ...item };
+        delete copy.certFileData;
+        delete copy.certFileName;
+        delete copy.pdfUrl;
+        delete copy.fileSize;
+        delete copy.originalFileSize;
+        return {
+          ...copy,
+          certFileData: null,
+          certFileName: null,
+          pdfUrl: null,
+          fileSize: null
+        };
+      }
+      return item;
+    });
+
+    const updatedInst = {
+      ...currentInst,
+      history: updatedHistory,
+      calibrationHistory: updatedHistory,
+      certFileData: null,
+      certFileName: null,
+      pdfUrl: null,
+      fileSize: null
+    };
+
+    setInstData(updatedInst);
+    if (typeof u === 'function') {
+      u(updatedInst);
+    }
+  };
+
+  // Open Doc Viewer
+  const handleViewPdf = (item) => {
+    const rawPdf = item.pdfUrl || item.certFileData || currentInst.pdfUrl || currentInst.certFileData;
+    if (typeof window.qapOpenDocViewer === 'function') {
+      window.qapOpenDocViewer(item, currentInst);
+    } else if (rawPdf) {
+      const w = window.open();
+      if (w) w.document.write('<iframe src="' + rawPdf + '" style="width:100%;height:100%;border:none;"></iframe>');
+    }
+  };
 
   // History entries
-  const historyList = (Array.isArray(r.history) && r.history.length > 0)
-    ? [...r.history].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
-    : (Array.isArray(r.calibrationHistory) && r.calibrationHistory.length > 0)
-    ? [...r.calibrationHistory].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
+  const historyList = (Array.isArray(currentInst.history) && currentInst.history.length > 0)
+    ? [...currentInst.history].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
+    : (Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0)
+    ? [...currentInst.calibrationHistory].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
     : [{
-        id: 'curr-' + (r.id || '1'),
-        certNo: r.certNo || ('CERT-' + (r.codeNo || 'CURRENT')),
-        calDate: r.calDate || '',
-        dueDate: r.dueDate || '',
-        calibratedBy: r.labCal || r.calibratedBy || '-',
+        id: 'curr-' + (currentInst.id || '1'),
+        certNo: currentInst.certNo || ('CERT-' + (currentInst.codeNo || 'CURRENT')),
+        calDate: currentInst.calDate || '',
+        dueDate: currentInst.dueDate || '',
+        calibratedBy: currentInst.labCal || currentInst.calibratedBy || '-',
         result: 'PASS',
-        notes: r.notes || r.remarks || '',
-        pdfUrl: r.pdfUrl || r.certFileData || null,
-        certFileName: r.certFileName || null
+        notes: currentInst.notes || currentInst.remarks || '',
+        pdfUrl: currentInst.pdfUrl || currentInst.certFileData || null,
+        certFileName: currentInst.certFileName || null,
+        fileSize: currentInst.fileSize || null
       }];
 
   return h('div', {
@@ -4777,7 +4930,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
               h('h2', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate' }, 'รายละเอียดเครื่องมือวัด'),
               h('span', {
                 className: 'text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-600 text-white shadow-2xs'
-              }, r.codeNo || '-')
+              }, currentInst.codeNo || '-')
             ),
             h('p', { className: 'text-[10px] text-slate-500 dark:text-slate-400 truncate hidden sm:block' }, 'ข้อมูลจำเพาะ รหัสควบคุม และประวัติการสอบเทียบ')
           )
@@ -4785,12 +4938,12 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         h('div', { className: 'flex items-center gap-1.5 shrink-0' },
           n && h('button', {
             type: 'button',
-            onClick: () => { t(); n(r); },
+            onClick: () => { t(); n(currentInst); },
             className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
           }, '✏️ แก้ไข'),
           l && h('button', {
             type: 'button',
-            onClick: () => { l(r); },
+            onClick: () => { l(currentInst); },
             className: 'px-2.5 py-1 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-600 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer'
           }, '🖨️ พิมพ์ใบเซอร์'),
           h('button', {
@@ -4811,19 +4964,19 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
           // Badge Tags & Status Pill
           h('div', { className: 'flex flex-wrap items-center justify-between gap-1.5' },
             h('div', { className: 'flex flex-wrap items-center gap-1.5' },
-              r.category && h('span', {
+              currentInst.category && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200 border border-blue-300 dark:border-blue-700'
-              }, r.category),
-              r.controlInstrument && h('span', {
+              }, currentInst.category),
+              currentInst.controlInstrument && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700'
-              }, 'CONTROL: ' + r.controlInstrument),
-              r.ctcControl && h('span', {
+              }, 'CONTROL: ' + currentInst.controlInstrument),
+              currentInst.ctcControl && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200 border border-purple-300 dark:border-purple-700'
-              }, 'CTC: ' + r.ctcControl),
-              (r.labCal || r.calibratedBy) && h('span', {
+              }, 'CTC: ' + currentInst.ctcControl),
+              (currentInst.labCal || currentInst.calibratedBy) && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1 max-w-[200px] truncate',
-                title: r.labCal || r.calibratedBy
-              }, '🏛️ LAB: ' + (r.labCal || r.calibratedBy))
+                title: currentInst.labCal || currentInst.calibratedBy
+              }, '🏛️ LAB: ' + (currentInst.labCal || currentInst.calibratedBy))
             ),
             h('div', { className: 'flex items-center gap-1.5' },
               h('span', {
@@ -4839,27 +4992,27 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
           h('div', { className: 'flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-t border-slate-100 dark:border-slate-800/80 pt-2' },
             h('div', { className: 'min-w-0' },
               h('div', { className: 'flex items-center gap-2' },
-                h('span', { className: 'text-base sm:text-lg font-black font-mono tracking-tight text-blue-700 dark:text-blue-400 truncate' }, r.codeNo || '-'),
+                h('span', { className: 'text-base sm:text-lg font-black font-mono tracking-tight text-blue-700 dark:text-blue-400 truncate' }, currentInst.codeNo || '-'),
                 h('button', {
                   type: 'button',
-                  onClick: () => copyText(r.codeNo),
+                  onClick: () => copyText(currentInst.codeNo),
                   className: 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition flex items-center gap-1 cursor-pointer shrink-0'
                 }, copiedCode ? '✓ คัดลอก' : '📋 คัดลอก')
               ),
-              h('h3', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate' }, r.instrumentName || '-')
+              h('h3', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate' }, currentInst.instrumentName || '-')
             )
           ),
 
           // Calibration Timeline & Progress Gauge
-          (r.calDate || r.dueDate) && h('div', {
+          (currentInst.calDate || currentInst.dueDate) && h('div', {
             className: 'p-2 rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5'
           },
             h('div', { className: 'flex flex-wrap items-center justify-between text-[11px] text-slate-700 dark:text-slate-300 gap-1.5' },
               h('span', { className: 'font-semibold flex items-center gap-1' },
                 '📅 รอบสอบเทียบ: ',
-                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, r.calDate || '-'),
+                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, currentInst.calDate || '-'),
                 ' ถึง ',
-                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, r.dueDate || '-')
+                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, currentInst.dueDate || '-')
               ),
               h('span', {
                 className: 'font-black text-[10px] px-2 py-0.5 rounded shadow-2xs ' + (daysRemaining !== null && daysRemaining < 0 ? 'bg-rose-600 text-white' : daysRemaining !== null && daysRemaining <= 30 ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white')
@@ -4879,7 +5032,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         // 3 Responsive Information Panels (Fluid Grid)
         h('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5' },
           
-          // Panel 1: ข้อมูลเครื่องมือและสเปค
+          // Panel 1: ข้อมูลจำเพาะ & สเปค
           h('div', {
             className: 'p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2'
           },
@@ -4889,23 +5042,23 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
             h('div', { className: 'space-y-1 text-[11px]' },
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ยี่ห้อ (MAKER):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.makerName || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.makerName || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'รุ่น (MODEL):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.model || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.model || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'หมายเลขเครื่อง:'),
-                h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white truncate text-right' }, r.serialNo || '-')
+                h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.serialNo || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ขนาดย่านวัด:'),
-                h('span', { className: 'font-bold text-blue-700 dark:text-blue-400 text-right px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/80 rounded border border-blue-200 dark:border-blue-800 text-[10px] truncate' }, r.size || '-')
+                h('span', { className: 'font-bold text-blue-700 dark:text-blue-400 text-right px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/80 rounded border border-blue-200 dark:border-blue-800 text-[10px] truncate' }, currentInst.size || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'หมวดหมู่:'),
-                h('span', { className: 'font-semibold text-slate-900 dark:text-white truncate text-right' }, r.category || '-')
+                h('span', { className: 'font-semibold text-slate-900 dark:text-white truncate text-right' }, currentInst.category || '-')
               )
             )
           ),
@@ -4920,23 +5073,23 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
             h('div', { className: 'space-y-1 text-[11px]' },
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'แผนก (SECTION):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.section || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.section || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'จุดใช้งาน (LINE):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.subSection || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.subSection || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ขึ้นทะเบียน:'),
-                h('span', { className: 'font-mono text-slate-900 dark:text-white truncate text-right' }, r.registerDate || '-')
+                h('span', { className: 'font-mono text-slate-900 dark:text-white truncate text-right' }, currentInst.registerDate || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'CONTROL INST.:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.controlInstrument || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.controlInstrument || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'CTC CONTROL:'),
-                h('span', { className: 'font-bold text-purple-700 dark:text-purple-400 truncate text-right' }, r.ctcControl || '-')
+                h('span', { className: 'font-bold text-purple-700 dark:text-purple-400 truncate text-right' }, currentInst.ctcControl || '-')
               )
             )
           ),
@@ -4951,36 +5104,36 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
             h('div', { className: 'space-y-1 text-[11px]' },
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'รอบสอบเทียบ:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.frequency || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.frequency || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'วันสอบเทียบ:'),
-                h('span', { className: 'font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate text-right' }, r.calDate || '-')
+                h('span', { className: 'font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate text-right' }, currentInst.calDate || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'วันครบกำหนด:'),
-                h('span', { className: 'font-mono font-bold text-rose-600 dark:text-rose-400 truncate text-right' }, r.dueDate || '-')
+                h('span', { className: 'font-mono font-bold text-rose-600 dark:text-rose-400 truncate text-right' }, currentInst.dueDate || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ปีที่ครบกำหนด:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.dueYear || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.dueYear || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ผู้สอบเทียบ:'),
-                h('span', { className: 'font-bold text-amber-700 dark:text-amber-400 truncate text-right max-w-[120px]', title: r.labCal || r.calibratedBy || '-' }, r.labCal || r.calibratedBy || '-')
+                h('span', { className: 'font-bold text-amber-700 dark:text-amber-400 truncate text-right max-w-[120px]', title: currentInst.labCal || currentInst.calibratedBy || '-' }, currentInst.labCal || currentInst.calibratedBy || '-')
               )
             )
           )
         ),
 
         // Remarks / Notes Row (If Available)
-        (r.notes || r.remarks) && h('div', {
+        (currentInst.notes || currentInst.remarks) && h('div', {
           className: 'p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] shadow-2xs space-y-0.5'
         },
           h('span', { className: 'font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1' },
             '📝 หมายเหตุเพิ่มเติม:'
           ),
-          h('p', { className: 'text-slate-800 dark:text-slate-200 whitespace-pre-wrap pl-4 font-normal' }, r.notes || r.remarks)
+          h('p', { className: 'text-slate-800 dark:text-slate-200 whitespace-pre-wrap pl-4 font-normal' }, currentInst.notes || currentInst.remarks)
         ),
 
         // Calibration History & Certificates Section
@@ -4996,8 +5149,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
 
           h('div', { className: 'space-y-2' },
             historyList.map((item, idx) => {
-              const hasPdf = !!(item.pdfUrl || item.certFileData || r.pdfUrl || r.certFileData);
-              const pdfData = item.pdfUrl || item.certFileData || r.pdfUrl || r.certFileData;
+              const hasPdf = !!(item.pdfUrl || item.certFileData || currentInst.pdfUrl || currentInst.certFileData);
 
               return h('div', {
                 key: item.id || idx,
@@ -5005,59 +5157,48 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
               },
                 h('div', { className: 'space-y-1 min-w-0' },
                   h('div', { className: 'flex flex-wrap items-center gap-1.5' },
-                    h('span', { className: 'font-bold text-slate-900 dark:text-white font-mono text-xs' }, item.certNo || ('CERT-' + (r.codeNo || '1'))),
+                    h('span', { className: 'font-bold text-slate-900 dark:text-white font-mono text-xs' }, item.certNo || ('CERT-' + (currentInst.codeNo || '1'))),
+                    (item.fileSize || currentInst.fileSize) && h('span', {
+                      className: 'px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                    }, '⚡ ' + formatBytes(item.fileSize || currentInst.fileSize)),
                     h('span', {
                       className: 'px-2 py-0.2 rounded text-[10px] font-bold ' + ((item.result || 'PASS').toUpperCase() === 'PASS' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-slate-950')
                     }, item.result || 'PASS'),
-                    item.calibratedBy && h('span', { className: 'text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]', title: item.calibratedBy }, '• โดย: ' + item.calibratedBy)
+                    (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy) && h('span', {
+                      className: 'text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]',
+                      title: item.calibratedBy || currentInst.labCal || currentInst.calibratedBy
+                    }, '• โดย: ' + (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy))
                   ),
                   h('div', { className: 'text-[10px] text-slate-600 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-0.5' },
-                    h('span', null, '📅 วันสอบเทียบ: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.calDate || '-')),
-                    h('span', null, '⏳ วันครบกำหนด: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.dueDate || '-')),
+                    h('span', null, '📅 วันสอบเทียบ: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.calDate || currentInst.calDate || '-')),
+                    h('span', null, '⏳ วันครบกำหนด: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.dueDate || currentInst.dueDate || '-')),
                     item.notes && h('span', { className: 'text-slate-700 dark:text-slate-300 truncate max-w-[200px]', title: item.notes }, '💬 ' + item.notes)
                   )
                 ),
 
-                // Actions: View PDF / Upload PDF
+                // Actions: View PDF / Delete PDF / Upload PDF
                 h('div', { className: 'flex items-center gap-1.5 shrink-0 self-start sm:self-center' },
                   hasPdf ? h('div', { className: 'flex items-center gap-1.5' },
                     h('button', {
                       type: 'button',
-                      onClick: () => {
-                        if (typeof window.qapPdfView === 'function') {
-                          window.qapPdfView(pdfData, item.certNo || r.certNo, r);
-                        } else if (typeof window.qapOpenDocViewer === 'function') {
-                          window.qapOpenDocViewer(item, r);
-                        } else if (pdfData) {
-                          const w = window.open();
-                          if (w) w.document.write('<iframe src="' + pdfData + '" style="width:100%;height:100%;border:none;"></iframe>');
-                        }
-                      },
+                      onClick: () => handleViewPdf(item),
                       className: 'px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95'
                     }, '📄 ดูใบเซอร์ PDF'),
                     h('button', {
                       type: 'button',
-                      onClick: () => {
-                        if (typeof window.qapPdfRemove === 'function') {
-                          window.qapPdfRemove(item.id, r, u);
-                        }
-                      },
-                      className: 'p-1 rounded text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-xs',
-                      title: 'ลบไฟล์ PDF'
+                      onClick: () => handleFileRemove(item.id),
+                      className: 'p-1.5 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950 dark:hover:text-rose-400 transition cursor-pointer border border-slate-200 dark:border-slate-700 text-xs',
+                      title: 'ลบไฟล์ PDF ใบรับรองนี้'
                     }, '🗑️')
                   ) : h('label', {
-                    className: 'px-2.5 py-1 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95'
+                    className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs ' + (isProcessing ? 'opacity-60 pointer-events-none' : '')
                   },
-                    '📎 แนบไฟล์ PDF',
+                    isProcessing ? '⏳ กำลังประมวลผล...' : '📎 แนบไฟล์ PDF',
                     h('input', {
                       type: 'file',
-                      accept: 'application/pdf',
+                      accept: 'application/pdf,image/*',
                       className: 'hidden',
-                      onChange: (evt) => {
-                        if (typeof window.qapPdfUpload === 'function') {
-                          window.qapPdfUpload(evt, item.id, r, u);
-                        }
-                      }
+                      onChange: (evt) => handleFileUpload(evt, item.id)
                     })
                   )
                 )
@@ -5072,7 +5213,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         className: 'flex items-center justify-between px-3.5 sm:px-4 py-2 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shrink-0'
       },
         h('div', { className: 'text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[200px]' },
-          'ID: ', r.id || '-'
+          'ID: ', currentInst.id || '-'
         ),
         h('div', { className: 'flex items-center gap-2' },
           h('button', {

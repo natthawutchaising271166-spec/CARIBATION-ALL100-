@@ -1,8 +1,25 @@
 const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, onViewImage: o, onUpdateInstrument: u }) => {
   const h = A.createElement;
+  const [instData, setInstData] = A.useState(r);
   const [copiedCode, setCopiedCode] = A.useState(false);
+  const [isProcessing, setIsProcessing] = A.useState(false);
 
-  if (!e || !r) return null;
+  // Keep instData in sync when prop r changes
+  A.useEffect(() => {
+    setInstData(r);
+  }, [r]);
+
+  if (!e || !instData) return null;
+
+  const currentInst = instData;
+
+  const formatBytes = (bytes) => {
+    if (!bytes || bytes === 0) return '';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
 
   const copyText = (text) => {
     if (!text) return;
@@ -94,12 +111,12 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
     return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
 
-  const daysRemaining = calculateDays(r.dueDate);
+  const daysRemaining = calculateDays(currentInst.dueDate);
 
   // Calibration progress
   const getProgress = () => {
-    const startD = parseSmartDate(r.calDate);
-    const endD = parseSmartDate(r.dueDate);
+    const startD = parseSmartDate(currentInst.calDate);
+    const endD = parseSmartDate(currentInst.dueDate);
     if (!startD || !endD) return { percent: 100, color: 'bg-blue-600' };
 
     const start = startD.getTime();
@@ -156,23 +173,159 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
     };
   };
 
-  const statusInfo = getStatusInfo(r.status);
+  const statusInfo = getStatusInfo(currentInst.status);
+
+  // Handle PDF Upload with in-browser compression
+  const handleFileUpload = async (e, histId) => {
+    const file = e && e.target && e.target.files && e.target.files[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    try {
+      let base64 = null;
+      let compSize = file.size;
+      let origSize = file.size;
+
+      if (typeof window.qapCompressPdf === 'function') {
+        const res = await window.qapCompressPdf(file);
+        base64 = res.dataUrl;
+        compSize = res.compressedSize;
+        origSize = res.originalSize;
+      } else {
+        base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
+        ? [...currentInst.history]
+        : Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0
+        ? [...currentInst.calibrationHistory]
+        : [{
+            id: histId || 'hist-curr',
+            certNo: currentInst.certNo || ('CERT-' + (currentInst.codeNo || '1')),
+            calDate: currentInst.calDate || new Date().toISOString().split('T')[0],
+            dueDate: currentInst.dueDate || '',
+            calibratedBy: currentInst.labCal || currentInst.calibratedBy || '-',
+            result: 'PASS'
+          }];
+
+      const updatedHistory = existingHistory.map(item => {
+        if (item.id === histId || (!histId && existingHistory.length === 1)) {
+          return {
+            ...item,
+            certFileData: base64,
+            certFileName: file.name,
+            pdfUrl: base64,
+            fileSize: compSize,
+            originalFileSize: origSize
+          };
+        }
+        return item;
+      });
+
+      const updatedInst = {
+        ...currentInst,
+        history: updatedHistory,
+        calibrationHistory: updatedHistory,
+        certFileData: base64,
+        certFileName: file.name,
+        pdfUrl: base64,
+        fileSize: compSize
+      };
+
+      setInstData(updatedInst);
+      if (typeof u === 'function') {
+        u(updatedInst);
+      }
+    } catch (err) {
+      console.error('File upload error:', err);
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ' + err.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle PDF Removal
+  const handleFileRemove = (histId) => {
+    if (!confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้หรือไม่?')) return;
+
+    const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
+      ? [...currentInst.history]
+      : Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0
+      ? [...currentInst.calibrationHistory]
+      : [{
+          id: histId || 'hist-curr',
+          certNo: currentInst.certNo || ('CERT-' + (currentInst.codeNo || '1')),
+          calDate: currentInst.calDate || '',
+          dueDate: currentInst.dueDate || ''
+        }];
+
+    const updatedHistory = existingHistory.map(item => {
+      if (item.id === histId || (!histId && existingHistory.length === 1)) {
+        const copy = { ...item };
+        delete copy.certFileData;
+        delete copy.certFileName;
+        delete copy.pdfUrl;
+        delete copy.fileSize;
+        delete copy.originalFileSize;
+        return {
+          ...copy,
+          certFileData: null,
+          certFileName: null,
+          pdfUrl: null,
+          fileSize: null
+        };
+      }
+      return item;
+    });
+
+    const updatedInst = {
+      ...currentInst,
+      history: updatedHistory,
+      calibrationHistory: updatedHistory,
+      certFileData: null,
+      certFileName: null,
+      pdfUrl: null,
+      fileSize: null
+    };
+
+    setInstData(updatedInst);
+    if (typeof u === 'function') {
+      u(updatedInst);
+    }
+  };
+
+  // Open Doc Viewer
+  const handleViewPdf = (item) => {
+    const rawPdf = item.pdfUrl || item.certFileData || currentInst.pdfUrl || currentInst.certFileData;
+    if (typeof window.qapOpenDocViewer === 'function') {
+      window.qapOpenDocViewer(item, currentInst);
+    } else if (rawPdf) {
+      const w = window.open();
+      if (w) w.document.write('<iframe src="' + rawPdf + '" style="width:100%;height:100%;border:none;"></iframe>');
+    }
+  };
 
   // History entries
-  const historyList = (Array.isArray(r.history) && r.history.length > 0)
-    ? [...r.history].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
-    : (Array.isArray(r.calibrationHistory) && r.calibrationHistory.length > 0)
-    ? [...r.calibrationHistory].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
+  const historyList = (Array.isArray(currentInst.history) && currentInst.history.length > 0)
+    ? [...currentInst.history].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
+    : (Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0)
+    ? [...currentInst.calibrationHistory].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
     : [{
-        id: 'curr-' + (r.id || '1'),
-        certNo: r.certNo || ('CERT-' + (r.codeNo || 'CURRENT')),
-        calDate: r.calDate || '',
-        dueDate: r.dueDate || '',
-        calibratedBy: r.labCal || r.calibratedBy || '-',
+        id: 'curr-' + (currentInst.id || '1'),
+        certNo: currentInst.certNo || ('CERT-' + (currentInst.codeNo || 'CURRENT')),
+        calDate: currentInst.calDate || '',
+        dueDate: currentInst.dueDate || '',
+        calibratedBy: currentInst.labCal || currentInst.calibratedBy || '-',
         result: 'PASS',
-        notes: r.notes || r.remarks || '',
-        pdfUrl: r.pdfUrl || r.certFileData || null,
-        certFileName: r.certFileName || null
+        notes: currentInst.notes || currentInst.remarks || '',
+        pdfUrl: currentInst.pdfUrl || currentInst.certFileData || null,
+        certFileName: currentInst.certFileName || null,
+        fileSize: currentInst.fileSize || null
       }];
 
   return h('div', {
@@ -195,7 +348,7 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
               h('h2', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate' }, 'รายละเอียดเครื่องมือวัด'),
               h('span', {
                 className: 'text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-600 text-white shadow-2xs'
-              }, r.codeNo || '-')
+              }, currentInst.codeNo || '-')
             ),
             h('p', { className: 'text-[10px] text-slate-500 dark:text-slate-400 truncate hidden sm:block' }, 'ข้อมูลจำเพาะ รหัสควบคุม และประวัติการสอบเทียบ')
           )
@@ -203,12 +356,12 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
         h('div', { className: 'flex items-center gap-1.5 shrink-0' },
           n && h('button', {
             type: 'button',
-            onClick: () => { t(); n(r); },
+            onClick: () => { t(); n(currentInst); },
             className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
           }, '✏️ แก้ไข'),
           l && h('button', {
             type: 'button',
-            onClick: () => { l(r); },
+            onClick: () => { l(currentInst); },
             className: 'px-2.5 py-1 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-600 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer'
           }, '🖨️ พิมพ์ใบเซอร์'),
           h('button', {
@@ -229,19 +382,19 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
           // Badge Tags & Status Pill
           h('div', { className: 'flex flex-wrap items-center justify-between gap-1.5' },
             h('div', { className: 'flex flex-wrap items-center gap-1.5' },
-              r.category && h('span', {
+              currentInst.category && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200 border border-blue-300 dark:border-blue-700'
-              }, r.category),
-              r.controlInstrument && h('span', {
+              }, currentInst.category),
+              currentInst.controlInstrument && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700'
-              }, 'CONTROL: ' + r.controlInstrument),
-              r.ctcControl && h('span', {
+              }, 'CONTROL: ' + currentInst.controlInstrument),
+              currentInst.ctcControl && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200 border border-purple-300 dark:border-purple-700'
-              }, 'CTC: ' + r.ctcControl),
-              (r.labCal || r.calibratedBy) && h('span', {
+              }, 'CTC: ' + currentInst.ctcControl),
+              (currentInst.labCal || currentInst.calibratedBy) && h('span', {
                 className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1 max-w-[200px] truncate',
-                title: r.labCal || r.calibratedBy
-              }, '🏛️ LAB: ' + (r.labCal || r.calibratedBy))
+                title: currentInst.labCal || currentInst.calibratedBy
+              }, '🏛️ LAB: ' + (currentInst.labCal || currentInst.calibratedBy))
             ),
             h('div', { className: 'flex items-center gap-1.5' },
               h('span', {
@@ -257,27 +410,27 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
           h('div', { className: 'flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-t border-slate-100 dark:border-slate-800/80 pt-2' },
             h('div', { className: 'min-w-0' },
               h('div', { className: 'flex items-center gap-2' },
-                h('span', { className: 'text-base sm:text-lg font-black font-mono tracking-tight text-blue-700 dark:text-blue-400 truncate' }, r.codeNo || '-'),
+                h('span', { className: 'text-base sm:text-lg font-black font-mono tracking-tight text-blue-700 dark:text-blue-400 truncate' }, currentInst.codeNo || '-'),
                 h('button', {
                   type: 'button',
-                  onClick: () => copyText(r.codeNo),
+                  onClick: () => copyText(currentInst.codeNo),
                   className: 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition flex items-center gap-1 cursor-pointer shrink-0'
                 }, copiedCode ? '✓ คัดลอก' : '📋 คัดลอก')
               ),
-              h('h3', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate' }, r.instrumentName || '-')
+              h('h3', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate' }, currentInst.instrumentName || '-')
             )
           ),
 
           // Calibration Timeline & Progress Gauge
-          (r.calDate || r.dueDate) && h('div', {
+          (currentInst.calDate || currentInst.dueDate) && h('div', {
             className: 'p-2 rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5'
           },
             h('div', { className: 'flex flex-wrap items-center justify-between text-[11px] text-slate-700 dark:text-slate-300 gap-1.5' },
               h('span', { className: 'font-semibold flex items-center gap-1' },
                 '📅 รอบสอบเทียบ: ',
-                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, r.calDate || '-'),
+                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, currentInst.calDate || '-'),
                 ' ถึง ',
-                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, r.dueDate || '-')
+                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, currentInst.dueDate || '-')
               ),
               h('span', {
                 className: 'font-black text-[10px] px-2 py-0.5 rounded shadow-2xs ' + (daysRemaining !== null && daysRemaining < 0 ? 'bg-rose-600 text-white' : daysRemaining !== null && daysRemaining <= 30 ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white')
@@ -297,7 +450,7 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
         // 3 Responsive Information Panels (Fluid Grid)
         h('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5' },
           
-          // Panel 1: ข้อมูลเครื่องมือและสเปค
+          // Panel 1: ข้อมูลจำเพาะ & สเปค
           h('div', {
             className: 'p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2'
           },
@@ -307,23 +460,23 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
             h('div', { className: 'space-y-1 text-[11px]' },
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ยี่ห้อ (MAKER):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.makerName || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.makerName || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'รุ่น (MODEL):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.model || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.model || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'หมายเลขเครื่อง:'),
-                h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white truncate text-right' }, r.serialNo || '-')
+                h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.serialNo || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ขนาดย่านวัด:'),
-                h('span', { className: 'font-bold text-blue-700 dark:text-blue-400 text-right px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/80 rounded border border-blue-200 dark:border-blue-800 text-[10px] truncate' }, r.size || '-')
+                h('span', { className: 'font-bold text-blue-700 dark:text-blue-400 text-right px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/80 rounded border border-blue-200 dark:border-blue-800 text-[10px] truncate' }, currentInst.size || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'หมวดหมู่:'),
-                h('span', { className: 'font-semibold text-slate-900 dark:text-white truncate text-right' }, r.category || '-')
+                h('span', { className: 'font-semibold text-slate-900 dark:text-white truncate text-right' }, currentInst.category || '-')
               )
             )
           ),
@@ -338,23 +491,23 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
             h('div', { className: 'space-y-1 text-[11px]' },
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'แผนก (SECTION):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.section || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.section || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'จุดใช้งาน (LINE):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.subSection || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.subSection || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ขึ้นทะเบียน:'),
-                h('span', { className: 'font-mono text-slate-900 dark:text-white truncate text-right' }, r.registerDate || '-')
+                h('span', { className: 'font-mono text-slate-900 dark:text-white truncate text-right' }, currentInst.registerDate || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'CONTROL INST.:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.controlInstrument || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.controlInstrument || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'CTC CONTROL:'),
-                h('span', { className: 'font-bold text-purple-700 dark:text-purple-400 truncate text-right' }, r.ctcControl || '-')
+                h('span', { className: 'font-bold text-purple-700 dark:text-purple-400 truncate text-right' }, currentInst.ctcControl || '-')
               )
             )
           ),
@@ -369,36 +522,36 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
             h('div', { className: 'space-y-1 text-[11px]' },
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'รอบสอบเทียบ:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.frequency || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.frequency || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'วันสอบเทียบ:'),
-                h('span', { className: 'font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate text-right' }, r.calDate || '-')
+                h('span', { className: 'font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate text-right' }, currentInst.calDate || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'วันครบกำหนด:'),
-                h('span', { className: 'font-mono font-bold text-rose-600 dark:text-rose-400 truncate text-right' }, r.dueDate || '-')
+                h('span', { className: 'font-mono font-bold text-rose-600 dark:text-rose-400 truncate text-right' }, currentInst.dueDate || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ปีที่ครบกำหนด:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, r.dueYear || '-')
+                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.dueYear || '-')
               ),
               h('div', { className: 'flex items-center justify-between gap-1' },
                 h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ผู้สอบเทียบ:'),
-                h('span', { className: 'font-bold text-amber-700 dark:text-amber-400 truncate text-right max-w-[120px]', title: r.labCal || r.calibratedBy || '-' }, r.labCal || r.calibratedBy || '-')
+                h('span', { className: 'font-bold text-amber-700 dark:text-amber-400 truncate text-right max-w-[120px]', title: currentInst.labCal || currentInst.calibratedBy || '-' }, currentInst.labCal || currentInst.calibratedBy || '-')
               )
             )
           )
         ),
 
         // Remarks / Notes Row (If Available)
-        (r.notes || r.remarks) && h('div', {
+        (currentInst.notes || currentInst.remarks) && h('div', {
           className: 'p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] shadow-2xs space-y-0.5'
         },
           h('span', { className: 'font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1' },
             '📝 หมายเหตุเพิ่มเติม:'
           ),
-          h('p', { className: 'text-slate-800 dark:text-slate-200 whitespace-pre-wrap pl-4 font-normal' }, r.notes || r.remarks)
+          h('p', { className: 'text-slate-800 dark:text-slate-200 whitespace-pre-wrap pl-4 font-normal' }, currentInst.notes || currentInst.remarks)
         ),
 
         // Calibration History & Certificates Section
@@ -414,8 +567,7 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
 
           h('div', { className: 'space-y-2' },
             historyList.map((item, idx) => {
-              const hasPdf = !!(item.pdfUrl || item.certFileData || r.pdfUrl || r.certFileData);
-              const pdfData = item.pdfUrl || item.certFileData || r.pdfUrl || r.certFileData;
+              const hasPdf = !!(item.pdfUrl || item.certFileData || currentInst.pdfUrl || currentInst.certFileData);
 
               return h('div', {
                 key: item.id || idx,
@@ -423,59 +575,48 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
               },
                 h('div', { className: 'space-y-1 min-w-0' },
                   h('div', { className: 'flex flex-wrap items-center gap-1.5' },
-                    h('span', { className: 'font-bold text-slate-900 dark:text-white font-mono text-xs' }, item.certNo || ('CERT-' + (r.codeNo || '1'))),
+                    h('span', { className: 'font-bold text-slate-900 dark:text-white font-mono text-xs' }, item.certNo || ('CERT-' + (currentInst.codeNo || '1'))),
+                    (item.fileSize || currentInst.fileSize) && h('span', {
+                      className: 'px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                    }, '⚡ ' + formatBytes(item.fileSize || currentInst.fileSize)),
                     h('span', {
                       className: 'px-2 py-0.2 rounded text-[10px] font-bold ' + ((item.result || 'PASS').toUpperCase() === 'PASS' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-slate-950')
                     }, item.result || 'PASS'),
-                    item.calibratedBy && h('span', { className: 'text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]', title: item.calibratedBy }, '• โดย: ' + item.calibratedBy)
+                    (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy) && h('span', {
+                      className: 'text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]',
+                      title: item.calibratedBy || currentInst.labCal || currentInst.calibratedBy
+                    }, '• โดย: ' + (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy))
                   ),
                   h('div', { className: 'text-[10px] text-slate-600 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-0.5' },
-                    h('span', null, '📅 วันสอบเทียบ: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.calDate || '-')),
-                    h('span', null, '⏳ วันครบกำหนด: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.dueDate || '-')),
+                    h('span', null, '📅 วันสอบเทียบ: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.calDate || currentInst.calDate || '-')),
+                    h('span', null, '⏳ วันครบกำหนด: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.dueDate || currentInst.dueDate || '-')),
                     item.notes && h('span', { className: 'text-slate-700 dark:text-slate-300 truncate max-w-[200px]', title: item.notes }, '💬 ' + item.notes)
                   )
                 ),
 
-                // Actions: View PDF / Upload PDF
+                // Actions: View PDF / Delete PDF / Upload PDF
                 h('div', { className: 'flex items-center gap-1.5 shrink-0 self-start sm:self-center' },
                   hasPdf ? h('div', { className: 'flex items-center gap-1.5' },
                     h('button', {
                       type: 'button',
-                      onClick: () => {
-                        if (typeof window.qapPdfView === 'function') {
-                          window.qapPdfView(pdfData, item.certNo || r.certNo, r);
-                        } else if (typeof window.qapOpenDocViewer === 'function') {
-                          window.qapOpenDocViewer(item, r);
-                        } else if (pdfData) {
-                          const w = window.open();
-                          if (w) w.document.write('<iframe src="' + pdfData + '" style="width:100%;height:100%;border:none;"></iframe>');
-                        }
-                      },
+                      onClick: () => handleViewPdf(item),
                       className: 'px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95'
                     }, '📄 ดูใบเซอร์ PDF'),
                     h('button', {
                       type: 'button',
-                      onClick: () => {
-                        if (typeof window.qapPdfRemove === 'function') {
-                          window.qapPdfRemove(item.id, r, u);
-                        }
-                      },
-                      className: 'p-1 rounded text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-xs',
-                      title: 'ลบไฟล์ PDF'
+                      onClick: () => handleFileRemove(item.id),
+                      className: 'p-1.5 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950 dark:hover:text-rose-400 transition cursor-pointer border border-slate-200 dark:border-slate-700 text-xs',
+                      title: 'ลบไฟล์ PDF ใบรับรองนี้'
                     }, '🗑️')
                   ) : h('label', {
-                    className: 'px-2.5 py-1 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95'
+                    className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs ' + (isProcessing ? 'opacity-60 pointer-events-none' : '')
                   },
-                    '📎 แนบไฟล์ PDF',
+                    isProcessing ? '⏳ กำลังประมวลผล...' : '📎 แนบไฟล์ PDF',
                     h('input', {
                       type: 'file',
-                      accept: 'application/pdf',
+                      accept: 'application/pdf,image/*',
                       className: 'hidden',
-                      onChange: (evt) => {
-                        if (typeof window.qapPdfUpload === 'function') {
-                          window.qapPdfUpload(evt, item.id, r, u);
-                        }
-                      }
+                      onChange: (evt) => handleFileUpload(evt, item.id)
                     })
                   )
                 )
@@ -490,7 +631,7 @@ const rSe = ({ isOpen: e, onClose: t, instrument: r, onEdit: n, onPrintCert: l, 
         className: 'flex items-center justify-between px-3.5 sm:px-4 py-2 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shrink-0'
       },
         h('div', { className: 'text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[200px]' },
-          'ID: ', r.id || '-'
+          'ID: ', currentInst.id || '-'
         ),
         h('div', { className: 'flex items-center gap-2' },
           h('button', {

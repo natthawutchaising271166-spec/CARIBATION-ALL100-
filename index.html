@@ -206,30 +206,12 @@
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       }
     </script>
-  
+    <!-- PDF-Lib & Pako for high-efficiency in-browser compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="./pdf_compressor.js"></script>
     <script src="./doc_viewer.js"></script>
     <script>
-      window.qapPdfUpload = (e, histId, instrument, onUpdate) => {
-          const file = e && e.target && e.target.files && e.target.files[0];
-          if (!file || !instrument) return;
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-              const base64 = ev.target.result;
-              const histList = Array.isArray(instrument.history) && instrument.history.length > 0 
-                  ? instrument.history 
-                  : Array.isArray(instrument.calibrationHistory) && instrument.calibrationHistory.length > 0 
-                  ? instrument.calibrationHistory 
-                  : [{ id: histId || 'hist-curr', certNo: instrument.certNo || 'CERT-CURRENT', calDate: instrument.calDate || new Date().toISOString().split('T')[0], dueDate: instrument.dueDate || '' }];
-              const newHistory = histList.map(h => 
-                  h.id === histId ? { ...h, certFileData: base64, certFileName: file.name, pdfUrl: base64 } : h
-              );
-              if (typeof onUpdate === 'function') {
-                  onUpdate({ ...instrument, history: newHistory, calibrationHistory: newHistory, certFileData: base64, certFileName: file.name, pdfUrl: base64 });
-              }
-          };
-          reader.readAsDataURL(file);
-      };
-
       window.qapPdfRemove = (histId, instrument, onUpdate) => {
           if (!confirm('ยืนยันลบไฟล์ PDF นี้หรือไม่?')) return;
           if (!instrument) return;

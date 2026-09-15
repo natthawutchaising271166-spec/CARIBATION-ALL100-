@@ -10,6 +10,8 @@
     "lint": "node -e \"console.log('Lint passed')\""
   },
   "dependencies": {
+    "pako": "^3.0.2",
+    "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.3.289",
     "vite": "^5.4.14"
   }
