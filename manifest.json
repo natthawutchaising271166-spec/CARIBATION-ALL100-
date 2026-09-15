@@ -1,0 +1,76 @@
+{
+  "id": "carrier-qap-control-v1",
+  "name": "Carrier QAP Calibration Control",
+  "short_name": "QAP Control",
+  "description": "ระบบจัดการสอบเทียบเครื่องมือวัด (Instrument Calibration System) QAP Master List แดชบอร์ด ออกใบรับรอง และเชื่อมต่อฐานข้อมูล Supabase Cloud",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "lang": "th-TH",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "./favicon.ico",
+      "sizes": "256x256 128x128 64x64 48x48 32x32 16x16",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/favicon.ico",
+      "sizes": "256x256 128x128 64x64 48x48 32x32 16x16",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Master List",
+      "short_name": "Master",
+      "description": "เปิดหน้ารายการเครื่องมือวัดทั้งหมด (CALIBRATION ALL)",
+      "url": "./index.html?tab=calibration_all",
+      "icons": [{ "src": "./favicon.ico", "sizes": "256x256 128x128 64x64 48x48 32x32 16x16", "type": "image/x-icon" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "เปิดหน้าแดชบอร์ดสรุปผลการสอบเทียบ",
+      "url": "./index.html?tab=dashboard",
+      "icons": [{ "src": "./favicon.ico", "sizes": "256x256 128x128 64x64 48x48 32x32 16x16", "type": "image/x-icon" }]
+    }
+  ]
+}

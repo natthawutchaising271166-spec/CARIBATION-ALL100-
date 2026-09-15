@@ -1,0 +1,6 @@
+{
+  "name": "Carrier QAP Calibration Control",
+  "description": "ระบบจัดการสอบเทียบเครื่องมือวัด (Instrument Calibration System) QAP Master List แดชบอร์ด ออกใบรับรอง พิมพ์สติ๊กเกอร์ นำเข้า-ส่งออก Excel และเชื่อมต่อฐานข้อมูล Supabase Cloud",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
