@@ -426,12 +426,25 @@
       // 2. Direct Supabase Cloud Sync
       if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
         const effectiveTab = targetTab || instrument.tabType || 'calibration_all';
-        showCompressionToast(`กำลังบันทึกไฟล์และข้อมูลขึ้น Supabase...`, 'loading');
+        showCompressionToast(`กำลังบันทึกไฟล์ลงตาราง qap_files...`, 'loading');
         
+        // Save file record to qap_files table separately (decoupled from main instrument table)
+        if (typeof window.qapSupabase.saveFileRecord === 'function') {
+          await window.qapSupabase.saveFileRecord({
+            instrumentId: updatedInstrument.id,
+            codeNo: updatedInstrument.codeNo,
+            certNo: updatedInstrument.certNo,
+            fileName: file.name,
+            fileSize: result.compressedSize,
+            fileUrl: base64,
+            tabType: effectiveTab,
+          }).catch(console.warn);
+        }
+
         window.qapSupabase.upsertInstrument(updatedInstrument, effectiveTab).then((res) => {
           if (res && res.ok) {
             const savedPct = result.ratio || '80%';
-            showCompressionToast(`ลดขนาดลง ${savedPct} (${formatFileSize(result.originalSize)} ➔ ${formatFileSize(result.compressedSize)}) • บันทึกลง Supabase สำเร็จ ✅`, 'success', 5000);
+            showCompressionToast(`ลดขนาดลง ${savedPct} (${formatFileSize(result.originalSize)} ➔ ${formatFileSize(result.compressedSize)}) • แยกเก็บลงตาราง qap_files สำเร็จ ✅`, 'success', 5000);
           } else {
             showCompressionToast(`บันทึกในเครื่องสำเร็จ (${formatFileSize(result.compressedSize)})`, 'success', 4000);
           }
@@ -457,10 +470,92 @@
           onUpdate(updated);
         }
         if (window.qapSupabase && window.qapSupabase.isConfigured()) {
-          window.qapSupabase.upsertInstrument(updated, targetTab || instrument.tabType || 'calibration_all').catch(() => {});
+          const effectiveTab = targetTab || instrument.tabType || 'calibration_all';
+          if (typeof window.qapSupabase.saveFileRecord === 'function') {
+            window.qapSupabase.saveFileRecord({
+              instrumentId: updated.id,
+              codeNo: updated.codeNo,
+              certNo: updated.certNo,
+              fileName: file.name,
+              fileSize: file.size,
+              fileUrl: rawBase64,
+              tabType: effectiveTab,
+            }).catch(console.warn);
+          }
+          window.qapSupabase.upsertInstrument(updated, effectiveTab).catch(() => {});
         }
       };
       reader.readAsDataURL(file);
     }
   };
+
+  // Automatic PDF Deletion with instant Supabase sync
+  window.qapPdfRemove = async (histId, instrument, onUpdate, targetTab = 'calibration_all') => {
+    if (!instrument) return;
+    const confirmDelete = window.confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้ออกจากระบบและฐานข้อมูล Supabase ใช่หรือไม่?');
+    if (!confirmDelete) return;
+
+    try {
+      const histList = (Array.isArray(instrument.history) && instrument.history.length > 0)
+        ? instrument.history
+        : (Array.isArray(instrument.calibrationHistory) && instrument.calibrationHistory.length > 0)
+        ? instrument.calibrationHistory
+        : [];
+
+      const newHistory = histList.map(h => 
+        (h.id === histId || (!histId && histList.length <= 1)) ? {
+          ...h,
+          certFileData: null,
+          certFileName: null,
+          pdfUrl: null,
+          fileSize: null,
+          originalFileSize: null
+        } : h
+      );
+
+      const isCurrentRound = !histId || (histList.length > 0 && histList[0].id === histId);
+
+      const updatedInstrument = {
+        ...instrument,
+        history: newHistory,
+        calibrationHistory: newHistory,
+        ...(isCurrentRound ? {
+          certFileData: null,
+          certFileName: null,
+          pdfUrl: null,
+          fileSize: null,
+          originalFileSize: null
+        } : {})
+      };
+
+      // 1. Update React Component State immediately
+      if (typeof onUpdate === 'function') {
+        onUpdate(updatedInstrument);
+      }
+
+      // 2. Direct Supabase Cloud Sync
+      if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
+        const effectiveTab = targetTab || instrument.tabType || 'calibration_all';
+        showCompressionToast(`กำลังลบไฟล์ออกจากตาราง qap_files...`, 'loading');
+
+        if (typeof window.qapSupabase.deleteFileRecord === 'function') {
+          await window.qapSupabase.deleteFileRecord(instrument.id, instrument.codeNo, histId).catch(() => {});
+        }
+
+        const res = await window.qapSupabase.upsertInstrument(updatedInstrument, effectiveTab);
+        if (res && res.ok) {
+          showCompressionToast(`🗑️ ลบไฟล์ออกจากตาราง qap_files เรียบร้อยแล้ว ✅`, 'success', 4000);
+        } else {
+          showCompressionToast(`🗑️ ลบไฟล์ในเครื่องสำเร็จ`, 'info', 3000);
+        }
+      } else {
+        showCompressionToast(`🗑️ ลบไฟล์ PDF เรียบร้อยแล้ว`, 'info', 3000);
+      }
+    } catch (err) {
+      console.error('PDF deletion error:', err);
+      showCompressionToast('เกิดข้อผิดพลาดในการลบไฟล์: ' + err.message, 'error');
+    }
+  };
+
+  window.qapPdfDelete = window.qapPdfRemove;
 })();

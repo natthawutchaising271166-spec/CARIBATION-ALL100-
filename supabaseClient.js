@@ -43,6 +43,9 @@
     cancel: "CANCEL (ยกเลิก/จำหน่าย)",
   };
 
+  // Dedicated Table for PDF Certificate Files
+  const FILES_TABLE = "qap_files";
+
   // Pre-load stored config
   function loadConfig() {
     const embeddedUrl = "https://zndrzdhimcraolpsmfec.supabase.co";
@@ -161,10 +164,18 @@ CREATE TABLE IF NOT EXISTS public.${tbl} (
     accuracy TEXT,
     calibrated_by TEXT,
     notes TEXT,
+    pdf_url TEXT,
+    cert_file_name TEXT,
+    file_size BIGINT,
     data JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- อัปเดตตารางเดิมให้รองรับการจัดเก็บไฟล์ PDF และชื่อไฟล์โดยอัตโนมัติ
+ALTER TABLE public.${tbl} ADD COLUMN IF NOT EXISTS pdf_url TEXT;
+ALTER TABLE public.${tbl} ADD COLUMN IF NOT EXISTS cert_file_name TEXT;
+ALTER TABLE public.${tbl} ADD COLUMN IF NOT EXISTS file_size BIGINT;
 
 -- ให้สิทธิ์ Anon และ Authenticated สำหรับตาราง ${tbl}
 GRANT ALL ON TABLE public.${tbl} TO anon, authenticated, service_role;
@@ -219,10 +230,110 @@ CREATE TRIGGER tr_${tbl}_updated_at
 `;
     });
 
-    sql += `-- สั่งให้ PostgREST โหลด Schema Cache ใหม่ทันที
+    sql += `-- ----------------------------------------------------------
+-- ตารางแยกสำหรับจัดเก็บไฟล์ PDF (qap_files)
+-- ป้องกันการบันทึกซ้ำซ้อนลงในตารางช่อง data (JSONB)
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.qap_files (
+    id TEXT PRIMARY KEY,
+    instrument_id TEXT,
+    code_no TEXT,
+    cert_no TEXT,
+    file_name TEXT,
+    file_size BIGINT,
+    file_url TEXT NOT NULL,
+    tab_type TEXT DEFAULT 'calibration_all',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ให้สิทธิ์ Anon และ Authenticated สำหรับตาราง qap_files
+GRANT ALL ON TABLE public.qap_files TO anon, authenticated, service_role;
+
+-- เปิดใช้งาน RLS สำหรับ qap_files
+ALTER TABLE public.qap_files ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    DROP POLICY IF EXISTS "Allow public all access on qap_files" ON public.qap_files;
+END $$;
+
+CREATE POLICY "Allow public all access on qap_files"
+    ON public.qap_files
+    FOR ALL
+    TO anon, authenticated
+    USING (true)
+    WITH CHECK (true);
+
+-- ดัชนีประสิทธิภาพสำหรับ qap_files
+CREATE INDEX IF NOT EXISTS idx_qap_files_inst_id ON public.qap_files(instrument_id);
+CREATE INDEX IF NOT EXISTS idx_qap_files_code_no ON public.qap_files(code_no);
+
+DROP TRIGGER IF EXISTS tr_qap_files_updated_at ON public.qap_files;
+CREATE TRIGGER tr_qap_files_updated_at
+    BEFORE UPDATE ON public.qap_files
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- คัดลอกไฟล์เดิมที่มีอยู่ในตารางหลักเข้าสู่ตารางแยก qap_files แบบอัตโนมัติ (Migration)
+INSERT INTO public.qap_files (id, instrument_id, code_no, cert_no, file_name, file_size, file_url, tab_type)
+SELECT 
+    'file_' || regexp_replace(COALESCE(code_no, id), '[^a-zA-Z0-9_-]', '_', 'g') AS id,
+    id AS instrument_id,
+    code_no,
+    cert_no,
+    cert_file_name AS file_name,
+    file_size,
+    pdf_url AS file_url,
+    tab_type
+FROM public.qap_calibration_all
+WHERE pdf_url IS NOT NULL AND trim(pdf_url) != ''
+ON CONFLICT (id) DO UPDATE 
+SET file_url = EXCLUDED.file_url,
+    file_name = EXCLUDED.file_name,
+    file_size = EXCLUDED.file_size,
+    updated_at = NOW();
+
+-- ----------------------------------------------------------
+-- ล้างคอลัมน์ไฟล์เดิมออกจากตารางหลักทั้ง 5 ตาราง เพื่อให้ไม่มีข้อมูลลิ้งก์ไฟล์ไปต่อกับข้อความในตาราง
+-- ----------------------------------------------------------
+DO $$
+DECLARE
+    tbl text;
+BEGIN
+    FOR tbl IN SELECT unnest(ARRAY['qap_calibration_all', 'qap_normal_standard', 'qap_centralized', 'qap_each_section', 'qap_cancel']) LOOP
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name=tbl AND column_name='pdf_url') THEN
+            EXECUTE format('UPDATE public.%I SET pdf_url = NULL, cert_file_name = NULL, file_size = NULL WHERE pdf_url IS NOT NULL', tbl);
+        END IF;
+    END LOOP;
+END $$;
+
+-- ----------------------------------------------------------
+-- ปรับคอลัมน์ data (JSONB) ให้สะอาด 100%
+-- ลบทุกฟิลด์ที่เกี่ยวกับไฟล์และลิ้งก์ ป้องกันการบันทึกซ้ำซ้อน
+-- ----------------------------------------------------------
+UPDATE public.qap_calibration_all SET data = data - 'pdfUrl' - 'certFileData' - 'pdf_url' - 'cert_file_data' - 'certFileName' - 'cert_file_name' - 'fileSize' - 'file_size' - 'originalFileSize' - 'original_file_size' - 'file_url' - 'fileData' - 'file_data' - 'url' - 'link' - 'fileLink' - 'file_link' - 'filePath' - 'file_path' - 'blobUrl' - 'blob_url' - 'storageUrl' - 'storage_url' - 'attachment' - 'attachments' - 'docUrl' - 'doc_url' WHERE data IS NOT NULL;
+UPDATE public.qap_normal_standard SET data = data - 'pdfUrl' - 'certFileData' - 'pdf_url' - 'cert_file_data' - 'certFileName' - 'cert_file_name' - 'fileSize' - 'file_size' - 'originalFileSize' - 'original_file_size' - 'file_url' - 'fileData' - 'file_data' - 'url' - 'link' - 'fileLink' - 'file_link' - 'filePath' - 'file_path' - 'blobUrl' - 'blob_url' - 'storageUrl' - 'storage_url' - 'attachment' - 'attachments' - 'docUrl' - 'doc_url' WHERE data IS NOT NULL;
+UPDATE public.qap_centralized SET data = data - 'pdfUrl' - 'certFileData' - 'pdf_url' - 'cert_file_data' - 'certFileName' - 'cert_file_name' - 'fileSize' - 'file_size' - 'originalFileSize' - 'original_file_size' - 'file_url' - 'fileData' - 'file_data' - 'url' - 'link' - 'fileLink' - 'file_link' - 'filePath' - 'file_path' - 'blobUrl' - 'blob_url' - 'storageUrl' - 'storage_url' - 'attachment' - 'attachments' - 'docUrl' - 'doc_url' WHERE data IS NOT NULL;
+UPDATE public.qap_each_section SET data = data - 'pdfUrl' - 'certFileData' - 'pdf_url' - 'cert_file_data' - 'certFileName' - 'cert_file_name' - 'fileSize' - 'file_size' - 'originalFileSize' - 'original_file_size' - 'file_url' - 'fileData' - 'file_data' - 'url' - 'link' - 'fileLink' - 'file_link' - 'filePath' - 'file_path' - 'blobUrl' - 'blob_url' - 'storageUrl' - 'storage_url' - 'attachment' - 'attachments' - 'docUrl' - 'doc_url' WHERE data IS NOT NULL;
+UPDATE public.qap_cancel SET data = data - 'pdfUrl' - 'certFileData' - 'pdf_url' - 'cert_file_data' - 'certFileName' - 'cert_file_name' - 'fileSize' - 'file_size' - 'originalFileSize' - 'original_file_size' - 'file_url' - 'fileData' - 'file_data' - 'url' - 'link' - 'fileLink' - 'file_link' - 'filePath' - 'file_path' - 'blobUrl' - 'blob_url' - 'storageUrl' - 'storage_url' - 'attachment' - 'attachments' - 'docUrl' - 'doc_url' WHERE data IS NOT NULL;
+
+-- ล้างฟิลด์ไฟล์ที่อาจตกค้างในอาเรย์ history ภายใน data jsonb
+UPDATE public.qap_calibration_all
+SET data = jsonb_set(
+    data,
+    '{history}',
+    (
+        SELECT COALESCE(jsonb_agg(h - 'pdfUrl' - 'certFileData' - 'certFileName' - 'fileSize' - 'originalFileSize' - 'file_url' - 'file_data' - 'link' - 'url'), '[]'::jsonb)
+        FROM jsonb_array_elements(COALESCE(data->'history', '[]'::jsonb)) AS h
+    )
+)
+WHERE data ? 'history';
+
+-- สั่งให้ PostgREST โหลด Schema Cache ใหม่ทันที
 NOTIFY pgrst, 'reload schema';
 
--- ตรวจสอบความสมบูรณ์ของทั้ง 5 ตาราง
+-- ตรวจสอบความสมบูรณ์ของทั้ง 5 ตาราง และตารางไฟล์ qap_files
 SELECT 'qap_calibration_all' AS table_name, count(*) AS count FROM public.qap_calibration_all
 UNION ALL
 SELECT 'qap_normal_standard', count(*) FROM public.qap_normal_standard
@@ -231,16 +342,112 @@ SELECT 'qap_centralized', count(*) FROM public.qap_centralized
 UNION ALL
 SELECT 'qap_each_section', count(*) FROM public.qap_each_section
 UNION ALL
-SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
+SELECT 'qap_cancel', count(*) FROM public.qap_cancel
+UNION ALL
+SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
 `;
 
     return sql;
+  }
+
+  // Parse byte size from number or human readable string
+  function parseByteSize(val) {
+    if (val === undefined || val === null || val === "") return null;
+    if (typeof val === "number") return Math.round(val);
+    const str = String(val).trim();
+    const num = parseFloat(str.replace(/[^0-9.]/g, ""));
+    if (isNaN(num)) return null;
+    if (/gb/i.test(str)) return Math.round(num * 1024 * 1024 * 1024);
+    if (/mb/i.test(str)) return Math.round(num * 1024 * 1024);
+    if (/kb/i.test(str)) return Math.round(num * 1024);
+    return Math.round(num);
+  }
+
+  // Helper to remove attached file links or URLs from notes/remark text
+  // ป้องกันการเอาลิ้งก์ไฟล์ไปต่อท้ายหรือปนในข้อความของตาราง
+  function cleanNotes(notes) {
+    if (!notes || typeof notes !== "string") return "";
+    return notes
+      .replace(/(?:\[(?:ไฟล์|PDF|File|Link|แนบไฟล์)[^\]]*\])/gi, "")
+      .replace(/https?:\/\/[^\s]+(?:\.pdf|\/storage\/v1\/[^\s]+)/gi, "")
+      .replace(/data:application\/pdf[^\s]*/gi, "")
+      .trim();
   }
 
   // Format local instrument into database row
   function formatRow(inst, tabType = "calibration_all") {
     if (!inst) return null;
     const id = String(inst.id || `inst_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`);
+
+    const certNo = inst.certNo || (Array.isArray(inst.history) && inst.history[0] && inst.history[0].certNo) || "";
+    const calibratedBy = inst.calibratedBy || (Array.isArray(inst.history) && inst.history[0] && (inst.history[0].calibratedBy || inst.history[0].labCal)) || "";
+
+    // Clean and strictly remove ALL PDF base64, URLs, and file metadata fields from inner JSONB
+    // so data (jsonb) remains purely non-column instrument properties and NEVER contains any file link or info
+    function sanitizeCleanData(obj) {
+      if (!obj || typeof obj !== "object") return {};
+
+      const fileKeyRegex = /^(pdf|file|cert_file|cert_data|attachment|blob|link|url|download|storage)/i;
+      const isUrlOrFileData = (val) => {
+        if (typeof val !== "string") return false;
+        const s = val.trim();
+        if (/^(https?:\/\/|data:|blob:)/i.test(s)) return true;
+        if (/\.(pdf|jpg|jpeg|png|webp)($|\?)/i.test(s)) return true;
+        if (s.includes("/storage/v1/") || s.includes("supabase.co")) return true;
+        if (s.length > 250 && !s.includes(" ")) return true;
+        return false;
+      };
+
+      const rootCols = new Set([
+        "id", "no", "codeNo", "code_no", "instrumentName", "instrument_name",
+        "serialNo", "serial_no", "model", "makerName", "maker_name",
+        "category", "tabType", "tab_type", "status", "dueDate", "due_date",
+        "calDate", "cal_date", "section", "subSection", "sub_section",
+        "location", "certNo", "cert_no", "accuracy", "calibratedBy", "calibrated_by",
+        "notes", "remark", "created_at", "updated_at", "pdf_url", "cert_file_name", "file_size"
+      ]);
+
+      const out = {};
+      for (const [k, v] of Object.entries(obj)) {
+        if (rootCols.has(k)) continue; // Never duplicate primary table columns in data jsonb
+        if (fileKeyRegex.test(k)) continue; // Never store any file key in data jsonb
+        if (isUrlOrFileData(v)) continue; // Never store URL or base64 in data jsonb
+
+        if (k === "history" || k === "calibrationHistory") {
+          if (Array.isArray(v)) {
+            const cleanHist = v.map((h) => {
+              if (!h || typeof h !== "object") return null;
+              const hClean = {};
+              for (const [hk, hv] of Object.entries(h)) {
+                if (fileKeyRegex.test(hk)) continue;
+                if (isUrlOrFileData(hv)) continue;
+                if (hk === "notes" || hk === "remark") {
+                  hClean[hk] = cleanNotes(hv);
+                } else {
+                  hClean[hk] = hv;
+                }
+              }
+              return hClean;
+            }).filter(Boolean);
+            if (cleanHist.length > 0) out[k] = cleanHist;
+          }
+        } else if (v && typeof v === "object" && !Array.isArray(v)) {
+          const sub = {};
+          for (const [sk, sv] of Object.entries(v)) {
+            if (fileKeyRegex.test(sk)) continue;
+            if (isUrlOrFileData(sv)) continue;
+            sub[sk] = sv;
+          }
+          if (Object.keys(sub).length > 0) out[k] = sub;
+        } else if (v !== undefined && v !== null && v !== "") {
+          out[k] = v;
+        }
+      }
+      return out;
+    }
+
+    const cleanData = typeof inst === "object" ? sanitizeCleanData(inst) : {};
+
     return {
       id: id,
       no: Number(inst.no) || 0,
@@ -257,11 +464,14 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
       section: String(inst.section || "").trim(),
       sub_section: String(inst.subSection || "").trim(),
       location: String(inst.location || "").trim(),
-      cert_no: String(inst.certNo || "").trim(),
+      cert_no: String(certNo).trim(),
       accuracy: String(inst.accuracy || "").trim(),
-      calibrated_by: String(inst.calibratedBy || "").trim(),
-      notes: String(inst.notes || inst.remark || "").trim(),
-      data: inst,
+      calibrated_by: String(calibratedBy).trim(),
+      notes: cleanNotes(inst.notes || inst.remark || ""),
+      pdf_url: null, // Strictly decoupled: NEVER saved into instrument table rows
+      cert_file_name: null,
+      file_size: null,
+      data: cleanData, // Strictly cleansed of any file URLs, keys, or base64
       updated_at: new Date().toISOString(),
     };
   }
@@ -307,6 +517,27 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
     const no = typeof rawNo === "number" ? rawNo : (parseInt(rawNo, 10) || 0);
     const id = String(row.id || base.id || (codeNo ? `inst_${codeNo.replace(/[^a-zA-Z0-9_-]/g, '_')}` : `inst_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`));
 
+    const rawPdf = getVal(["pdf_url", "pdfUrl", "cert_file_data", "certFileData"]);
+    const certFileName = getVal(["cert_file_name", "certFileName"]);
+    const fileSize = getVal(["file_size", "fileSize"]);
+
+    // Ensure history array has consistent PDF properties
+    const histList = Array.isArray(base.history) && base.history.length > 0
+      ? base.history
+      : Array.isArray(base.calibrationHistory) && base.calibrationHistory.length > 0
+      ? base.calibrationHistory
+      : [];
+    const normalizedHistory = histList.map((h, i) => {
+      const hPdf = h.pdfUrl || h.certFileData || (i === 0 ? rawPdf : null);
+      return {
+        ...h,
+        pdfUrl: hPdf || null,
+        certFileData: hPdf || null,
+        certFileName: h.certFileName || (i === 0 ? certFileName : null),
+        fileSize: h.fileSize || (i === 0 ? fileSize : null),
+      };
+    });
+
     return {
       ...base,
       id,
@@ -331,6 +562,12 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
       size: String(size),
       frequency: String(frequency),
       registerDate: String(registerDate),
+      pdfUrl: rawPdf || null,
+      certFileData: rawPdf || null,
+      certFileName: certFileName || null,
+      fileSize: fileSize || null,
+      history: normalizedHistory,
+      calibrationHistory: normalizedHistory,
     };
   }
 
@@ -351,7 +588,7 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
     };
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), options.timeout || 12000);
+    const timeout = setTimeout(() => controller.abort(), options.timeout || 30000);
 
     try {
       const res = await fetch(url, {
@@ -460,22 +697,290 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
   async function pushToTable(tbl, items, tabType) {
     if (!Array.isArray(items) || items.length === 0) return 0;
     const formatted = items.map((it) => formatRow(it, tabType)).filter(Boolean);
-    const CHUNK_SIZE = 150;
-    for (let i = 0; i < formatted.length; i += CHUNK_SIZE) {
-      const chunk = formatted.slice(i, i + CHUNK_SIZE);
-      await request(`/${tbl}`, {
-        method: "POST",
-        headers: {
-          Prefer: "resolution=merge-duplicates,return=minimal",
-        },
-        body: JSON.stringify(chunk),
-      });
+
+    // Group chunks intelligently so that payload does not exceed 2.5MB per batch
+    const chunks = [];
+    let currentChunk = [];
+    let currentBytes = 0;
+    const MAX_CHUNK_BYTES = 2.5 * 1024 * 1024; // 2.5MB safe payload limit
+    const MAX_CHUNK_COUNT = 80;
+
+    for (const row of formatted) {
+      const rowBytes = (row.pdf_url ? row.pdf_url.length : 0) + 1200;
+      if (currentChunk.length >= MAX_CHUNK_COUNT || (currentBytes + rowBytes > MAX_CHUNK_BYTES && currentChunk.length > 0)) {
+        chunks.push(currentChunk);
+        currentChunk = [row];
+        currentBytes = rowBytes;
+      } else {
+        currentChunk.push(row);
+        currentBytes += rowBytes;
+      }
+    }
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk);
+    }
+
+    for (const chunk of chunks) {
+      try {
+        await request(`/${tbl}`, {
+          method: "POST",
+          headers: {
+            Prefer: "resolution=merge-duplicates,return=minimal",
+          },
+          body: JSON.stringify(chunk),
+          timeout: 45000,
+        });
+      } catch (chunkErr) {
+        const msg = String(chunkErr && chunkErr.message ? chunkErr.message : chunkErr);
+        if (msg.includes("does not exist") && (msg.includes("pdf_url") || msg.includes("cert_file_name") || msg.includes("file_size"))) {
+          const fallbackChunk = chunk.map((r) => {
+            const copy = { ...r };
+            delete copy.pdf_url;
+            delete copy.cert_file_name;
+            delete copy.file_size;
+            return copy;
+          });
+          await request(`/${tbl}`, {
+            method: "POST",
+            headers: {
+              Prefer: "resolution=merge-duplicates,return=minimal",
+            },
+            body: JSON.stringify(fallbackChunk),
+            timeout: 30000,
+          });
+        } else {
+          throw chunkErr;
+        }
+      }
     }
     return formatted.length;
   }
 
+  // Safe upsert single row with fallback if remote table lacks pdf columns
+  async function safeUpsertRow(tbl, row) {
+    try {
+      return await request(`/${tbl}`, {
+        method: "POST",
+        headers: {
+          Prefer: "resolution=merge-duplicates,return=minimal",
+        },
+        body: JSON.stringify(row),
+      });
+    } catch (err) {
+      const msg = String(err && err.message ? err.message : err);
+      if (msg.includes("does not exist") && (msg.includes("pdf_url") || msg.includes("cert_file_name") || msg.includes("file_size"))) {
+        const fallback = { ...row };
+        delete fallback.pdf_url;
+        delete fallback.cert_file_name;
+        delete fallback.file_size;
+        return await request(`/${tbl}`, {
+          method: "POST",
+          headers: {
+            Prefer: "resolution=merge-duplicates,return=minimal",
+          },
+          body: JSON.stringify(fallback),
+        });
+      }
+      throw err;
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Dedicated File Storage & Decoupled Linker (qap_files)
+  // แยกเก็บไฟล์ PDF ลงตาราง qap_files ต่างหาก ไม่เก็บซ้ำซ้อนใน data (JSONB)
+  // ----------------------------------------------------------
+
+  // Save single file record to qap_files table
+  async function saveFileRecord({
+    instrumentId,
+    codeNo,
+    certNo = "",
+    fileName = "",
+    fileSize = 0,
+    fileUrl = "",
+    tabType = "calibration_all",
+  } = {}) {
+    if (!isConfigured() || !config.autoSync || !fileUrl) return { ok: false, skipped: true };
+    try {
+      const cleanInstId = String(instrumentId || "").trim();
+      const cleanCodeNo = String(codeNo || "").trim();
+      const fileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}`;
+
+      const payload = {
+        id: fileId,
+        instrument_id: cleanInstId || null,
+        code_no: cleanCodeNo,
+        cert_no: String(certNo || "").trim(),
+        file_name: String(fileName || "").trim(),
+        file_size: parseByteSize(fileSize),
+        file_url: String(fileUrl).trim(),
+        tab_type: String(tabType || "calibration_all"),
+        updated_at: new Date().toISOString(),
+      };
+
+      await request(`/${FILES_TABLE}`, {
+        method: "POST",
+        headers: {
+          Prefer: "resolution=merge-duplicates,return=minimal",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      return { ok: true, fileId };
+    } catch (err) {
+      console.warn("[Supabase File Sync] Save file record failed:", err);
+      return { ok: false, error: err.message };
+    }
+  }
+
+  // Delete file record from qap_files table
+  async function deleteFileRecord(instrumentId, codeNo, fileId) {
+    if (!isConfigured() || !config.autoSync) return { ok: false, skipped: true };
+    try {
+      const deleteCalls = [];
+      if (fileId) {
+        deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileId)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {}));
+      }
+      if (instrumentId) {
+        const cleanInstId = String(instrumentId).trim();
+        deleteCalls.push(request(`/${FILES_TABLE}?instrument_id=eq.${encodeURIComponent(cleanInstId)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {}));
+        const fileIdInst = `file_${cleanInstId.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+        deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileIdInst)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {}));
+      }
+      if (codeNo) {
+        const cleanCode = String(codeNo).trim();
+        deleteCalls.push(request(`/${FILES_TABLE}?code_no=eq.${encodeURIComponent(cleanCode)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {}));
+        deleteCalls.push(request(`/${FILES_TABLE}?code_no=ilike.${encodeURIComponent(cleanCode)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {}));
+        const fileIdCode = `file_${cleanCode.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+        deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileIdCode)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {}));
+      }
+      await Promise.all(deleteCalls);
+      return { ok: true };
+    } catch (err) {
+      console.warn("[Supabase File Sync] Delete file record failed:", err);
+      return { ok: false, error: err.message };
+    }
+  }
+
+  // Pull all file records from qap_files table
+  async function pullFilesFromSupabase() {
+    if (!isConfigured()) return [];
+    try {
+      const rows = await request(`/${FILES_TABLE}?select=*&limit=5000`, { method: "GET" });
+      return Array.isArray(rows) ? rows : [];
+    } catch (err) {
+      console.warn("[Supabase File Sync] Pull files failed (table may not exist yet):", err && err.message);
+      return [];
+    }
+  }
+
+  // Client-side dynamic linker: links instruments with files from qap_files
+  // ใช้หน้าเวปเป็นตัวดึงข้อมูล แล้วเชื่อมข้อมูลให้ตรงกันเองว่า เครื่องมือไหน ไฟล์ไหน
+  function linkFilesToInstruments(instruments = [], fileRows = []) {
+    if (!Array.isArray(instruments) || instruments.length === 0) return instruments;
+    if (!Array.isArray(fileRows)) fileRows = [];
+
+    const fileByInstId = new Map();
+    const fileByCodeNo = new Map();
+    const fileByCertNo = new Map();
+
+    for (const f of fileRows) {
+      if (!f) continue;
+      if (f.instrument_id) fileByInstId.set(String(f.instrument_id).trim(), f);
+      if (f.code_no) fileByCodeNo.set(String(f.code_no).trim().toUpperCase(), f);
+      if (f.cert_no) fileByCertNo.set(String(f.cert_no).trim().toUpperCase(), f);
+    }
+
+    for (const inst of instruments) {
+      if (!inst) continue;
+      const instId = String(inst.id || "").trim();
+      const codeNo = String(inst.codeNo || "").trim().toUpperCase();
+      const certNo = String(inst.certNo || "").trim().toUpperCase();
+
+      const matchedFile = fileByCodeNo.get(codeNo) || fileByInstId.get(instId) || (certNo ? fileByCertNo.get(certNo) : null);
+      if (matchedFile) {
+        const fileUrl = matchedFile.file_url || null;
+        const fileName = matchedFile.file_name || null;
+        const fileSize = matchedFile.file_size || null;
+
+        inst.pdfUrl = fileUrl;
+        inst.certFileData = fileUrl;
+        inst.certFileName = fileName;
+        inst.fileSize = fileSize;
+
+        // Also link to first history item
+        if (Array.isArray(inst.history) && inst.history.length > 0) {
+          inst.history[0].pdfUrl = fileUrl;
+          inst.history[0].certFileData = fileUrl;
+          inst.history[0].certFileName = fileName;
+          inst.history[0].fileSize = fileSize;
+        }
+        if (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0) {
+          inst.calibrationHistory[0].pdfUrl = fileUrl;
+          inst.calibrationHistory[0].certFileData = fileUrl;
+          inst.calibrationHistory[0].certFileName = fileName;
+          inst.calibrationHistory[0].fileSize = fileSize;
+        }
+
+        // Link individual history certificates if matching records exist
+        if (Array.isArray(inst.history)) {
+          for (const h of inst.history) {
+            if (h && h.certNo) {
+              const hCert = String(h.certNo).trim().toUpperCase();
+              const hFile = fileByCertNo.get(hCert);
+              if (hFile) {
+                h.pdfUrl = hFile.file_url || fileUrl;
+                h.certFileData = hFile.file_url || fileUrl;
+                h.certFileName = hFile.file_name || fileName;
+                h.fileSize = hFile.file_size || fileSize;
+              }
+            }
+          }
+        }
+      } else {
+        // If no file in qap_files, ensure cleared
+        inst.pdfUrl = null;
+        inst.certFileData = null;
+        inst.certFileName = null;
+        inst.fileSize = null;
+        if (Array.isArray(inst.history) && inst.history.length > 0) {
+          inst.history[0].pdfUrl = null;
+          inst.history[0].certFileData = null;
+          inst.history[0].certFileName = null;
+          inst.history[0].fileSize = null;
+        }
+        if (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0) {
+          inst.calibrationHistory[0].pdfUrl = null;
+          inst.calibrationHistory[0].certFileData = null;
+          inst.calibrationHistory[0].certFileName = null;
+          inst.calibrationHistory[0].fileSize = null;
+        }
+      }
+    }
+
+    return instruments;
+  }
+
   // Helper to pull all items from a specific table
-  async function pullFromTable(tbl) {
+  async function pullFromTable(tbl, shouldLinkFiles = true) {
     try {
       const allRows = [];
       const PAGE_SIZE = 1000;
@@ -507,13 +1012,22 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
         }
       }
 
-      return allRows.map((r, idx) => {
+      const parsedItems = allRows.map((r, idx) => {
         const parsed = parseRow(r, tbl.replace("qap_", ""));
         if (parsed && (!parsed.no || parsed.no <= 0)) {
           parsed.no = idx + 1;
         }
         return parsed;
       }).filter(Boolean);
+
+      if (shouldLinkFiles) {
+        const fileRows = await pullFilesFromSupabase();
+        if (Array.isArray(fileRows) && fileRows.length > 0) {
+          linkFilesToInstruments(parsedItems, fileRows);
+        }
+      }
+
+      return parsedItems;
     } catch (e) {
       console.warn(`[Supabase Pull] Failed for table ${tbl}:`, e);
       return [];
@@ -543,6 +1057,22 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
         cancel: await pushToTable(PAGE_TABLES.cancel, cancel, "cancel"),
       };
 
+      // Also batch save files to qap_files
+      const allItems = [...all, ...normalStandard, ...centralized, ...eachSection, ...cancel];
+      for (const it of allItems) {
+        if (it && (it.pdfUrl || it.certFileData)) {
+          saveFileRecord({
+            instrumentId: it.id,
+            codeNo: it.codeNo,
+            certNo: it.certNo,
+            fileName: it.certFileName,
+            fileSize: it.fileSize,
+            fileUrl: it.pdfUrl || it.certFileData,
+            tabType: it.tabType,
+          }).catch(() => {});
+        }
+      }
+
       const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
 
       saveConfig({
@@ -551,7 +1081,7 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
         lastError: null,
       });
 
-      emitToast(`☁️ สำรองข้อมูลแยก 5 ตารางสำเร็จทั้งหมด (${totalCount} รายการ)`, "success");
+      emitToast(`☁️ สำรองข้อมูลแยก 5 ตารางและตารางไฟล์สำเร็จทั้งหมด (${totalCount} รายการ)`, "success");
 
       return {
         ok: true,
@@ -566,7 +1096,7 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
     }
   }
 
-  // 3. Pull All 5 Pages from their respective 5 tables
+  // 3. Pull All 5 Pages from their respective 5 tables and link files from qap_files
   async function pullAll() {
     if (!isConfigured()) {
       return { ok: false, message: "ยังไม่ได้ตั้งค่า Supabase" };
@@ -575,13 +1105,23 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
     try {
       emitStatus({ status: "syncing" });
 
-      const [all, normalStandard, centralized, eachSection, cancel] = await Promise.all([
-        pullFromTable(PAGE_TABLES.calibration_all),
-        pullFromTable(PAGE_TABLES.normal_standard),
-        pullFromTable(PAGE_TABLES.centralized),
-        pullFromTable(PAGE_TABLES.each_section),
-        pullFromTable(PAGE_TABLES.cancel),
+      const [all, normalStandard, centralized, eachSection, cancel, fileRows] = await Promise.all([
+        pullFromTable(PAGE_TABLES.calibration_all, false),
+        pullFromTable(PAGE_TABLES.normal_standard, false),
+        pullFromTable(PAGE_TABLES.centralized, false),
+        pullFromTable(PAGE_TABLES.each_section, false),
+        pullFromTable(PAGE_TABLES.cancel, false),
+        pullFilesFromSupabase(),
       ]);
+
+      // Dynamically link files to instruments on the webpage
+      if (Array.isArray(fileRows) && fileRows.length > 0) {
+        linkFilesToInstruments(all, fileRows);
+        linkFilesToInstruments(normalStandard, fileRows);
+        linkFilesToInstruments(centralized, fileRows);
+        linkFilesToInstruments(eachSection, fileRows);
+        linkFilesToInstruments(cancel, fileRows);
+      }
 
       const totalCount = all.length + normalStandard.length + centralized.length + eachSection.length + cancel.length;
 
@@ -591,7 +1131,8 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
         lastError: null,
       });
 
-      emitToast(`📥 ซิงก์ข้อมูลแยก 5 ตารางจาก Supabase สำเร็จ (${totalCount} รายการ)`, "success");
+      const fileNote = fileRows.length > 0 ? ` พร้อมเชื่อมโยง ${fileRows.length} ไฟล์` : "";
+      emitToast(`📥 ซิงก์ข้อมูลแยก 5 ตารางจาก Supabase สำเร็จ (${totalCount} รายการ${fileNote})`, "success");
 
       return {
         ok: true,
@@ -620,28 +1161,34 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
       const row = formatRow(inst, tabType);
       if (!row) return { ok: false, message: "Invalid instrument data" };
 
-      // Save to dedicated table
-      await request(`/${targetTable}`, {
-        method: "POST",
-        headers: {
-          Prefer: "resolution=merge-duplicates,return=minimal",
-        },
-        body: JSON.stringify(row),
-      });
+      // Save file record to qap_files table separately (decoupled from data jsonb)
+      const hasPdf = !!(inst.pdfUrl || inst.certFileData);
+      if (hasPdf) {
+        await saveFileRecord({
+          instrumentId: inst.id,
+          codeNo: inst.codeNo,
+          certNo: inst.certNo,
+          fileName: inst.certFileName,
+          fileSize: inst.fileSize,
+          fileUrl: inst.pdfUrl || inst.certFileData,
+          tabType: tabType,
+        }).catch(err => console.warn("[Supabase Sync] File record save warning:", err));
+      } else if (inst.id || inst.codeNo) {
+        // If instrument previously had a file that was removed, clean from qap_files
+        await deleteFileRecord(inst.id, inst.codeNo).catch(() => {});
+      }
+
+      // Save instrument row with clean data jsonb
+      await safeUpsertRow(targetTable, row);
 
       // Also ensure Master List (qap_calibration_all) stays synchronized if not already target
       if (targetTable !== PAGE_TABLES.calibration_all) {
-        await request(`/${PAGE_TABLES.calibration_all}`, {
-          method: "POST",
-          headers: {
-            Prefer: "resolution=merge-duplicates,return=minimal",
-          },
-          body: JSON.stringify(row),
-        }).catch(() => {});
+        await safeUpsertRow(PAGE_TABLES.calibration_all, row).catch(() => {});
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ซิงก์บันทึกลงตาราง ${targetTable}: ${inst.codeNo || inst.instrumentName || ""}`, "success");
+      const pdfNote = hasPdf ? " (บันทึกไฟล์ลงตาราง qap_files แยกต่างหาก)" : "";
+      emitToast(`☁️ ซิงก์บันทึกลงตาราง ${targetTable}: ${inst.codeNo || inst.instrumentName || ""}${pdfNote}`, "success");
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase Sync] Upsert failed:", err);
@@ -649,26 +1196,32 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
     }
   }
 
-  // 5. Delete single instrument from its dedicated table and master list
-  async function deleteInstrument(id, tabType = "calibration_all") {
+  // 5. Delete single instrument from its dedicated table, master list, and qap_files
+  async function deleteInstrument(id, tabType = "calibration_all", codeNo = "") {
     if (!isConfigured() || !config.autoSync || !id) return { ok: false, skipped: true };
 
     try {
       const targetTable = getTableForPage(tabType);
-      await request(`/${targetTable}?id=eq.${encodeURIComponent(id)}`, {
+      const cleanId = typeof id === "object" ? String(id.id || "") : String(id);
+      const cleanCode = typeof id === "object" ? String(id.codeNo || "") : String(codeNo || "");
+
+      // Clean file record from qap_files
+      await deleteFileRecord(cleanId, cleanCode).catch(() => {});
+
+      await request(`/${targetTable}?id=eq.${encodeURIComponent(cleanId)}`, {
         method: "DELETE",
         headers: { Prefer: "return=minimal" },
       });
 
       if (targetTable !== PAGE_TABLES.calibration_all) {
-        await request(`/${PAGE_TABLES.calibration_all}?id=eq.${encodeURIComponent(id)}`, {
+        await request(`/${PAGE_TABLES.calibration_all}?id=eq.${encodeURIComponent(cleanId)}`, {
           method: "DELETE",
           headers: { Prefer: "return=minimal" },
         }).catch(() => {});
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ลบออกจากตาราง ${targetTable} แล้ว`, "info");
+      emitToast(`☁️ ลบออกจากตาราง ${targetTable} และตาราง qap_files แล้ว`, "info");
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase Sync] Delete failed:", err);
@@ -684,7 +1237,16 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
 
     try {
       const targetTable = getTableForPage(tabType);
-      const idList = ids.map((i) => `"${encodeURIComponent(i)}"`).join(",");
+
+      // Clean file records from qap_files
+      for (const item of ids) {
+        const cleanId = typeof item === "object" ? String(item.id || "") : String(item);
+        const cleanCode = typeof item === "object" ? String(item.codeNo || "") : "";
+        deleteFileRecord(cleanId, cleanCode).catch(() => {});
+      }
+
+      const idStrings = ids.map((item) => (typeof item === "object" ? String(item.id || "") : String(item))).filter(Boolean);
+      const idList = idStrings.map((i) => `"${encodeURIComponent(i)}"`).join(",");
       await request(`/${targetTable}?id=in.(${idList})`, {
         method: "DELETE",
         headers: { Prefer: "return=minimal" },
@@ -698,15 +1260,15 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ลบ ${ids.length} รายการจากตาราง ${targetTable} สำเร็จ`, "info");
-      return { ok: true };
+      emitToast(`☁️ ลบ ${idStrings.length} รายการจากตาราง ${targetTable} และตาราง qap_files สำเร็จ`, "info");
+      return { ok: true, count: idStrings.length };
     } catch (err) {
       console.warn("[Supabase Sync] Batch delete failed:", err);
       return { ok: false, error: err.message };
     }
   }
 
-    // 6.2 Upsert multiple instruments (Batch Upsert)
+  // 6.2 Upsert multiple instruments (Batch Upsert)
   async function upsertInstruments(items, tabType = "calibration_all") {
     if (!isConfigured() || !config.autoSync || !Array.isArray(items) || items.length === 0) {
       return { ok: false, skipped: true };
@@ -737,6 +1299,22 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
           }).catch(() => {});
         }
       }
+
+      // Also save files to qap_files for items with files
+      for (const it of items) {
+        if (it && (it.pdfUrl || it.certFileData)) {
+          saveFileRecord({
+            instrumentId: it.id,
+            codeNo: it.codeNo,
+            certNo: it.certNo,
+            fileName: it.certFileName,
+            fileSize: it.fileSize,
+            fileUrl: it.pdfUrl || it.certFileData,
+            tabType,
+          }).catch(() => {});
+        }
+      }
+
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
       emitToast(`☁️ อัปเดตข้อมูล ${formatted.length} รายการลงตาราง ${targetTable} สำเร็จ`, "success");
       return { ok: true, count: formatted.length };
@@ -790,7 +1368,8 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
         for (const tbl of Object.values(PAGE_TABLES)) {
           await clearTable(tbl);
         }
-        emitToast(`☁️ ล้างข้อมูลทั้ง 5 ตารางบน Supabase เรียบร้อยแล้ว`, "info");
+        await clearTable(FILES_TABLE).catch(() => {});
+        emitToast(`☁️ ล้างข้อมูลทั้ง 5 ตารางและตารางไฟล์บน Supabase เรียบร้อยแล้ว`, "info");
       } else {
         const tbl = getTableForPage(targetTab);
         await clearTable(tbl);
@@ -821,6 +1400,11 @@ SELECT 'qap_cancel', count(*) FROM public.qap_cancel;
     pullAll,
     pushAll,
     getSqlSetupScript,
+    saveFileRecord,
+    deleteFileRecord,
+    pullFilesFromSupabase,
+    linkFilesToInstruments,
+    FILES_TABLE,
     PAGE_TABLES,
     PAGE_NAMES,
     emitToast,

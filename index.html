@@ -227,8 +227,9 @@
     <script src="./pdf_compressor.js"></script>
     <script src="./doc_viewer.js"></script>
     <script>
-      window.qapPdfRemove = (histId, instrument, onUpdate) => {
-          if (!confirm('ยืนยันลบไฟล์ PDF นี้หรือไม่?')) return;
+      if (!window.qapPdfRemove) {
+        window.qapPdfRemove = (histId, instrument, onUpdate, targetTab = 'calibration_all') => {
+          if (!confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้ออกจากระบบและฐานข้อมูล Supabase ใช่หรือไม่?')) return;
           if (!instrument) return;
           const histList = Array.isArray(instrument.history) && instrument.history.length > 0 
               ? instrument.history 
@@ -236,12 +237,23 @@
               ? instrument.calibrationHistory 
               : [];
           const newHistory = histList.map(h => 
-              h.id === histId ? { ...h, certFileData: null, certFileName: null, pdfUrl: null } : h
+              (h.id === histId || (!histId && histList.length <= 1)) ? { ...h, certFileData: null, certFileName: null, pdfUrl: null, fileSize: null } : h
           );
+          const isCurrent = !histId || (histList.length > 0 && histList[0].id === histId);
+          const updated = {
+            ...instrument,
+            history: newHistory,
+            calibrationHistory: newHistory,
+            ...(isCurrent ? { certFileData: null, certFileName: null, pdfUrl: null, fileSize: null } : {})
+          };
           if (typeof onUpdate === 'function') {
-              onUpdate({ ...instrument, history: newHistory, calibrationHistory: newHistory, certFileData: null, certFileName: null, pdfUrl: null });
+            onUpdate(updated);
           }
-      };
+          if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
+            window.qapSupabase.upsertInstrument(updated, targetTab || instrument.tabType || 'calibration_all');
+          }
+        };
+      }
 
       window.qapPdfView = (base64, certNo, instrument) => {
           if (typeof window.qapOpenDocViewer === 'function') {

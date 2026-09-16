@@ -3556,19 +3556,118 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
     }
   };
 
-  // PDF File attach handler
-  const handlePdfAttach = (evt, targetIdx) => {
+  // PDF File attach handler with compression & automatic database sync
+  const handlePdfAttach = async (evt, targetIdx) => {
     const file = evt.target.files && evt.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (targetIdx === -1) {
-          setF(prev => ({ ...prev, pdfUrl: reader.result }));
-        } else {
-          setHistoryList(prev => (Array.isArray(prev) ? prev : []).map((item, i) => i === targetIdx ? { ...item, pdfUrl: reader.result } : item));
+    if (!file) return;
+
+    try {
+      let base64 = null;
+      let compSize = file.size;
+      let origSize = file.size;
+
+      if (typeof window.qapCompressPdf === 'function') {
+        const res = await window.qapCompressPdf(file);
+        base64 = res.dataUrl;
+        compSize = res.compressedSize;
+        origSize = res.originalSize;
+      } else {
+        base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      let updatedHistory = Array.isArray(historyList) && historyList.length > 0
+        ? [...historyList]
+        : [{
+            id: 'hist-curr',
+            certNo: f.certNo || ('CERT-' + (f.codeNo || '1')),
+            calDate: f.calDate || new Date().toISOString().split('T')[0],
+            dueDate: f.dueDate || '',
+            calibratedBy: f.calibratedBy || '-',
+            result: 'PASS'
+          }];
+
+      if (targetIdx === -1) {
+        setF(prev => ({ ...prev, pdfUrl: base64, certFileData: base64, certFileName: file.name, fileSize: compSize }));
+        updatedHistory = updatedHistory.map((item, i) => i === 0 ? { ...item, pdfUrl: base64, certFileData: base64, certFileName: file.name, fileSize: compSize, originalFileSize: origSize } : item);
+        setHistoryList(updatedHistory);
+      } else {
+        updatedHistory = updatedHistory.map((item, i) => i === targetIdx ? { ...item, pdfUrl: base64, certFileData: base64, certFileName: file.name, fileSize: compSize, originalFileSize: origSize } : item);
+        setHistoryList(updatedHistory);
+        if (targetIdx === 0) {
+          setF(prev => ({ ...prev, pdfUrl: base64, certFileData: base64, certFileName: file.name, fileSize: compSize }));
         }
+      }
+
+      // If editing an existing instrument and Supabase is configured, automatically persist immediately
+      if (isEdit && window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
+        const targetTab = selectedPage || f.tabType || 'calibration_all';
+        if (typeof window.qapSupabase.saveFileRecord === 'function') {
+          window.qapSupabase.saveFileRecord({
+            instrumentId: f.id,
+            codeNo: f.codeNo,
+            certNo: f.certNo,
+            fileName: file.name,
+            fileSize: compSize,
+            fileUrl: base64,
+            tabType: targetTab
+          }).catch(console.warn);
+        }
+        const updatedInst = {
+          ...f,
+          pdfUrl: base64,
+          certFileData: base64,
+          certFileName: file.name,
+          fileSize: compSize,
+          history: updatedHistory,
+          calibrationHistory: updatedHistory,
+          targetTab
+        };
+        window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch(console.warn);
+      }
+    } catch (err) {
+      console.error('PDF Attach Error:', err);
+      alert('เกิดข้อผิดพลาดในการแนบไฟล์ PDF: ' + err.message);
+    }
+  };
+
+  // PDF File remove handler with automatic database sync
+  const handlePdfRemove = (targetIdx) => {
+    if (!confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้ออกจากระบบและฐานข้อมูลหรือไม่?')) return;
+    let updatedHistory = Array.isArray(historyList) ? [...historyList] : [];
+    if (targetIdx === -1) {
+      setF(prev => ({ ...prev, pdfUrl: null, certFileData: null, certFileName: null, fileSize: null }));
+      if (updatedHistory.length > 0) {
+        updatedHistory = updatedHistory.map((item, i) => i === 0 ? { ...item, pdfUrl: null, certFileData: null, certFileName: null, fileSize: null, originalFileSize: null } : item);
+        setHistoryList(updatedHistory);
+      }
+    } else {
+      updatedHistory = updatedHistory.map((item, i) => i === targetIdx ? { ...item, pdfUrl: null, certFileData: null, certFileName: null, fileSize: null, originalFileSize: null } : item);
+      setHistoryList(updatedHistory);
+      if (targetIdx === 0) {
+        setF(prev => ({ ...prev, pdfUrl: null, certFileData: null, certFileName: null, fileSize: null }));
+      }
+    }
+    if (isEdit && window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
+      const targetTab = selectedPage || f.tabType || 'calibration_all';
+      if (typeof window.qapSupabase.deleteFileRecord === 'function') {
+        window.qapSupabase.deleteFileRecord(f.id, f.codeNo).catch(console.warn);
+      }
+      const updatedInst = {
+        ...f,
+        pdfUrl: null,
+        certFileData: null,
+        certFileName: null,
+        fileSize: null,
+        history: updatedHistory,
+        calibrationHistory: updatedHistory,
+        targetTab
       };
-      reader.readAsDataURL(file);
+      window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch(console.warn);
     }
   };
 
@@ -4371,20 +4470,28 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
                   ),
                   h("div", { className: "flex items-center gap-1.5" },
                     // PDF Badge or Upload Button
-                    item.pdfUrl ? h("button", {
-                      type: "button",
-                      onClick: () => {
-                        if (typeof window.qapPdfView === "function") {
-                          window.qapPdfView(item.pdfUrl, item.certNo, f);
-                        } else if (typeof window.qapOpenDocViewer === "function") {
-                          window.qapOpenDocViewer(item, f);
-                        } else if (item.pdfUrl) {
-                          const w = window.open();
-                          if (w) w.document.write('<iframe src="' + item.pdfUrl + '" style="width:100%;height:100%;border:none;"></iframe>');
-                        }
-                      },
-                      className: "px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs"
-                    }, "📄 ดูใบเซอร์ PDF") : h("label", {
+                    item.pdfUrl ? h("div", { className: "flex items-center gap-1" },
+                      h("button", {
+                        type: "button",
+                        onClick: () => {
+                          if (typeof window.qapPdfView === "function") {
+                            window.qapPdfView(item.pdfUrl, item.certNo, f);
+                          } else if (typeof window.qapOpenDocViewer === "function") {
+                            window.qapOpenDocViewer(item, f);
+                          } else if (item.pdfUrl) {
+                            const w = window.open();
+                            if (w) w.document.write('<iframe src="' + item.pdfUrl + '" style="width:100%;height:100%;border:none;"></iframe>');
+                          }
+                        },
+                        className: "px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs"
+                      }, "📄 ดูใบเซอร์ PDF"),
+                      h("button", {
+                        type: "button",
+                        onClick: () => handlePdfRemove(idx),
+                        className: "p-1 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950 dark:hover:text-rose-400 transition cursor-pointer border border-slate-200 dark:border-slate-700 text-xs",
+                        title: "ลบไฟล์ PDF ใบรับรองนี้"
+                      }, "🗑️")
+                    ) : h("label", {
                       className: "px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold cursor-pointer transition border border-slate-200 dark:border-slate-700"
                     },
                       h("span", null, "+ แนบ PDF"),
@@ -4825,6 +4932,17 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       }
       if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
         const targetTab = currentInst.tabType || 'calibration_all';
+        if (typeof window.qapSupabase.saveFileRecord === 'function') {
+          window.qapSupabase.saveFileRecord({
+            instrumentId: updatedInst.id,
+            codeNo: updatedInst.codeNo,
+            certNo: updatedInst.certNo,
+            fileName: file.name,
+            fileSize: compSize,
+            fileUrl: base64,
+            tabType: targetTab
+          }).catch(console.warn);
+        }
         window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
           console.warn('[Supabase Sync on PDF upload]:', err);
         });
@@ -4887,6 +5005,9 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     }
     if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
       const targetTab = currentInst.tabType || 'calibration_all';
+      if (typeof window.qapSupabase.deleteFileRecord === 'function') {
+        window.qapSupabase.deleteFileRecord(currentInst.id, currentInst.codeNo, histId).catch(console.warn);
+      }
       window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
         console.warn('[Supabase Sync on PDF removal]:', err);
       });
