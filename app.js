@@ -4823,6 +4823,12 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       if (typeof u === 'function') {
         u(updatedInst);
       }
+      if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
+        const targetTab = currentInst.tabType || 'calibration_all';
+        window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
+          console.warn('[Supabase Sync on PDF upload]:', err);
+        });
+      }
     } catch (err) {
       console.error('File upload error:', err);
       alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ' + err.message);
@@ -4878,6 +4884,12 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     setInstData(updatedInst);
     if (typeof u === 'function') {
       u(updatedInst);
+    }
+    if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
+      const targetTab = currentInst.tabType || 'calibration_all';
+      window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
+        console.warn('[Supabase Sync on PDF removal]:', err);
+      });
     }
   };
 
