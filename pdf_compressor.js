@@ -98,57 +98,50 @@
    * and enhances dark ink/text contrast while keeping colored stamps & signatures crisp.
    * This yields massive 70-95% compression gains because uniform white areas encode into minimal JPEG DCT bytes!
    */
-  function optimizeDocumentCanvas(ctx, width, height) {
+  async function optimizeDocumentCanvas(ctx, width, height) {
     try {
       const imgData = ctx.getImageData(0, 0, width, height);
       const data = imgData.data;
       const len = data.length;
-
-      for (let i = 0; i < len; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        // Chroma test for stamps / signatures (Red PASSED stamps, Blue ink pens, etc.)
-        const maxC = Math.max(r, g, b);
-        const minC = Math.min(r, g, b);
-        const chroma = maxC - minC;
-
-        if (chroma > 25) {
-          // Preserve vibrant colors for stamps and signatures
-          data[i] = Math.min(255, Math.round(r * 1.05));
-          data[i + 1] = Math.min(255, Math.round(g * 1.05));
-          data[i + 2] = Math.min(255, Math.round(b * 1.05));
-          continue;
+      
+      const chunkSize = width * 4 * 30; // 30 rows at a time
+      
+      for (let i = 0; i < len; i += chunkSize) {
+        const end = Math.min(i + chunkSize, len);
+        for (let j = i; j < end; j += 4) {
+          const r = data[j];
+          const g = data[j + 1];
+          const b = data[j + 2];
+          
+          const maxC = Math.max(r, g, b);
+          const minC = Math.min(r, g, b);
+          const chroma = maxC - minC;
+          
+          if (chroma > 25) {
+            data[j] = Math.min(255, Math.round(r * 1.05));
+            data[j + 1] = Math.min(255, Math.round(g * 1.05));
+            data[j + 2] = Math.min(255, Math.round(b * 1.05));
+            continue;
+          }
+          
+          const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+          if (lum >= 205) {
+            data[j] = 255; data[j + 1] = 255; data[j + 2] = 255;
+          } else if (lum <= 125) {
+            const darkFactor = 0.82;
+            data[j] = Math.round(r * darkFactor);
+            data[j + 1] = Math.round(g * darkFactor);
+            data[j + 2] = Math.round(b * darkFactor);
+          } else {
+            const t = (lum - 125) / (205 - 125);
+            const val = Math.min(255, Math.round(lum + t * (255 - lum)));
+            data[j] = val; data[j + 1] = val; data[j + 2] = val;
+          }
         }
-
-        // Grayscale / neutral channel luminance
-        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-
-        // Paper background whitening: turn scanner grayish noise into pure white #FFFFFF
-        if (lum >= 205) {
-          data[i] = 255;
-          data[i + 1] = 255;
-          data[i + 2] = 255;
-        } else if (lum <= 125) {
-          // Sharp text and numbers: make slightly darker for maximum contrast & readability
-          const darkFactor = 0.82;
-          data[i] = Math.round(r * darkFactor);
-          data[i + 1] = Math.round(g * darkFactor);
-          data[i + 2] = Math.round(b * darkFactor);
-        } else {
-          // Smooth transition curve to avoid harsh edges
-          const t = (lum - 125) / (205 - 125);
-          const val = Math.min(255, Math.round(lum + t * (255 - lum)));
-          data[i] = val;
-          data[i + 1] = val;
-          data[i + 2] = val;
-        }
+        await new Promise(resolve => setTimeout(resolve, 0));
       }
-
       ctx.putImageData(imgData, 0, 0);
     } catch (e) {
-      // If CORS or ImageData restriction occurs, fallback gracefully to untouched canvas
       console.warn('[DocOptimizer] Canvas filter fallback:', e);
     }
   }
@@ -156,10 +149,10 @@
   /**
    * Compresses an image file or Data URL using Canvas downscaling and smart contrast enhancement
    */
-  async function compressImageToJpeg(fileOrDataUrl, maxWidth = 1300, quality = 0.70) {
+  async function compressImageToJpeg(fileOrDataUrl, maxWidth = 1000, quality = 0.60) {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         let width = img.width;
         let height = img.height;
 
@@ -180,7 +173,7 @@
         ctx.drawImage(img, 0, 0, width, height);
 
         // Apply smart document whitening & contrast enhancement
-        optimizeDocumentCanvas(ctx, width, height);
+        await optimizeDocumentCanvas(ctx, width, height);
 
         const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(compressedDataUrl);
@@ -203,8 +196,8 @@
    */
   async function compressPdfFile(file, options = {}) {
     const originalSize = file.size;
-    const maxDimension = options.maxDimension || 1300; // Perfect balance for sharp text & small size
-    const quality = options.quality || 0.70; // High clarity for tables, numbers and signatures
+    const maxDimension = options.maxDimension || 1000; // Perfect balance for sharp text & small size
+    const quality = options.quality || 0.60; // High clarity for tables, numbers and signatures
 
     // Helper: read original file as Data URL
     const readOriginalDataUrl = () => new Promise((resolve, reject) => {
@@ -305,7 +298,7 @@
         }).promise;
 
         // Apply background noise cleanup and text edge enhancement
-        optimizeDocumentCanvas(ctx, canvas.width, canvas.height);
+        await optimizeDocumentCanvas(ctx, canvas.width, canvas.height);
 
         const pageJpegDataUrl = canvas.toDataURL('image/jpeg', quality);
         const jpegBytes = await fetch(pageJpegDataUrl).then(res => res.arrayBuffer());
@@ -373,6 +366,7 @@
   // Expose global utilities
   window.qapCompressPdf = compressPdfFile;
   window.qapCompressImage = compressImageToJpeg;
+  window.showCompressionToast = showCompressionToast;
   window.qapFormatBytes = formatFileSize;
 
   // Enhance window.qapPdfUpload with automatic intelligent compression + immediate Supabase sync!

@@ -965,18 +965,18 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       let hasDateMatches = false;
 
       safeAll.forEach(inst => {
-        const dStr = (inst.month || inst.dueDate || inst.nextCalDate || inst.calDate || inst.planDate || inst.dueMonth || "").toString().toLowerCase().trim();
+        const dStr = (inst.month || inst.dueDate || inst.nextCalDate || inst.calDate || inst.planDate || inst.dueMonth || inst["Due Date"] || inst["Cal. Date"] || inst["Plan Date"] || "").toString().toLowerCase().trim();
         if (!dStr) return;
         let idx = -1;
-        if (dStr.includes("jan") || dStr.includes("ม.ค") || dStr.includes("-01-") || dStr.includes("/01/") || dStr.startsWith("1/") || dStr === "1" || dStr === "01") idx = 0;
-        else if (dStr.includes("feb") || dStr.includes("ก.พ") || dStr.includes("-02-") || dStr.includes("/02/") || dStr.startsWith("2/") || dStr === "2" || dStr === "02") idx = 1;
-        else if (dStr.includes("mar") || dStr.includes("มี.ค") || dStr.includes("-03-") || dStr.includes("/03/") || dStr.startsWith("3/") || dStr === "3" || dStr === "03") idx = 2;
-        else if (dStr.includes("apr") || dStr.includes("เม.ย") || dStr.includes("-04-") || dStr.includes("/04/") || dStr.startsWith("4/") || dStr === "4" || dStr === "04") idx = 3;
-        else if (dStr.includes("may") || dStr.includes("พ.ค") || dStr.includes("-05-") || dStr.includes("/05/") || dStr.startsWith("5/") || dStr === "5" || dStr === "05") idx = 4;
-        else if (dStr.includes("jun") || dStr.includes("มิ.ย") || dStr.includes("-06-") || dStr.includes("/06/") || dStr.startsWith("6/") || dStr === "6" || dStr === "06") idx = 5;
-        else if (dStr.includes("jul") || dStr.includes("ก.ค") || dStr.includes("-07-") || dStr.includes("/07/") || dStr.startsWith("7/") || dStr === "7" || dStr === "07") idx = 6;
-        else if (dStr.includes("aug") || dStr.includes("ส.ค") || dStr.includes("-08-") || dStr.includes("/08/") || dStr.startsWith("8/") || dStr === "8" || dStr === "08") idx = 7;
-        else if (dStr.includes("sep") || dStr.includes("ก.ย") || dStr.includes("-09-") || dStr.includes("/09/") || dStr.startsWith("9/") || dStr === "9" || dStr === "09") idx = 8;
+        if (dStr.includes("jan") || dStr.includes("ม.ค") || dStr.includes("-01-") || dStr.includes("/01/") || dStr.startsWith("1/") || dStr.startsWith("01/") || dStr === "1" || dStr === "01") idx = 0;
+        else if (dStr.includes("feb") || dStr.includes("ก.พ") || dStr.includes("-02-") || dStr.includes("/02/") || dStr.startsWith("2/") || dStr.startsWith("02/") || dStr === "2" || dStr === "02") idx = 1;
+        else if (dStr.includes("mar") || dStr.includes("มี.ค") || dStr.includes("-03-") || dStr.includes("/03/") || dStr.startsWith("3/") || dStr.startsWith("03/") || dStr === "3" || dStr === "03") idx = 2;
+        else if (dStr.includes("apr") || dStr.includes("เม.ย") || dStr.includes("-04-") || dStr.includes("/04/") || dStr.startsWith("4/") || dStr.startsWith("04/") || dStr === "4" || dStr === "04") idx = 3;
+        else if (dStr.includes("may") || dStr.includes("พ.ค") || dStr.includes("-05-") || dStr.includes("/05/") || dStr.startsWith("5/") || dStr.startsWith("05/") || dStr === "5" || dStr === "05") idx = 4;
+        else if (dStr.includes("jun") || dStr.includes("มิ.ย") || dStr.includes("-06-") || dStr.includes("/06/") || dStr.startsWith("6/") || dStr.startsWith("06/") || dStr === "6" || dStr === "06") idx = 5;
+        else if (dStr.includes("jul") || dStr.includes("ก.ค") || dStr.includes("-07-") || dStr.includes("/07/") || dStr.startsWith("7/") || dStr.startsWith("07/") || dStr === "7" || dStr === "07") idx = 6;
+        else if (dStr.includes("aug") || dStr.includes("ส.ค") || dStr.includes("-08-") || dStr.includes("/08/") || dStr.startsWith("8/") || dStr.startsWith("08/") || dStr === "8" || dStr === "08") idx = 7;
+        else if (dStr.includes("sep") || dStr.includes("ก.ย") || dStr.includes("-09-") || dStr.includes("/09/") || dStr.startsWith("9/") || dStr.startsWith("09/") || dStr === "9" || dStr === "09") idx = 8;
         else if (dStr.includes("oct") || dStr.includes("ต.ค") || dStr.includes("-10-") || dStr.includes("/10/") || dStr.startsWith("10/") || dStr === "10") idx = 9;
         else if (dStr.includes("nov") || dStr.includes("พ.ย") || dStr.includes("-11-") || dStr.includes("/11/") || dStr.startsWith("11/") || dStr === "11") idx = 10;
         else if (dStr.includes("dec") || dStr.includes("ธ.ค") || dStr.includes("-12-") || dStr.includes("/12/") || dStr.startsWith("12/") || dStr === "12") idx = 11;
@@ -984,10 +984,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         if (idx >= 0) {
           counts[idx]++;
           hasDateMatches = true;
-          const st = (inst.status || "").toLowerCase();
-          if (st === "in_calibration" || st === "in_cal" || st === "in_lab" || st.includes("lab") || st.includes("ส่งสอบ") || st.includes("แล็บ") || st.includes("ซ่อม") || st.includes("in cal") || st.includes("in-cal") || st.includes("calib") || st.includes("สอบเทียบ")) inLabCounts[idx]++;
-          else if (st.includes("overdue") || st.includes("เกิน") || st.includes("หมดอายุ")) overdueCounts[idx]++;
-          else if (st.includes("due") || st.includes("ใกล้") || st.includes("soon")) dueSoonCounts[idx]++;
+          const st = (inst.status || inst.currentStatus || inst.calStatus || inst.Status || inst.CurrentStatus || inst["Status"] || inst["STATUS"] || "").toString().toLowerCase().trim();
+          if (st === "in_calibration" || st === "in_cal" || st === "in_lab" || st.includes("lab") || st.includes("ส่งสอบ") || st.includes("แล็บ") || st.includes("ซ่อม") || st.includes("in cal") || st.includes("in-cal") || st.includes("calib") || st.includes("สอบเทียบ")) {
+            inLabCounts[idx]++;
+          } else if (st.includes("overdue") || st.includes("เกิน") || st.includes("หมดอายุ")) {
+            overdueCounts[idx]++;
+          } else if (st.includes("due") || st.includes("ใกล้") || st.includes("soon") || st.includes("เตือน")) {
+            dueSoonCounts[idx]++;
+          }
         }
       });
 
@@ -997,7 +1001,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           const od = overdueCounts[i];
           const ds = dueSoonCounts[i];
           const lb = inLabCounts[i];
-          const isp = Math.max(0, tot - od - ds - lb);
+          let isp = Math.max(0, tot - od - ds - lb);
+          // If total > 0 but subcategories are 0, guarantee items count as inSpec
+          if (tot > 0 && (isp + od + ds + lb) === 0) {
+            isp = tot;
+          }
           const rel = tot > 0 ? Math.round(((tot - od) / tot) * 100) : 100;
           return {
             ...m,
@@ -1418,6 +1426,29 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
   const totalMetrologyCount = safeAll.length;
 
+  // 🚀 Animated Counting Hook for Real-time Dashboard Number Ticker
+  const [animProgress, setAnimProgress] = g1.useState(0);
+  g1.useEffect(() => {
+    let startTimestamp = null;
+    const duration = 1200; // 1.2s smooth easeOutExpo
+    let animId;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Ease out expo: 1 - Math.pow(2, -10 * progress)
+      const easeVal = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setAnimProgress(easeVal);
+      if (progress < 1) {
+        animId = requestAnimationFrame(step);
+      }
+    };
+    animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [stats.allCount, stats.inSpec, stats.dueSoon, stats.overdue, stats.inLab, stats.cancelCount]);
+
+  // Helper function to calculate animated displayed integer
+  const getAnimVal = (target) => Math.round((target || 0) * animProgress);
+
   // Navigation Helpers
   const goToTable = (filterStatus = "ALL") => {
     if (onFilterStatus) onFilterStatus(filterStatus);
@@ -1460,8 +1491,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         ),
         h("div", { className: "my-1 flex items-baseline gap-1" },
-          h("span", { className: "top-kpi-val text-xl sm:text-2xl font-black font-mono text-slate-900 dark:!text-white" },
-            stats.allCount.toLocaleString()
+          h("span", { className: "top-kpi-val dashboard-number-animate text-xl sm:text-2xl font-black font-mono text-slate-900 dark:!text-white" },
+            getAnimVal(stats.allCount).toLocaleString()
           ),
           h("span", { className: "text-[10px] text-slate-500 font-semibold" }, "รายการ")
         ),
@@ -1488,11 +1519,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         ),
         h("div", { className: "my-1 flex items-baseline gap-1.5" },
-          h("span", { className: "top-kpi-val text-xl sm:text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400" },
-            stats.inSpec.toLocaleString()
+          h("span", { className: "top-kpi-val dashboard-number-animate text-xl sm:text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400" },
+            getAnimVal(stats.inSpec).toLocaleString()
           ),
           h("span", { className: "px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-emerald-100/70 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300" },
-            `${stats.inSpecPct}%`
+            `${stats.allCount > 0 ? Math.round((getAnimVal(stats.inSpec) / stats.allCount) * 100) : 0}%`
           )
         ),
         h("div", { className: "text-[10px] font-semibold text-emerald-600/90 dark:text-emerald-400/90 truncate flex items-center gap-1" },
@@ -1518,8 +1549,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         ),
         h("div", { className: "my-1 flex items-baseline gap-1" },
-          h("span", { className: "top-kpi-val text-xl sm:text-2xl font-black font-mono text-amber-600 dark:text-amber-400" },
-            stats.dueSoon.toLocaleString()
+          h("span", { className: "top-kpi-val dashboard-number-animate text-xl sm:text-2xl font-black font-mono text-amber-600 dark:text-amber-400" },
+            getAnimVal(stats.dueSoon).toLocaleString()
           ),
           h("span", { className: "text-[10px] text-amber-600 font-semibold" }, "รายการ")
         ),
@@ -1546,8 +1577,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         ),
         h("div", { className: "my-1 flex items-baseline gap-1" },
-          h("span", { className: "top-kpi-val text-xl sm:text-2xl font-black font-mono text-rose-600 dark:text-rose-400" },
-            stats.overdue.toLocaleString()
+          h("span", { className: "top-kpi-val dashboard-number-animate text-xl sm:text-2xl font-black font-mono text-rose-600 dark:text-rose-400" },
+            getAnimVal(stats.overdue).toLocaleString()
           ),
           h("span", { className: "text-[10px] text-rose-600 font-semibold" }, "รายการ")
         ),
@@ -1575,8 +1606,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         ),
         h("div", { className: "my-1 flex items-baseline gap-1" },
-          h("span", { className: "top-kpi-val text-xl sm:text-2xl font-black font-mono text-slate-800 dark:!text-slate-100" },
-            stats.inLab.toLocaleString()
+          h("span", { className: "top-kpi-val dashboard-number-animate text-xl sm:text-2xl font-black font-mono text-slate-800 dark:!text-slate-100" },
+            getAnimVal(stats.inLab).toLocaleString()
           ),
           h("span", { className: "text-[10px] text-slate-500 font-semibold" }, "รายการ")
         ),
@@ -1606,8 +1637,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         ),
         h("div", { className: "my-1 flex items-baseline gap-1" },
-          h("span", { className: "top-kpi-val text-xl sm:text-2xl font-black font-mono text-slate-800 dark:!text-slate-100" },
-            stats.cancelCount.toLocaleString()
+          h("span", { className: "top-kpi-val dashboard-number-animate text-xl sm:text-2xl font-black font-mono text-slate-800 dark:!text-slate-100" },
+            getAnimVal(stats.cancelCount).toLocaleString()
           ),
           h("span", { className: "text-[10px] text-slate-500 font-semibold" }, "รายการ")
         ),
@@ -1655,9 +1686,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         // Donut Chart Graphic (Center Stage - Responsive with Crisp Curved Lines)
         h("div", { className: "my-auto py-2 flex flex-col items-center justify-center relative min-h-[145px] w-full" },
           donutTab === "DONUT" && h("div", { className: "w-full max-w-[190px] sm:max-w-[210px] aspect-square relative flex items-center justify-center mx-auto" },
-            // Circular SVG with 3D Gradients, Precision Depth Rings & Drop Shadows
+            // Circular SVG with 3D Gradients, Precision Depth Rings & Drop Shadows + Rotation Entrance
             h("svg", {
-              className: "donut-svg w-full h-full -rotate-90 transform crisp-vector overflow-visible",
+              className: "donut-svg dashboard-donut-animated w-full h-full -rotate-90 transform crisp-vector overflow-visible transition-transform duration-700",
               viewBox: "0 0 220 220"
             },
               h("defs", null,
@@ -1719,7 +1750,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 filter: "url(#donut3dShadow)",
                 strokeWidth: activeDonutSlice === "IN_SPEC" ? "20" : "16",
                 strokeLinecap: "round",
-                strokeDasharray: `${Math.max(0, (stats.inSpecPct / 100) * 471.24 - 8)} 471.24`,
+                strokeDasharray: `${Math.max(0, ((stats.inSpecPct * animProgress) / 100) * 471.24 - 8)} 471.24`,
                 strokeDashoffset: "0",
                 className: "transition-all duration-300 cursor-pointer",
                 onMouseEnter: () => setActiveDonutSlice("IN_SPEC"),
@@ -1735,8 +1766,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 filter: "url(#donut3dShadow)",
                 strokeWidth: activeDonutSlice === "DUE_SOON" ? "20" : "16",
                 strokeLinecap: "round",
-                strokeDasharray: `${Math.max(0, (stats.dueSoonPct / 100) * 471.24 - 8)} 471.24`,
-                strokeDashoffset: `-${(stats.inSpecPct / 100) * 471.24}`,
+                strokeDasharray: `${Math.max(0, ((stats.dueSoonPct * animProgress) / 100) * 471.24 - 8)} 471.24`,
+                strokeDashoffset: `-${((stats.inSpecPct * animProgress) / 100) * 471.24}`,
                 className: "transition-all duration-300 cursor-pointer",
                 onMouseEnter: () => setActiveDonutSlice("DUE_SOON"),
                 onMouseLeave: () => setActiveDonutSlice(null)
@@ -1751,8 +1782,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 filter: "url(#donut3dShadow)",
                 strokeWidth: activeDonutSlice === "OVERDUE" ? "20" : "16",
                 strokeLinecap: "round",
-                strokeDasharray: `${Math.max(0, (stats.overduePct / 100) * 471.24 - 8)} 471.24`,
-                strokeDashoffset: `-${((stats.inSpecPct + stats.dueSoonPct) / 100) * 471.24}`,
+                strokeDasharray: `${Math.max(0, ((stats.overduePct * animProgress) / 100) * 471.24 - 8)} 471.24`,
+                strokeDashoffset: `-${(((stats.inSpecPct + stats.dueSoonPct) * animProgress) / 100) * 471.24}`,
                 className: "transition-all duration-300 cursor-pointer",
                 onMouseEnter: () => setActiveDonutSlice("OVERDUE"),
                 onMouseLeave: () => setActiveDonutSlice(null)
@@ -1762,20 +1793,20 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             h("div", { className: "absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none p-2" },
               activeDonutSlice === "IN_SPEC" ? [
                 h("span", { key: "l", className: "text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider" }, "พร้อมใช้งาน"),
-                h("span", { key: "v", className: "donut-center-kpi-val text-2xl sm:text-3xl font-black font-mono text-emerald-600 dark:!text-emerald-400 leading-tight drop-shadow-xs" }, stats.inSpec.toLocaleString()),
+                h("span", { key: "v", className: "donut-center-kpi-val dashboard-number-animate text-2xl sm:text-3xl font-black font-mono text-emerald-600 dark:!text-emerald-400 leading-tight drop-shadow-xs" }, getAnimVal(stats.inSpec).toLocaleString()),
                 h("span", { key: "s", className: "text-[11px] font-bold text-slate-600 dark:text-slate-300" }, `${stats.inSpecPct}% ของระบบ`)
               ] : activeDonutSlice === "DUE_SOON" ? [
                 h("span", { key: "l", className: "text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider" }, "ใกล้ครบกำหนด"),
-                h("span", { key: "v", className: "donut-center-kpi-val text-2xl sm:text-3xl font-black font-mono text-amber-600 dark:!text-amber-400 leading-tight drop-shadow-xs" }, stats.dueSoon.toLocaleString()),
+                h("span", { key: "v", className: "donut-center-kpi-val dashboard-number-animate text-2xl sm:text-3xl font-black font-mono text-amber-600 dark:!text-amber-400 leading-tight drop-shadow-xs" }, getAnimVal(stats.dueSoon).toLocaleString()),
                 h("span", { key: "s", className: "text-[11px] font-bold text-slate-600 dark:text-slate-300" }, `${stats.dueSoonPct}% ของระบบ`)
               ] : activeDonutSlice === "OVERDUE" ? [
                 h("span", { key: "l", className: "text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider" }, "เกินกำหนด"),
-                h("span", { key: "v", className: "donut-center-kpi-val text-2xl sm:text-3xl font-black font-mono text-rose-600 dark:!text-rose-400 leading-tight drop-shadow-xs" }, stats.overdue.toLocaleString()),
+                h("span", { key: "v", className: "donut-center-kpi-val dashboard-number-animate text-2xl sm:text-3xl font-black font-mono text-rose-600 dark:!text-rose-400 leading-tight drop-shadow-xs" }, getAnimVal(stats.overdue).toLocaleString()),
                 h("span", { key: "s", className: "text-[11px] font-bold text-slate-600 dark:text-slate-300" }, `${stats.overduePct}% ของระบบ`)
               ] : [
                 h("span", { key: "l", className: "text-[10px] font-black uppercase tracking-widest text-slate-500 dark:!text-slate-300" }, "TOTAL"),
-                h("span", { key: "v", className: "donut-center-kpi-val text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:!text-white leading-tight drop-shadow-xs" },
-                  stats.allCount.toLocaleString()
+                h("span", { key: "v", className: "donut-center-kpi-val dashboard-number-animate text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:!text-white leading-tight drop-shadow-xs" },
+                  getAnimVal(stats.allCount).toLocaleString()
                 ),
                 h("span", { key: "s", className: "px-2.5 py-0.5 mt-1 rounded-full donut-hud-pill text-emerald-800 dark:!text-emerald-300 font-mono text-[11px] font-black shadow-xs flex items-center gap-1.5" },
                   h("span", { className: "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" }),
@@ -2081,15 +2112,30 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
               // 12 Monthly Bars Grid with Exact Number Badges & Zero Overflow Scaling
               h("div", { className: "relative z-10 w-full h-full flex items-end justify-between gap-1 sm:gap-1.5 pb-4" },
                 monthlyData.map((m, idx) => {
-                  // Controlled scaling to cap maximum bar height at 60% of stage, leaving 40% headroom!
-                  const maxScale = Math.max(500, Math.max(...monthlyData.map(d => d.total || 0)) * 1.2);
+                  // Controlled scaling to cap maximum bar height at 58% of stage, leaving 42% headroom for badges & spline
+                  const maxTotal = Math.max(1, ...monthlyData.map(d => d.total || 0));
+                  const maxScale = Math.max(500, maxTotal * 1.15);
                   const maxHeightPct = 58;
-                  const totalHeightPct = Math.min(((m.total || 0) / maxScale) * maxHeightPct, maxHeightPct);
-                  const inSpecHeight = m.total > 0 ? (m.inSpec / m.total) * 100 : 0;
-                  const overdueHeight = m.total > 0 ? (m.overdue / m.total) * 100 : 0;
-                  const dueSoonHeight = m.total > 0 ? (m.dueSoon / m.total) * 100 : 0;
-                  const inLabHeight = m.total > 0 ? ((m.inLab || 0) / m.total) * 100 : 0;
+                  const baseBarHeight = m.total > 0 ? Math.max(((m.total / maxScale) * maxHeightPct), 5.5) : 0;
+                  const currentHeight = baseBarHeight * animProgress;
+
                   const isSelected = selectedMonth === m.id;
+                  const animTotal = getAnimVal(m.total);
+
+                  // Calculate active segments and fallbacks to guarantee 100% complete color fill
+                  const activeInSpec = seriesFilter.inSpec ? (m.inSpec || 0) : 0;
+                  const activeInLab = seriesFilter.inLab ? (m.inLab || 0) : 0;
+                  const activeDueSoon = seriesFilter.dueSoon ? (m.dueSoon || 0) : 0;
+                  const activeOverdue = seriesFilter.overdue ? (m.overdue || 0) : 0;
+                  const activeSum = activeInSpec + activeInLab + activeDueSoon + activeOverdue;
+
+                  const effectiveInSpec = (activeSum === 0 && m.total > 0) ? m.total : activeInSpec;
+                  const effectiveTotal = (activeSum === 0 && m.total > 0) ? m.total : (activeSum > 0 ? activeSum : 1);
+
+                  const inSpecHeight = (effectiveInSpec / effectiveTotal) * 100;
+                  const inLabHeight = (activeInLab / effectiveTotal) * 100;
+                  const dueSoonHeight = (activeDueSoon / effectiveTotal) * 100;
+                  const overdueHeight = (activeOverdue / effectiveTotal) * 100;
 
                   return h("div", {
                     key: m.id,
@@ -2100,31 +2146,33 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   },
                     // Exact Count Badge Directly Above Bar ("ให้ละเอียด ชัดเจน")
                     h("span", {
-                      className: `text-[9.5px] font-mono font-black mb-1 transition-all leading-none select-none ${
+                      className: `dashboard-number-animate text-[9.5px] font-mono font-black mb-1 transition-all leading-none select-none ${
                         isSelected ? "text-blue-600 dark:text-blue-300 scale-115 drop-shadow-sm" : "text-slate-600 dark:text-slate-300 opacity-80 group-hover:opacity-100 group-hover:-translate-y-0.5"
                       }`
-                    }, m.total > 0 ? m.total : ""),
+                    }, animTotal > 0 ? animTotal : ""),
 
-                    // Stacked Bar with vibrant colors and rich gradients (สีสันสดใส ชัดเจน)
+                    // Stacked Bar with vibrant colors, rounded cap, and synchronized fluid growth
                     h("div", {
-                      style: { height: `${Math.max(totalHeightPct, 6)}%` },
-                      className: `w-full max-w-[24px] sm:max-w-[32px] chart-bar-container flex flex-col ${
+                      style: { 
+                        height: `${currentHeight}%`
+                      },
+                      className: `w-full max-w-[24px] sm:max-w-[32px] chart-bar-container rounded-t-md sm:rounded-t-lg overflow-hidden flex flex-col shadow-sm ${
                         isSelected
                           ? "ring-2 ring-blue-500 scale-105 shadow-xl bar-glow-active z-10"
-                          : ""
+                          : "hover:brightness-110"
                       }`
                     },
                       // Green In-Spec Segment (Top: พร้อมใช้)
-                      (seriesFilter.inSpec && m.inSpec > 0) && h("div", {
+                      effectiveInSpec > 0 && h("div", {
                         style: {
                           height: `${inSpecHeight}%`,
                           background: "linear-gradient(180deg, #10b981 0%, #059669 100%)"
                         },
                         className: "w-full bar-seg-inspec transition-all",
-                        title: `พร้อมใช้: ${m.inSpec} รายการ`
+                        title: `พร้อมใช้: ${m.inSpec || effectiveInSpec} รายการ`
                       }),
                       // Blue In-Lab Segment (ส่งแล็บ)
-                      (seriesFilter.inLab && (m.inLab || 0) > 0) && h("div", {
+                      activeInLab > 0 && h("div", {
                         style: {
                           height: `${inLabHeight}%`,
                           background: "linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)"
@@ -2133,7 +2181,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         title: `ส่งแล็บ: ${m.inLab || 0} รายการ`
                       }),
                       // Amber Due Soon Segment (ใกล้ครบกำหนด)
-                      (seriesFilter.dueSoon && m.dueSoon > 0) && h("div", {
+                      activeDueSoon > 0 && h("div", {
                         style: {
                           height: `${dueSoonHeight}%`,
                           background: "linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)"
@@ -2142,7 +2190,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         title: `ใกล้ครบกำหนด: ${m.dueSoon} รายการ`
                       }),
                       // Red Overdue Segment (Bottom: เกินกำหนด)
-                      (seriesFilter.overdue && m.overdue > 0) && h("div", {
+                      activeOverdue > 0 && h("div", {
                         style: {
                           height: `${overdueHeight}%`,
                           background: "linear-gradient(180deg, #f43f5e 0%, #e11d48 50%, #be123c 100%)"
@@ -2160,7 +2208,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 // Calculate 12 control points for the Bezier Spline
                 const pts = monthlyData.map((m, idx) => ({
                   x: 50 + idx * 100, // 0 to 1100 in 1200 coordinate space
-                  y: 200 - (((m.reliability || 100) / 100) * 165) // mapped with clearance
+                  y: 200 - ((((m.reliability || 100) / 100) * 165) * animProgress) // mapped with fluid animated progress
                 }));
                 const splineD = getSmoothSplinePath(pts);
                 const areaD = `${splineD} L 1150 215 L 50 215 Z`;
@@ -2625,8 +2673,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   h("span", { className: "w-2 h-2 rounded-full shrink-0", style: { backgroundColor: row.color } }),
                   h("span", { className: "truncate" }, row.category)
                 ),
-                h("td", { className: "py-2 px-3 text-right font-bold text-slate-900 dark:!text-white" },
-                  row.count.toLocaleString()
+                h("td", { className: "py-2 px-3 text-right font-bold text-slate-900 dark:!text-white dashboard-number-animate" },
+                  getAnimVal(row.count).toLocaleString()
                 ),
                 h("td", { className: "py-2 px-3 text-right font-bold text-slate-700 dark:text-slate-300" },
                   row.pct
@@ -2636,7 +2684,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             h("tfoot", { className: "bg-slate-50 dark:bg-slate-800/80 font-bold text-slate-900 dark:!text-white border-t border-slate-200 dark:border-slate-700 sticky bottom-0" },
               h("tr", null,
                 h("td", { className: "py-2 px-3 font-sans font-black" }, "รวมทั้งหมด (Total)"),
-                h("td", { className: "py-2 px-3 text-right font-mono font-black" }, totalMetrologyCount.toLocaleString()),
+                h("td", { className: "py-2 px-3 text-right font-mono font-black dashboard-number-animate" }, getAnimVal(totalMetrologyCount).toLocaleString()),
                 h("td", { className: "py-2 px-3 text-right font-mono font-black" }, "100.00%")
               )
             )
@@ -2712,7 +2760,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
             // Number of instruments in month
             h("span", {
-              className: `kpi-horizon-number text-xs sm:text-sm font-black font-mono my-0.5 ${
+              className: `kpi-horizon-number dashboard-number-animate text-xs sm:text-sm font-black font-mono my-0.5 ${
                 isSelected 
                   ? "text-blue-600 dark:text-blue-400 scale-105" 
                   : hasOverdue
@@ -2721,7 +2769,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                       ? "text-amber-600 dark:text-amber-400"
                       : "text-slate-900 dark:!text-white"
               }`
-            }, m.total.toLocaleString()),
+            }, getAnimVal(m.total).toLocaleString()),
 
             // Bottom Accent Indicator Bar
             h("div", {
@@ -3566,6 +3614,7 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
       let compSize = file.size;
       let origSize = file.size;
 
+      if (window.showCompressionToast) window.showCompressionToast(`เริ่มประมวลผลไฟล์ ${file.name}...`, 'loading');
       if (typeof window.qapCompressPdf === 'function') {
         const res = await window.qapCompressPdf(file);
         base64 = res.dataUrl;
@@ -4875,6 +4924,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       let compSize = file.size;
       let origSize = file.size;
 
+      if (window.showCompressionToast) window.showCompressionToast(`เริ่มประมวลผลไฟล์ ${file.name}...`, 'loading');
       if (typeof window.qapCompressPdf === 'function') {
         const res = await window.qapCompressPdf(file);
         base64 = res.dataUrl;
@@ -5074,11 +5124,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
             onClick: () => { t(); n(currentInst); },
             className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
           }, '✏️ แก้ไข'),
-          l && h('button', {
-            type: 'button',
-            onClick: () => { l(currentInst); },
-            className: 'px-2.5 py-1 rounded-md bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-600 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer'
-          }, '🖨️ พิมพ์ใบเซอร์'),
+          
           h('button', {
             type: 'button',
             onClick: t,
@@ -6512,22 +6558,16 @@ A.useEffect(()=>{safeSaveStorage(centStorageKey,centInstruments)},[centInstrumen
     if(!o)return;
     const de=o.id;
     const targetTab = (o.category === "CANCEL" ? "cancel" : o.category === "CENTRALIZED" ? "centralized" : o.category === "EACH SECTION" ? "each_section" : o.category === "NORMAL STANDARD" ? "normal_standard" : e);
-    if(targetTab==="cancel"||(o.category||"").trim().toUpperCase()==="CANCEL"){
-      setCancelInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
-    }else if(targetTab==="centralized"||(o.category||"").trim().toUpperCase()==="CENTRALIZED"){
-      setCentInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
-    }else if(targetTab==="each_section"||(o.category||"").trim().toUpperCase()==="EACH SECTION"){
-      setEachInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
-    }else if(targetTab==="normal_standard"||(o.category||"").trim().toUpperCase()==="NORMAL STANDARD"){
-      setNsInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
-    }else{
-      f(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
-    }
+    setCancelInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
+    setCentInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
+    setEachInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
+    setNsInstruments(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
+    f(Re=>Re.filter(te=>te.id!==de).map((te,me)=>({...te,no:me+1})));
     u(null);
     ae();
     try{
       if(window.qapSupabase&&window.qapSupabase.isConfigured()){
-        window.qapSupabase.deleteInstrument(de, targetTab);
+        window.qapSupabase.deleteInstrument(de, targetTab, o.codeNo);
       }
     }catch(err){}
   },
@@ -6535,14 +6575,22 @@ A.useEffect(()=>{safeSaveStorage(centStorageKey,centInstruments)},[centInstrumen
     const U=new Set(de);
     if(e==="cancel"){
       setCancelInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      f(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
     }else if(e==="centralized"){
       setCentInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      f(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
     }else if(e==="each_section"){
       setEachInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      f(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
     }else if(e==="normal_standard"){
       setNsInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      f(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
     }else{
       f(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      setCancelInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      setCentInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      setEachInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
+      setNsInstruments(te=>te.filter(Ne=>!U.has(Ne.id)).map((Ne,Fe)=>({...Ne,no:Fe+1})));
     }
     ae();
     try{
@@ -6584,37 +6632,75 @@ A.useEffect(()=>{safeSaveStorage(centStorageKey,centInstruments)},[centInstrumen
       }
     }catch(err){}
   },
-  be=()=>{
-    f([]);idbDelete(ah);try{localStorage.removeItem(ah)}catch{}
-    setNsInstruments([]);idbDelete(nsStorageKey);try{localStorage.removeItem(nsStorageKey)}catch{}
-    setCentInstruments([]);idbDelete(centStorageKey);try{localStorage.removeItem(centStorageKey)}catch{}
-    setEachInstruments([]);idbDelete(eachStorageKey);try{localStorage.removeItem(eachStorageKey)}catch{}
-    setCancelInstruments([]);idbDelete(cancelStorageKey);try{localStorage.removeItem(cancelStorageKey)}catch{}
-    ae();
-    try{
-      if(window.qapSupabase&&window.qapSupabase.isConfigured()){
-        window.qapSupabase.deleteAllInstruments("all");
-      }
-    }catch(err){}
+  be=(targetTab="all")=>{
+    if(targetTab==="all"||!targetTab||e==="calibration_all"){
+      f([]);idbDelete(ah);try{localStorage.removeItem(ah)}catch{}
+      setNsInstruments([]);idbDelete(nsStorageKey);try{localStorage.removeItem(nsStorageKey)}catch{}
+      setCentInstruments([]);idbDelete(centStorageKey);try{localStorage.removeItem(centStorageKey)}catch{}
+      setEachInstruments([]);idbDelete(eachStorageKey);try{localStorage.removeItem(eachStorageKey)}catch{}
+      setCancelInstruments([]);idbDelete(cancelStorageKey);try{localStorage.removeItem(cancelStorageKey)}catch{}
+      ae();
+      try{
+        if(window.qapSupabase&&window.qapSupabase.isConfigured()){
+          window.qapSupabase.deleteAllInstruments("all");
+        }
+      }catch(err){}
+    }else if(targetTab==="cancel"||e==="cancel"){
+      setCancelInstruments([]);idbDelete(cancelStorageKey);try{localStorage.removeItem(cancelStorageKey)}catch{}
+      f(prev=>prev.filter(x=>(x.category||"").trim().toUpperCase()!=="CANCEL").map((x,i)=>({...x,no:i+1})));
+      ae();
+      try{
+        if(window.qapSupabase&&window.qapSupabase.isConfigured()){
+          window.qapSupabase.deleteAllInstruments("cancel");
+        }
+      }catch(err){}
+    }else if(targetTab==="centralized"||e==="centralized"){
+      setCentInstruments([]);idbDelete(centStorageKey);try{localStorage.removeItem(centStorageKey)}catch{}
+      f(prev=>prev.filter(x=>(x.category||"").trim().toUpperCase()!=="CENTRALIZED").map((x,i)=>({...x,no:i+1})));
+      ae();
+      try{
+        if(window.qapSupabase&&window.qapSupabase.isConfigured()){
+          window.qapSupabase.deleteAllInstruments("centralized");
+        }
+      }catch(err){}
+    }else if(targetTab==="each_section"||e==="each_section"){
+      setEachInstruments([]);idbDelete(eachStorageKey);try{localStorage.removeItem(eachStorageKey)}catch{}
+      f(prev=>prev.filter(x=>(x.category||"").trim().toUpperCase()!=="EACH SECTION").map((x,i)=>({...x,no:i+1})));
+      ae();
+      try{
+        if(window.qapSupabase&&window.qapSupabase.isConfigured()){
+          window.qapSupabase.deleteAllInstruments("each_section");
+        }
+      }catch(err){}
+    }else if(targetTab==="normal_standard"||e==="normal_standard"){
+      setNsInstruments([]);idbDelete(nsStorageKey);try{localStorage.removeItem(nsStorageKey)}catch{}
+      f(prev=>prev.filter(x=>(x.category||"").trim().toUpperCase()!=="NORMAL STANDARD"&&(x.category||"").trim().toUpperCase()!=="NORMAL STD").map((x,i)=>({...x,no:i+1})));
+      ae();
+      try{
+        if(window.qapSupabase&&window.qapSupabase.isConfigured()){
+          window.qapSupabase.deleteAllInstruments("normal_standard");
+        }
+      }catch(err){}
+    }
   },
   we=()=>{
     if(e==="cancel"){
       setCancelInstruments(defaultCancel);safeSaveStorage(cancelStorageKey,defaultCancel);
+      try{if(window.qapSupabase&&window.qapSupabase.isConfigured()){window.qapSupabase.deleteAllInstruments("cancel").then(()=>{window.qapSupabase.upsertInstruments(defaultCancel,"cancel");}).catch(()=>{});}}catch(err){}
     }else if(e==="centralized"){
       setCentInstruments(defaultCent);safeSaveStorage(centStorageKey,defaultCent);
+      try{if(window.qapSupabase&&window.qapSupabase.isConfigured()){window.qapSupabase.deleteAllInstruments("centralized").then(()=>{window.qapSupabase.upsertInstruments(defaultCent,"centralized");}).catch(()=>{});}}catch(err){}
     }else if(e==="each_section"){
       setEachInstruments(defaultEach);safeSaveStorage(eachStorageKey,defaultEach);
+      try{if(window.qapSupabase&&window.qapSupabase.isConfigured()){window.qapSupabase.deleteAllInstruments("each_section").then(()=>{window.qapSupabase.upsertInstruments(defaultEach,"each_section");}).catch(()=>{});}}catch(err){}
     }else if(e==="normal_standard"){
       setNsInstruments(defaultNs);safeSaveStorage(nsStorageKey,defaultNs);
+      try{if(window.qapSupabase&&window.qapSupabase.isConfigured()){window.qapSupabase.deleteAllInstruments("normal_standard").then(()=>{window.qapSupabase.upsertInstruments(defaultNs,"normal_standard");}).catch(()=>{});}}catch(err){}
     }else{
       f(iv);safeSaveStorage(ah,iv);
+      try{if(window.qapSupabase&&window.qapSupabase.isConfigured()){window.qapSupabase.deleteAllInstruments("all").then(()=>{window.qapSupabase.upsertInstruments(iv,"calibration_all");}).catch(()=>{});}}catch(err){}
     }
     ae();
-    try{
-      if(window.qapSupabase&&window.qapSupabase.isConfigured()){
-        window.qapSupabase.deleteAllInstruments(e);
-      }
-    }catch(err){}
   },
   De=(de,Re,targetPageOrSheet)=>{
     const isCancel=targetPageOrSheet==="cancel"||targetPageOrSheet==="CANCEL"||targetPageOrSheet==="CANCEL Y2026"||(importCfg&&(importCfg.sheet==="CANCEL"||importCfg.sheet==="CANCEL Y2026"||importCfg.page==="cancel"))||(!targetPageOrSheet&&e==="cancel");

@@ -1218,6 +1218,14 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
           method: "DELETE",
           headers: { Prefer: "return=minimal" },
         }).catch(() => {});
+      } else {
+        // If deleting from calibration_all, also clean from all child tables
+        for (const tbl of [PAGE_TABLES.normal_standard, PAGE_TABLES.centralized, PAGE_TABLES.each_section, PAGE_TABLES.cancel]) {
+          request(`/${tbl}?id=eq.${encodeURIComponent(cleanId)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+          }).catch(() => {});
+        }
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
@@ -1229,7 +1237,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     }
   }
 
-  // 6. Delete multiple instruments (Batch Delete)
+  // 6. Delete multiple instruments (Batch Delete with safe chunking and error resilience)
   async function deleteInstruments(ids, tabType = "calibration_all") {
     if (!isConfigured() || !config.autoSync || !Array.isArray(ids) || ids.length === 0) {
       return { ok: false, skipped: true };
@@ -1245,26 +1253,55 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
         deleteFileRecord(cleanId, cleanCode).catch(() => {});
       }
 
-      const idStrings = ids.map((item) => (typeof item === "object" ? String(item.id || "") : String(item))).filter(Boolean);
-      const idList = idStrings.map((i) => `"${encodeURIComponent(i)}"`).join(",");
-      await request(`/${targetTable}?id=in.(${idList})`, {
-        method: "DELETE",
-        headers: { Prefer: "return=minimal" },
-      });
+      const idStrings = ids
+        .map((item) => (typeof item === "object" ? String(item.id || "") : String(item)))
+        .map((id) => id.trim())
+        .filter(Boolean);
 
-      if (targetTable !== PAGE_TABLES.calibration_all) {
-        await request(`/${PAGE_TABLES.calibration_all}?id=in.(${idList})`, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" },
-        }).catch(() => {});
+      if (idStrings.length === 0) return { ok: true, count: 0 };
+
+      // Chunk in batches of 40 to avoid HTTP 414 URI Too Long errors
+      const CHUNK_SIZE = 40;
+      for (let i = 0; i < idStrings.length; i += CHUNK_SIZE) {
+        const chunk = idStrings.slice(i, i + CHUNK_SIZE);
+        const idList = chunk.map((id) => encodeURIComponent(id)).join(",");
+        if (!idList) continue;
+
+        const deleteFromTable = async (tbl) => {
+          try {
+            await request(`/${tbl}?id=in.(${idList})`, {
+              method: "DELETE",
+              headers: { Prefer: "return=minimal" },
+            });
+          } catch (inErr) {
+            // Fallback to individual eq. delete if in. operator has syntax/schema limitation
+            for (const singleId of chunk) {
+              await request(`/${tbl}?id=eq.${encodeURIComponent(singleId)}`, {
+                method: "DELETE",
+                headers: { Prefer: "return=minimal" },
+              }).catch(() => {});
+            }
+          }
+        };
+
+        await deleteFromTable(targetTable);
+
+        if (targetTable !== PAGE_TABLES.calibration_all) {
+          deleteFromTable(PAGE_TABLES.calibration_all).catch(() => {});
+        } else {
+          // If deleting from calibration_all, clean from all sub-tables too
+          for (const tbl of [PAGE_TABLES.normal_standard, PAGE_TABLES.centralized, PAGE_TABLES.each_section, PAGE_TABLES.cancel]) {
+            deleteFromTable(tbl).catch(() => {});
+          }
+        }
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ลบ ${idStrings.length} รายการจากตาราง ${targetTable} และตาราง qap_files สำเร็จ`, "info");
+      emitToast(`☁️ ลบ ${idStrings.length} รายการจากตาราง ${targetTable} สำเร็จ`, "info");
       return { ok: true, count: idStrings.length };
     } catch (err) {
-      console.warn("[Supabase Sync] Batch delete failed:", err);
-      return { ok: false, error: err.message };
+      console.warn("[Supabase Sync] Batch delete failed:", err && err.message);
+      return { ok: false, error: err && err.message };
     }
   }
 
