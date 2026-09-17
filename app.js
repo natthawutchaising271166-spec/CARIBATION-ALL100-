@@ -835,7 +835,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   // Interactive State
   const [selectedMonth, setSelectedMonth] = g1.useState("ALL"); // Default SEP like screenshot
   const [centerTab, setCenterTab] = g1.useState("12m"); // "12m", "donut", "dept", "type", "radar"
-  const [donutTab, setDonutTab] = g1.useState("DONUT"); // "DONUT", "GAUGE", "ISO"
+  const [donutTab, setDonutTab] = g1.useState("GAUGE"); // "GAUGE", "DONUT", "ISO"
   const [isMuted, setIsMuted] = g1.useState(false);
   const [showAiModal, setShowAiModal] = g1.useState(false);
   const [currentTime, setCurrentTime] = g1.useState("17:22:09 ICT");
@@ -852,6 +852,29 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   const toggleSeries = (key) => {
     setSeriesFilter(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  // Live reactive dark mode detection for SVG elements & dials
+  const [isDarkMode, setIsDarkMode] = g1.useState(() => {
+    if (typeof document !== "undefined") {
+      return document.documentElement.classList.contains("dark");
+    }
+    return false;
+  });
+
+  g1.useEffect(() => {
+    if (typeof document === "undefined") return;
+    const checkDark = () => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    };
+    checkDark();
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("storage", checkDark);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("storage", checkDark);
+    };
+  }, []);
 
   // Smooth Catmull-Rom Bezier Spline Path Generator
   const getSmoothSplinePath = (pts) => {
@@ -1446,6 +1469,38 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     return () => cancelAnimationFrame(animId);
   }, [stats.allCount, stats.inSpec, stats.dueSoon, stats.overdue, stats.inLab, stats.cancelCount]);
 
+  // 🎯 Dedicated Smooth Sweep Animation for Speedometer Gauge (Runs from 0 up to actual target)
+  const [gaugeAnimProgress, setGaugeAnimProgress] = g1.useState(0);
+  const [gaugeAnimKey, setGaugeAnimKey] = g1.useState(0);
+
+  g1.useEffect(() => {
+    if (donutTab !== "GAUGE") {
+      setGaugeAnimProgress(0);
+      return;
+    }
+    setGaugeAnimProgress(0);
+    let startTimestamp = null;
+    const duration = 1400; // 1.4s smooth sweep from 0
+    let animId;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Ease-out cubic curve for natural dial physics
+      const easeVal = progress === 1 ? 1 : 1 - Math.pow(1 - progress, 3);
+      setGaugeAnimProgress(easeVal);
+      if (progress < 1) {
+        animId = requestAnimationFrame(step);
+      }
+    };
+    const t = setTimeout(() => {
+      animId = requestAnimationFrame(step);
+    }, 40);
+    return () => {
+      clearTimeout(t);
+      if (animId) cancelAnimationFrame(animId);
+    };
+  }, [donutTab, stats.inSpecPct, gaugeAnimKey]);
+
   // Helper function to calculate animated displayed integer
   const getAnimVal = (target) => Math.round((target || 0) * animProgress);
 
@@ -1814,60 +1869,153 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 )
               ]
             )
-          ),          // GAUGE Tab view: Speedometer Calibration Gauge
-          donutTab === "GAUGE" && h("div", { className: "w-full max-w-[210px] flex flex-col items-center justify-center py-1" },
-            h("svg", { viewBox: "0 0 200 125", className: "w-full h-auto crisp-vector" },
-              // Gauge track
-              h("path", {
-                d: "M 25 110 A 75 75 0 0 1 175 110",
-                fill: "none",
-                stroke: "#e2e8f0",
-                strokeWidth: "16",
-                strokeLinecap: "round"
-              }),
-              // Red zone (0-60%)
-              h("path", {
-                d: "M 25 110 A 75 75 0 0 1 70 45",
-                fill: "none",
-                stroke: "#ef4444",
-                strokeWidth: "16",
-                strokeLinecap: "round"
-              }),
-              // Amber zone (60-80%)
-              h("path", {
-                d: "M 70 45 A 75 75 0 0 1 130 45",
-                fill: "none",
-                stroke: "#f59e0b",
-                strokeWidth: "16"
-              }),
-              // Green zone (80-100%)
-              h("path", {
-                d: "M 130 45 A 75 75 0 0 1 175 110",
-                fill: "none",
-                stroke: "#10b981",
-                strokeWidth: "16",
-                strokeLinecap: "round"
-              }),
-              // Needle rotated to inSpecPct
-              h("line", {
-                x1: "100",
-                y1: "110",
-                x2: "100",
-                y2: "45",
-                stroke: "#0f172a",
-                strokeWidth: "3.5",
-                strokeLinecap: "round",
-                transform: `rotate(${(stats.inSpecPct / 100) * 180 - 90} 100 110)`,
-                className: "transition-transform duration-700"
-              }),
-              h("circle", { cx: "100", cy: "110", r: "7", fill: "#0f172a" }),
-              h("circle", { cx: "100", cy: "110", r: "3", fill: "#ffffff" })
-            ),
-            h("div", { className: "text-center -mt-2" },
-              h("div", { className: "text-lg font-black font-mono text-emerald-600 dark:text-emerald-400" }, `${stats.inSpecPct}%`),
-              h("div", { className: "text-[9px] font-bold text-slate-500 uppercase tracking-wide" }, "Calibration Yield Health")
-            )
-          ),
+          ),          // GAUGE Tab view: Speedometer Calibration Gauge (Animated Sweep from 0 to Real Target)
+          donutTab === "GAUGE" && (() => {
+            const rawTarget = Math.max(0, Math.min(100, stats.inSpecPct || 0));
+            const liveVal = rawTarget * gaugeAnimProgress;
+            const displayVal = Math.round(liveVal);
+            const liveArcLength = ((liveVal / 100) * 267.035).toFixed(2);
+            const needleDeg = ((liveVal / 100) * 180) - 90;
+            const numColor = isDarkMode ? "#ffffff" : "#0f172a";
+
+            return h("div", {
+              className: "w-full flex flex-col items-center justify-center py-1 px-1 cursor-pointer select-none group",
+              onClick: () => setGaugeAnimKey(k => k + 1)
+            },
+              h("div", { className: "w-full max-w-[240px] relative flex flex-col items-center justify-center pt-2" },
+                h("svg", { viewBox: "0 0 240 148", className: "w-full h-auto crisp-vector overflow-visible" },
+                  h("defs", null,
+                    // Multi-stop gradient: 0-20% Red, 20-60% Orange/Amber, 60-100% Green
+                    h("linearGradient", { id: "gaugePhaseFadeGrad", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
+                      h("stop", { offset: "0%", stopColor: "#ef4444" }),
+                      h("stop", { offset: "18%", stopColor: "#ef4444" }),
+                      h("stop", { offset: "28%", stopColor: "#f97316" }),
+                      h("stop", { offset: "54%", stopColor: "#f59e0b" }),
+                      h("stop", { offset: "66%", stopColor: "#10b981" }),
+                      h("stop", { offset: "100%", stopColor: "#059669" })
+                    ),
+                    h("filter", { id: "refGaugeShadow", x: "-20%", y: "-20%", width: "140%", height: "140%" },
+                      h("feDropShadow", { dx: "0", dy: "2", stdDeviation: "2.5", floodColor: "#000000", floodOpacity: "0.15" })
+                    ),
+                    // Realistic dial drop shadow for the elevated needle
+                    h("filter", { id: "needleDialShadow", x: "-30%", y: "-30%", width: "160%", height: "160%" },
+                      h("feDropShadow", { dx: "1", dy: "2", stdDeviation: "1.8", floodColor: "#000000", floodOpacity: "0.28" })
+                    ),
+                    // 3D Beveled Needle lighting gradients (Light sheen facet vs shade facet)
+                    h("linearGradient", { id: "needleFacetLeft", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
+                      h("stop", { offset: "0%", stopColor: "#60a5fa" }),
+                      h("stop", { offset: "100%", stopColor: "#2563eb" })
+                    ),
+                    h("linearGradient", { id: "needleFacetRight", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
+                      h("stop", { offset: "0%", stopColor: "#1d4ed8" }),
+                      h("stop", { offset: "100%", stopColor: "#1e3a8a" })
+                    ),
+                    // Metallic Center Hub Gradients
+                    h("radialGradient", { id: "hubBezelGrad", cx: "35%", cy: "35%", r: "65%" },
+                      h("stop", { offset: "0%", stopColor: "#64748b" }),
+                      h("stop", { offset: "100%", stopColor: "#0f172a" })
+                    ),
+                    h("radialGradient", { id: "hubCenterPinGrad", cx: "35%", cy: "35%", r: "65%" },
+                      h("stop", { offset: "0%", stopColor: "#ffffff" }),
+                      h("stop", { offset: "65%", stopColor: "#cbd5e1" }),
+                      h("stop", { offset: "100%", stopColor: "#94a3b8" })
+                    )
+                  ),
+                  // Gauge background track arc (radius 85, center 120, 115)
+                  h("path", {
+                    d: "M 35 115 A 85 85 0 0 1 205 115",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "16",
+                    strokeLinecap: "round",
+                    className: "text-slate-100 dark:text-slate-800/90"
+                  }),
+                  // Dynamic Colored Progress Arc - Filled strictly according to liveVal with smooth sweep from 0
+                  h("path", {
+                    d: "M 35 115 A 85 85 0 0 1 205 115",
+                    fill: "none",
+                    stroke: "url(#gaugePhaseFadeGrad)",
+                    strokeWidth: "16",
+                    strokeLinecap: "round",
+                    strokeDasharray: `${liveArcLength} 267.035`,
+                    strokeDashoffset: "0",
+                    filter: "url(#refGaugeShadow)"
+                  }),
+                  // Tick marks (radial inwards from arc) - Clean original style
+                  [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => {
+                    const rad = Math.PI - (val / 100) * Math.PI;
+                    const isMajor = val % 20 === 0;
+                    const r1 = 76;
+                    const r2 = isMajor ? 67 : 72;
+                    const x1 = 120 + r1 * Math.cos(rad);
+                    const y1 = 115 - r1 * Math.sin(rad);
+                    const x2 = 120 + r2 * Math.cos(rad);
+                    const y2 = 115 - r2 * Math.sin(rad);
+                    return h("line", {
+                      key: val,
+                      x1: x1.toFixed(1),
+                      y1: y1.toFixed(1),
+                      x2: x2.toFixed(1),
+                      y2: y2.toFixed(1),
+                      stroke: isMajor ? (isDarkMode ? "#e2e8f0" : "#94a3b8") : (isDarkMode ? "#64748b" : "#cbd5e1"),
+                      strokeWidth: isMajor ? "2" : "1",
+                      strokeLinecap: "round"
+                    });
+                  }),
+                  // Numbers along the arc (0, 20, 40, 60, 80, 100) - explicitly white in dark mode (#ffffff)
+                  h("text", { x: "25", y: "135", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "0"),
+                  h("text", { x: "73", y: "81", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "20"),
+                  h("text", { x: "102", y: "59", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "40"),
+                  h("text", { x: "138", y: "59", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "60"),
+                  h("text", { x: "167", y: "81", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "80"),
+                  h("text", { x: "215", y: "135", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "100"),
+
+                  // Luxury Precision 3D Beveled Needle with Counterbalance & Soft Dial Shadow
+                  h("g", {
+                    transform: `rotate(${needleDeg.toFixed(2)} 120 115)`,
+                    filter: "url(#needleDialShadow)"
+                  },
+                    // Counterbalance tail extending behind pivot
+                    h("path", {
+                      d: "M 117.8 114 L 118.6 125 L 120 127.5 L 121.4 125 L 122.2 114 Z",
+                      fill: "#1e3a8a"
+                    }),
+                    // Left 3D facet (Light sheen highlight)
+                    h("path", {
+                      d: "M 120 37 L 117.6 114 L 120 115 Z",
+                      fill: "url(#needleFacetLeft)"
+                    }),
+                    // Right 3D facet (Deep shade facet for physical depth)
+                    h("path", {
+                      d: "M 120 37 L 120 115 L 122.4 114 Z",
+                      fill: "url(#needleFacetRight)"
+                    }),
+                    // Sharp tip highlight
+                    h("path", {
+                      d: "M 119.3 43 L 120 37 L 120.7 43 Z",
+                      fill: "#bfdbfe"
+                    })
+                  ),
+                  // Multi-tier Luxury Center Hub
+                  h("circle", { cx: "120", cy: "115", r: "7", fill: "url(#hubBezelGrad)", stroke: "#334155", strokeWidth: "0.5" }),
+                  h("circle", { cx: "120", cy: "115", r: "4.8", fill: "#2563eb" }),
+                  h("circle", { cx: "120", cy: "115", r: "2.2", fill: "url(#hubCenterPinGrad)" }),
+                  h("circle", { cx: "120", cy: "115", r: "0.8", fill: "#0f172a" })
+                ),
+                // Center Display Content: Exact pill badge matching user's reference image
+                h("div", { className: "text-center -mt-7 pb-1 flex justify-center z-10 relative" },
+                  h("div", {
+                    className: "px-3.5 py-1 rounded-full bg-[#ecfdf5] dark:bg-emerald-950/60 border border-[#a7f3d0] dark:border-emerald-700/80 shadow-xs flex items-center justify-center gap-2 group-hover:scale-105 transition-transform duration-300"
+                  },
+                    h("span", { className: "w-2 h-2 rounded-full bg-[#10b981] shrink-0" }),
+                    h("span", {
+                      className: "text-xs sm:text-[13px] font-black font-mono tracking-wide text-[#065f46] dark:text-emerald-200 leading-none whitespace-nowrap"
+                    }, `${displayVal}% PASS`)
+                  )
+                )
+              )
+            );
+          })(),
 
           // ISO Tab view: ISO/IEC 17025 Metrology Compliance
           donutTab === "ISO" && h("div", { className: "w-full px-2 py-1 space-y-1.5 text-[11px]" },
@@ -1890,7 +2038,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         ),
 
         // Breakdown Rows with invisible scrollbar & vibrant 3D dots (สกอล่องหน ป้องกันล้นจอ)
-        h("div", { className: "space-y-1 text-xs pt-1.5 border-t border-slate-100 dark:border-slate-800 max-h-[155px] sm:max-h-[185px] overflow-y-auto no-scrollbar invisible-scroll" },
+        h("div", {
+          className: "space-y-0.5 sm:space-y-1 text-xs pt-1.5 border-t border-slate-100 dark:border-slate-800 overflow-hidden no-scrollbar invisible-scroll",
+          style: { scrollbarWidth: "none", msOverflowStyle: "none" }
+        },
           // Row 1: พร้อมใช้งาน
           h("div", {
             onClick: () => goToTable("NORMAL"),
@@ -2637,72 +2788,111 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       // COLUMN 3 (Right: 3.5 cols out of 12) -> การนับ PPM & Metrology Pivot
       // -----------------------------------------------------------------------
       h("div", {
-        className: "cockpit-col-ppm bg-white dark:bg-slate-900 rounded-2xl border-0 shadow-xs p-3 flex flex-col gap-2 overflow-hidden"
+        className: "cockpit-col-ppm bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs p-3 flex flex-col justify-between h-full overflow-hidden transition-all gap-2"
       },
-        // Header with PPM
-        h("div", { className: "shrink-0 flex items-start justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800" },
+        // Header with PPM & Category Description
+        h("div", { className: "shrink-0 flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800" },
           h("div", { className: "min-w-0" },
             h("div", { className: "flex items-center gap-1.5" },
-              h("h3", { className: "text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-wide" }, "PPM"),
+              h("h3", { className: "text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-wide" }, "PPM & หมวดหมู่อุปกรณ์"),
               h("span", { className: "px-1.5 py-0.2 rounded text-[9px] font-black bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-950/60 dark:border-blue-800 dark:text-blue-300" },
-                "PARTS PER MILLION"
+                "CATEGORY PIVOT"
               )
             ),
             h("p", { className: "text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5" },
-              "จำนวนและสัดส่วนของเครื่องมือในแต่ละหมวดหมู่ (Category)"
+              "สัดส่วนและจำนวนเครื่องมือวัดจำแนกตามประเภทหลัก"
+            )
+          ),
+          h("div", { className: "hidden sm:flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono" },
+            `${metrologyDistribution.length} กลุ่ม`
+          )
+        ),
+
+        // Full-Height Dynamic Table Container (Always fills 100% of vertical space)
+        h("div", { className: "flex-1 min-h-0 flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/50 overflow-hidden shadow-2xs" },
+          // Table Header
+          h("div", { className: "shrink-0 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 px-2.5 sm:px-3 py-1.5 flex items-center justify-between text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider" },
+            h("div", { className: "w-[48%] truncate" }, "หมวดหมู่ (Category)"),
+            h("div", { className: "w-[24%] text-right whitespace-nowrap" }, "จำนวน"),
+            h("div", { className: "w-[28%] text-right whitespace-nowrap" }, "สัดส่วน (%)")
+          ),
+
+          // Table Rows (Flex distributed to stretch & fill the entire available height)
+          h("div", { className: "flex-1 min-h-0 flex flex-col justify-between divide-y divide-slate-100 dark:divide-slate-800/80 font-mono" },
+            metrologyDistribution.map((row, idx) => {
+              return h("div", {
+                key: idx,
+                onClick: () => goToTable(row.category),
+                title: `คลิกเพื่อดูรายการ ${row.category} (${row.count.toLocaleString()} เครื่อง)`,
+                className: "flex-1 min-h-[26px] relative flex items-center justify-between px-2.5 sm:px-3 py-1 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all cursor-pointer group select-none overflow-hidden"
+              },
+                // Background visual proportion micro-bar (Creates an integrated horizontal bar chart effect)
+                h("div", {
+                  style: {
+                    width: `${Math.max(2, row.pctNum)}%`,
+                    backgroundColor: row.color
+                  },
+                  className: "absolute left-0 top-0 bottom-0 opacity-10 dark:opacity-20 group-hover:opacity-25 dark:group-hover:opacity-35 transition-all duration-300 pointer-events-none"
+                }),
+
+                // Column 1: Category Name with Color Dot
+                h("div", { className: "relative z-10 w-[48%] flex items-center gap-1.5 min-w-0 pr-1" },
+                  h("span", {
+                    className: "w-2 h-2 rounded-full shrink-0 shadow-2xs group-hover:scale-125 transition-transform",
+                    style: { backgroundColor: row.color }
+                  }),
+                  h("span", {
+                    className: "font-sans font-semibold text-[11px] sm:text-xs text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate tracking-tight transition-colors"
+                  }, row.category)
+                ),
+
+                // Column 2: Quantity / Count
+                h("div", { className: "relative z-10 w-[24%] text-right" },
+                  h("span", {
+                    className: "dashboard-number-animate font-mono font-bold text-[11px] sm:text-xs text-slate-900 dark:!text-white group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors"
+                  }, getAnimVal(row.count).toLocaleString())
+                ),
+
+                // Column 3: Percentage with Mini Proportion Indicator
+                h("div", { className: "relative z-10 w-[28%] flex items-center justify-end gap-1.5 text-right" },
+                  h("span", {
+                    className: "font-mono font-bold text-[11px] sm:text-xs text-slate-700 dark:text-slate-300"
+                  }, row.pct)
+                )
+              );
+            })
+          ),
+
+          // Table Total Footer (Pinned to bottom of the card)
+          h("div", { className: "shrink-0 bg-slate-100/95 dark:bg-slate-800/95 border-t border-slate-200 dark:border-slate-700 px-2.5 sm:px-3 py-1.5 flex items-center justify-between font-black text-[11px] sm:text-xs text-slate-900 dark:!text-white shadow-xs" },
+            h("div", { className: "w-[48%] font-sans font-black truncate flex items-center gap-1" },
+              h("span", { className: "w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500" }),
+              "รวมทั้งหมด (Total)"
+            ),
+            h("div", { className: "w-[24%] text-right font-mono font-black text-blue-600 dark:text-blue-400" },
+              h("span", { className: "dashboard-number-animate" }, getAnimVal(totalMetrologyCount).toLocaleString())
+            ),
+            h("div", { className: "w-[28%] text-right font-mono font-black" },
+              h("span", { className: "px-1 py-0.2 rounded bg-slate-200/80 dark:bg-slate-700 text-[10px] text-slate-800 dark:text-slate-200 font-bold" },
+                "100.00%"
+              )
             )
           )
         ),
-        h("div", { className: "shrink-0 h-2" }),
-        // Compact Table Container with invisible scrollbar
-        h("div", { className: "flex-1 min-h-0 overflow-y-auto no-scrollbar invisible-scroll rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" },
-          h("table", { className: "w-full text-left border-collapse text-[10px] table-fixed" },
-            h("thead", { className: "bg-slate-100 dark:bg-slate-800 sticky top-0 text-slate-600 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700 z-10" },
-              h("tr", null,
-                h("th", { className: "py-2 px-2.5 sm:px-3 text-left w-[46%] truncate" }, "หมวดหมู่ (Category)"),
-                h("th", { className: "py-2 px-2 sm:px-2.5 text-right w-[27%] whitespace-nowrap" }, "จำนวน"),
-                h("th", { className: "py-2 px-2.5 sm:px-3 text-right w-[27%] whitespace-nowrap" }, "สัดส่วน (%)")
-              )
-            ),
-            h("tbody", { className: "divide-y divide-slate-100 dark:divide-slate-800/60 font-mono" },
-              metrologyDistribution.map((row, idx) => h("tr", {
-                key: idx,
-                className: "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-              },
-                h("td", { className: "py-2 px-2.5 sm:px-3 font-sans font-semibold text-slate-800 dark:text-slate-200 truncate" },
-                  h("div", { className: "flex items-center gap-1.5 min-w-0" },
-                    h("span", { className: "w-2 h-2 rounded-full shrink-0", style: { backgroundColor: row.color } }),
-                    h("span", { className: "truncate", title: row.category }, row.category)
-                  )
-                ),
-                h("td", { className: "py-2 px-2 sm:px-2.5 text-right font-bold text-slate-900 dark:!text-white whitespace-nowrap" },
-                  h("span", { className: "dashboard-number-animate font-mono" }, getAnimVal(row.count).toLocaleString())
-                ),
-                h("td", { className: "py-2 px-2.5 sm:px-3 text-right font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap font-mono" },
-                  row.pct
-                )
-              ))
-            ),
-            h("tfoot", { className: "bg-slate-50 dark:bg-slate-800/80 font-bold text-slate-900 dark:!text-white border-t border-slate-200 dark:border-slate-700 sticky bottom-0" },
-              h("tr", null,
-                h("td", { className: "py-2 px-2.5 sm:px-3 font-sans font-black truncate" }, "รวมทั้งหมด (Total)"),
-                h("td", { className: "py-2 px-2 sm:px-2.5 text-right font-mono font-black whitespace-nowrap" }, 
-                  h("span", { className: "dashboard-number-animate" }, getAnimVal(totalMetrologyCount).toLocaleString())
-                ),
-                h("td", { className: "py-2 px-2.5 sm:px-3 text-right font-mono font-black whitespace-nowrap" }, "100.00%")
-              )
-            )
-          )
-        ),        // Bottom Footer in Column 3
-        h("div", { className: "shrink-0 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs" },
-          h("span", { className: "flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium" },
-            h("span", { className: "w-1.5 h-1.5 rounded-full bg-blue-500" }),
-            "แสดงผลแบบ Real-time"
+
+        // Bottom Footer in Column 3
+        h("div", { className: "shrink-0 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs" },
+          h("span", { className: "flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px] font-medium" },
+            h("span", { className: "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" }),
+            "สัดส่วนเครื่องมือวัด ISO/IEC 17025"
           ),
           h("button", {
             onClick: () => goToTable("ALL"),
-            className: "text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
-          }, "ดูรายการทั้งหมดในตาราง ➔")
+            className: "text-blue-600 dark:text-blue-400 text-[11px] font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+          },
+            "ดูรายการทั้งหมด",
+            h("span", null, "➔")
+          )
         )
       )
     ),

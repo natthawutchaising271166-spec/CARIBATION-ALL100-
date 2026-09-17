@@ -43,6 +43,15 @@
         --scrollbar-thumb-hover: #64748b;
         --scrollbar-corner: #0f172a;
       }
+      /* Gauge Scale Numbers in Dark Mode */
+      .gauge-scale-number {
+        fill: #0f172a;
+      }
+      .dark .gauge-scale-number,
+      html.dark .gauge-scale-number,
+      [data-theme="dark"] .gauge-scale-number {
+        fill: #ffffff !important;
+      }
       /* Firefox scrollbar support */
       * {
         scrollbar-width: thin;
