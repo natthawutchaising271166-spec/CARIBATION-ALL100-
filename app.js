@@ -936,11 +936,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     let yieldPct = "0.0";
 
     if (allCount > 0) {
-      inSpecPct = Math.round((inSpec / allCount) * 100);
-      dueSoonPct = Math.round((dueSoon / allCount) * 100);
-      overduePct = Math.round((overdue / allCount) * 100);
-      inLabPct = Math.round((inLab / allCount) * 100);
-      cancelPct = Math.round((cancelCount / allCount) * 100);
+      inSpecPct = Number(((inSpec / allCount) * 100).toFixed(1));
+      dueSoonPct = Number(((dueSoon / allCount) * 100).toFixed(1));
+      overduePct = Number(((overdue / allCount) * 100).toFixed(1));
+      inLabPct = Number(((inLab / allCount) * 100).toFixed(1));
+      cancelPct = Number(((cancelCount / allCount) * 100).toFixed(1));
       defectPpm = Math.round((overdue / allCount) * 1000000);
       yieldPct = ((inSpec / allCount) * 100).toFixed(1);
     }
@@ -1449,17 +1449,17 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
   const totalMetrologyCount = safeAll.length;
 
-  // 🚀 Animated Counting Hook for Real-time Dashboard Number Ticker
+  // 🚀 Animated Counting Hook for Real-time Dashboard Number Ticker & Synchronized Bar Growth
   const [animProgress, setAnimProgress] = g1.useState(0);
   g1.useEffect(() => {
     let startTimestamp = null;
-    const duration = 1200; // 1.2s smooth easeOutExpo
+    const duration = 1000; // 1.0s smooth synchronized ease-out
     let animId;
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // Ease out expo: 1 - Math.pow(2, -10 * progress)
-      const easeVal = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      // Ease out cubic: simultaneous fluid synchronization between bar heights and numbers
+      const easeVal = progress === 1 ? 1 : 1 - Math.pow(1 - progress, 3);
       setAnimProgress(easeVal);
       if (progress < 1) {
         animId = requestAnimationFrame(step);
@@ -1467,7 +1467,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     };
     animId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(animId);
-  }, [stats.allCount, stats.inSpec, stats.dueSoon, stats.overdue, stats.inLab, stats.cancelCount]);
+  }, [stats.allCount, stats.inSpec, stats.dueSoon, stats.overdue, stats.inLab, stats.cancelCount, selectedMonth]);
 
   // 🎯 Dedicated Smooth Sweep Animation for Speedometer Gauge (Runs from 0 up to actual target)
   const [gaugeAnimProgress, setGaugeAnimProgress] = g1.useState(0);
@@ -1863,153 +1863,260 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 h("span", { key: "v", className: "donut-center-kpi-val dashboard-number-animate text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:!text-white leading-tight drop-shadow-xs" },
                   getAnimVal(stats.allCount).toLocaleString()
                 ),
-                h("span", { key: "s", className: "px-2.5 py-0.5 mt-1 rounded-full donut-hud-pill text-emerald-800 dark:!text-emerald-300 font-mono text-[11px] font-black shadow-xs flex items-center gap-1.5" },
-                  h("span", { className: "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" }),
-                  `${stats.inSpecPct}% PASS`
-                )
+                (() => {
+                  const val = stats.inSpecPct || 0;
+                  const isLow = val < 25;
+                  const isWarn = val >= 25 && val < 55;
+                  const isFair = val >= 55 && val < 75;
+                  const dotColor = isLow ? "#ef4444" : isWarn ? "#f97316" : isFair ? "#f59e0b" : "#10b981";
+                  const bgColor = isLow ? (isDarkMode ? "rgba(127,29,29,0.4)" : "#fef2f2") : isWarn ? (isDarkMode ? "rgba(154,52,18,0.4)" : "#fff7ed") : isFair ? (isDarkMode ? "rgba(146,64,14,0.4)" : "#fffbeb") : (isDarkMode ? "rgba(6,95,70,0.4)" : "#ecfdf5");
+                  const borderColor = isLow ? (isDarkMode ? "rgba(239,68,68,0.5)" : "#fecaca") : isWarn ? (isDarkMode ? "rgba(249,115,22,0.5)" : "#fed7aa") : isFair ? (isDarkMode ? "rgba(245,158,11,0.5)" : "#fde68a") : (isDarkMode ? "rgba(16,185,129,0.5)" : "#a7f3d0");
+                  const textColor = isLow ? (isDarkMode ? "#fca5a5" : "#991b1b") : isWarn ? (isDarkMode ? "#fdba74" : "#9a3412") : isFair ? (isDarkMode ? "#fcd34d" : "#92400e") : (isDarkMode ? "#6ee7b7" : "#065f46");
+
+                  return h("span", {
+                    key: "s",
+                    style: { backgroundColor: bgColor, borderColor: borderColor, color: textColor },
+                    className: "px-2.5 py-0.5 mt-1 rounded-full border font-mono text-[11px] font-black shadow-xs flex items-center gap-1.5 transition-colors duration-200"
+                  },
+                    h("span", { style: { backgroundColor: dotColor }, className: "w-1.5 h-1.5 rounded-full animate-pulse" }),
+                    `${stats.inSpecPct}% PASS`
+                  );
+                })()
               ]
             )
-          ),          // GAUGE Tab view: Speedometer Calibration Gauge (Animated Sweep from 0 to Real Target)
+          ),          // GAUGE Tab view: Supercar Sport Speedometer / Tachometer Gauge (Animated Sweep & Cockpit Aesthetics)
           donutTab === "GAUGE" && (() => {
-            const rawTarget = Math.max(0, Math.min(100, stats.inSpecPct || 0));
+            const rawTarget = Math.max(0, Math.min(100, Number(stats.yieldPct) || stats.inSpecPct || 0));
             const liveVal = rawTarget * gaugeAnimProgress;
-            const displayVal = Math.round(liveVal);
+            const displayVal = gaugeAnimProgress >= 1 ? stats.yieldPct : liveVal.toFixed(1);
             const liveArcLength = ((liveVal / 100) * 267.035).toFixed(2);
             const needleDeg = ((liveVal / 100) * 180) - 90;
-            const numColor = isDarkMode ? "#ffffff" : "#0f172a";
+            const numColor = isDarkMode ? "#f8fafc" : "#1e293b";
+
+            // Dynamic color theme strictly synchronized with where the needle is currently pointing on the gauge arc
+            const isLow = liveVal < 25;
+            const isWarn = liveVal >= 25 && liveVal < 55;
+            const isFair = liveVal >= 55 && liveVal < 75;
+            const needlePhaseDot = isLow ? "#ef4444" : isWarn ? "#f97316" : isFair ? "#f59e0b" : "#10b981";
+            const needlePhaseGlow = isLow ? "rgba(239, 68, 68, 0.6)" : isWarn ? "rgba(249, 115, 22, 0.6)" : isFair ? "rgba(245, 158, 11, 0.6)" : "rgba(16, 185, 129, 0.6)";
+            const needlePhaseBg = isLow ? (isDarkMode ? "rgba(127, 29, 29, 0.45)" : "#fef2f2") : isWarn ? (isDarkMode ? "rgba(154, 52, 18, 0.45)" : "#fff7ed") : isFair ? (isDarkMode ? "rgba(146, 64, 14, 0.45)" : "#fffbeb") : (isDarkMode ? "rgba(6, 95, 70, 0.45)" : "#ecfdf5");
+            const needlePhaseBorder = isLow ? (isDarkMode ? "rgba(239, 68, 68, 0.6)" : "#fecaca") : isWarn ? (isDarkMode ? "rgba(249, 115, 22, 0.6)" : "#fed7aa") : isFair ? (isDarkMode ? "rgba(245, 158, 11, 0.6)" : "#fde68a") : (isDarkMode ? "rgba(16, 185, 129, 0.6)" : "#a7f3d0");
+            const needlePhaseText = isLow ? (isDarkMode ? "#fca5a5" : "#991b1b") : isWarn ? (isDarkMode ? "#fdba74" : "#9a3412") : isFair ? (isDarkMode ? "#fcd34d" : "#92400e") : (isDarkMode ? "#6ee7b7" : "#065f46");
+            const needlePhaseShadow = isLow ? "rgba(239, 68, 68, 0.25)" : isWarn ? "rgba(249, 115, 22, 0.25)" : isFair ? "rgba(245, 158, 11, 0.25)" : "rgba(16, 185, 129, 0.25)";
 
             return h("div", {
-              className: "w-full flex flex-col items-center justify-center py-1 px-1 cursor-pointer select-none group",
-              onClick: () => setGaugeAnimKey(k => k + 1)
+              className: "w-full flex flex-col items-center justify-center py-1 px-1 cursor-pointer select-none group relative",
+              onClick: () => setGaugeAnimKey(k => k + 1),
+              title: "คลิกเพื่อเร่งเข็มไมล์ทดสอบ (Tap to Rev Speedometer)"
             },
-              h("div", { className: "w-full max-w-[240px] relative flex flex-col items-center justify-center pt-2" },
-                h("svg", { viewBox: "0 0 240 148", className: "w-full h-auto crisp-vector overflow-visible" },
+              h("div", { className: "w-full max-w-[250px] relative flex flex-col items-center justify-center pt-1" },
+                h("svg", { viewBox: "0 0 240 152", className: "w-full h-auto crisp-vector overflow-visible" },
                   h("defs", null,
-                    // Multi-stop gradient: 0-20% Red, 20-60% Orange/Amber, 60-100% Green
-                    h("linearGradient", { id: "gaugePhaseFadeGrad", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
+                    // Multi-stop Hypercar Spectrum Gradient: Redline to Performance Green
+                    h("linearGradient", { id: "supercarGaugeGrad", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
                       h("stop", { offset: "0%", stopColor: "#ef4444" }),
-                      h("stop", { offset: "18%", stopColor: "#ef4444" }),
-                      h("stop", { offset: "28%", stopColor: "#f97316" }),
-                      h("stop", { offset: "54%", stopColor: "#f59e0b" }),
-                      h("stop", { offset: "66%", stopColor: "#10b981" }),
+                      h("stop", { offset: "18%", stopColor: "#f43f5e" }),
+                      h("stop", { offset: "32%", stopColor: "#f97316" }),
+                      h("stop", { offset: "55%", stopColor: "#eab308" }),
+                      h("stop", { offset: "72%", stopColor: "#10b981" }),
                       h("stop", { offset: "100%", stopColor: "#059669" })
                     ),
-                    h("filter", { id: "refGaugeShadow", x: "-20%", y: "-20%", width: "140%", height: "140%" },
-                      h("feDropShadow", { dx: "0", dy: "2", stdDeviation: "2.5", floodColor: "#000000", floodOpacity: "0.15" })
-                    ),
-                    // Realistic dial drop shadow for the elevated needle
-                    h("filter", { id: "needleDialShadow", x: "-30%", y: "-30%", width: "160%", height: "160%" },
-                      h("feDropShadow", { dx: "1", dy: "2", stdDeviation: "1.8", floodColor: "#000000", floodOpacity: "0.28" })
-                    ),
-                    // 3D Beveled Needle lighting gradients (Light sheen facet vs shade facet)
-                    h("linearGradient", { id: "needleFacetLeft", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
-                      h("stop", { offset: "0%", stopColor: "#60a5fa" }),
-                      h("stop", { offset: "100%", stopColor: "#2563eb" })
-                    ),
-                    h("linearGradient", { id: "needleFacetRight", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
-                      h("stop", { offset: "0%", stopColor: "#1d4ed8" }),
+                    // High-tech Neon Laser Needle Gradient
+                    h("linearGradient", { id: "sportNeedleCoreGrad", x1: "0%", y1: "0%", x2: "0%", y2: "100%" },
+                      h("stop", { offset: "0%", stopColor: "#ffffff" }),
+                      h("stop", { offset: "30%", stopColor: "#60a5fa" }),
+                      h("stop", { offset: "85%", stopColor: "#2563eb" }),
                       h("stop", { offset: "100%", stopColor: "#1e3a8a" })
                     ),
-                    // Metallic Center Hub Gradients
-                    h("radialGradient", { id: "hubBezelGrad", cx: "35%", cy: "35%", r: "65%" },
-                      h("stop", { offset: "0%", stopColor: "#64748b" }),
+                    // Supercar Active Neon Bloom Filter
+                    h("filter", { id: "sportGlowFilter", x: "-30%", y: "-30%", width: "160%", height: "160%" },
+                      h("feGaussianBlur", { stdDeviation: "3", result: "blur" }),
+                      h("feMerge", null,
+                        h("feMergeNode", { in: "blur" }),
+                        h("feMergeNode", { in: "SourceGraphic" })
+                      )
+                    ),
+                    // Drop shadow for gauge arc depth
+                    h("filter", { id: "cockpitGaugeShadow", x: "-20%", y: "-20%", width: "140%", height: "140%" },
+                      h("feDropShadow", { dx: "0", dy: "2.5", stdDeviation: "3", floodColor: "#000000", floodOpacity: isDarkMode ? "0.4" : "0.15" })
+                    ),
+                    // Needle 3D Drop Shadow
+                    h("filter", { id: "sportNeedleShadow", x: "-30%", y: "-30%", width: "160%", height: "160%" },
+                      h("feDropShadow", { dx: "1.5", dy: "3", stdDeviation: "2.2", floodColor: "#000000", floodOpacity: "0.35" })
+                    ),
+                    // CNC Machined Alloy Center Cap
+                    h("radialGradient", { id: "cncAlloyBezel", cx: "30%", cy: "30%", r: "70%" },
+                      h("stop", { offset: "0%", stopColor: "#cbd5e1" }),
+                      h("stop", { offset: "40%", stopColor: "#64748b" }),
+                      h("stop", { offset: "80%", stopColor: "#1e293b" }),
                       h("stop", { offset: "100%", stopColor: "#0f172a" })
                     ),
-                    h("radialGradient", { id: "hubCenterPinGrad", cx: "35%", cy: "35%", r: "65%" },
+                    h("radialGradient", { id: "cncCenterScrew", cx: "35%", cy: "35%", r: "65%" },
                       h("stop", { offset: "0%", stopColor: "#ffffff" }),
-                      h("stop", { offset: "65%", stopColor: "#cbd5e1" }),
-                      h("stop", { offset: "100%", stopColor: "#94a3b8" })
+                      h("stop", { offset: "50%", stopColor: "#94a3b8" }),
+                      h("stop", { offset: "100%", stopColor: "#334155" })
                     )
                   ),
-                  // Gauge background track arc (radius 85, center 120, 115)
+
+                  // 1. Cockpit Instrument Cluster Background Bezel Arc
                   h("path", {
-                    d: "M 35 115 A 85 85 0 0 1 205 115",
+                    d: "M 31 115 A 89 89 0 0 1 209 115",
                     fill: "none",
-                    stroke: "currentColor",
-                    strokeWidth: "16",
-                    strokeLinecap: "round",
-                    className: "text-slate-100 dark:text-slate-800/90"
+                    stroke: isDarkMode ? "rgba(30, 41, 59, 0.6)" : "rgba(226, 232, 240, 0.8)",
+                    strokeWidth: "22",
+                    strokeLinecap: "round"
                   }),
-                  // Dynamic Colored Progress Arc - Filled strictly according to liveVal with smooth sweep from 0
+
+                  // 2. High-Tech Inner Track Guide Groove
                   h("path", {
                     d: "M 35 115 A 85 85 0 0 1 205 115",
                     fill: "none",
-                    stroke: "url(#gaugePhaseFadeGrad)",
-                    strokeWidth: "16",
+                    stroke: isDarkMode ? "rgba(15, 23, 42, 0.9)" : "rgba(241, 245, 249, 0.95)",
+                    strokeWidth: "15",
+                    strokeLinecap: "round"
+                  }),
+
+                  // 3. Dynamic Illuminated Supercar Tachometer Track Arc (Sweeps with liveVal)
+                  h("path", {
+                    d: "M 35 115 A 85 85 0 0 1 205 115",
+                    fill: "none",
+                    stroke: "url(#supercarGaugeGrad)",
+                    strokeWidth: "15",
                     strokeLinecap: "round",
                     strokeDasharray: `${liveArcLength} 267.035`,
                     strokeDashoffset: "0",
-                    filter: "url(#refGaugeShadow)"
+                    filter: "url(#cockpitGaugeShadow)"
                   }),
-                  // Tick marks (radial inwards from arc) - Clean original style
-                  [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => {
+
+                  // 4. Subtle Inner Racing Ring (Concentric Cockpit Dash Line)
+                  h("path", {
+                    d: "M 48 115 A 72 72 0 0 1 192 115",
+                    fill: "none",
+                    stroke: isDarkMode ? "rgba(100, 116, 139, 0.25)" : "rgba(148, 163, 184, 0.35)",
+                    strokeWidth: "1",
+                    strokeDasharray: "2 3"
+                  }),
+
+                  // 5. Sports Tachometer Precision Tick Marks (50 Sub-divisions & 11 Primary Nodes)
+                  Array.from({ length: 51 }).map((_, idx) => {
+                    const val = idx * 2; // 0, 2, 4, ... 100
                     const rad = Math.PI - (val / 100) * Math.PI;
                     const isMajor = val % 20 === 0;
-                    const r1 = 76;
-                    const r2 = isMajor ? 67 : 72;
+                    const isMid = val % 10 === 0 && !isMajor;
+                    const isPassed = val <= liveVal;
+                    
+                    const r1 = 74;
+                    const r2 = isMajor ? 63 : isMid ? 67 : 70;
                     const x1 = 120 + r1 * Math.cos(rad);
                     const y1 = 115 - r1 * Math.sin(rad);
                     const x2 = 120 + r2 * Math.cos(rad);
                     const y2 = 115 - r2 * Math.sin(rad);
+
+                    // Dynamic color for ticks: highlight if live needle has reached/passed it
+                    let tickColor;
+                    if (isPassed) {
+                      tickColor = val < 25 ? "#ef4444" : val < 55 ? "#f97316" : val < 75 ? "#f59e0b" : "#10b981";
+                    } else {
+                      tickColor = isMajor 
+                        ? (isDarkMode ? "#94a3b8" : "#64748b") 
+                        : isMid 
+                        ? (isDarkMode ? "#475569" : "#cbd5e1") 
+                        : (isDarkMode ? "#334155" : "#e2e8f0");
+                    }
+
                     return h("line", {
-                      key: val,
+                      key: `tick-${val}`,
                       x1: x1.toFixed(1),
                       y1: y1.toFixed(1),
                       x2: x2.toFixed(1),
                       y2: y2.toFixed(1),
-                      stroke: isMajor ? (isDarkMode ? "#e2e8f0" : "#94a3b8") : (isDarkMode ? "#64748b" : "#cbd5e1"),
-                      strokeWidth: isMajor ? "2" : "1",
-                      strokeLinecap: "round"
+                      stroke: tickColor,
+                      strokeWidth: isMajor ? "2" : isMid ? "1.3" : "0.75",
+                      strokeLinecap: "round",
+                      className: "transition-colors duration-150"
                     });
                   }),
-                  // Numbers along the arc (0, 20, 40, 60, 80, 100) - explicitly white in dark mode (#ffffff)
-                  h("text", { x: "25", y: "135", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "0"),
-                  h("text", { x: "73", y: "81", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "20"),
-                  h("text", { x: "102", y: "59", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "40"),
-                  h("text", { x: "138", y: "59", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "60"),
-                  h("text", { x: "167", y: "81", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "80"),
-                  h("text", { x: "215", y: "135", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[11px] font-bold font-mono select-none" }, "100"),
 
-                  // Luxury Precision 3D Beveled Needle with Counterbalance & Soft Dial Shadow
+                  // 6. Supercar Dial Scale Numbers (0, 20, 40, 60, 80, 100) with High-Performance Font Stance
+                  h("text", { x: "23", y: "134", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[10.5px] font-black font-mono select-none" }, "0"),
+                  h("text", { x: "71", y: "81", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[10.5px] font-black font-mono select-none" }, "20"),
+                  h("text", { x: "101", y: "57", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[10.5px] font-black font-mono select-none" }, "40"),
+                  h("text", { x: "139", y: "57", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[10.5px] font-black font-mono select-none" }, "60"),
+                  h("text", { x: "169", y: "81", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[10.5px] font-black font-mono select-none" }, "80"),
+                  h("text", { x: "217", y: "134", fill: numColor, style: { fill: numColor }, textAnchor: "middle", className: "gauge-scale-number text-[10.5px] font-black font-mono select-none" }, "100"),
+
+                  // 7. Micro Cockpit Unit Watermark
+                  h("text", {
+                    x: "120",
+                    y: "92",
+                    fill: isDarkMode ? "#475569" : "#94a3b8",
+                    textAnchor: "middle",
+                    className: "text-[8px] font-mono font-bold tracking-widest uppercase select-none opacity-80"
+                  }, "CAL-SPEC %"),
+
+                  // 8. Supercar Aerodynamic Illuminated Needle Assembly
                   h("g", {
                     transform: `rotate(${needleDeg.toFixed(2)} 120 115)`,
-                    filter: "url(#needleDialShadow)"
+                    filter: "url(#sportNeedleShadow)"
                   },
-                    // Counterbalance tail extending behind pivot
+                    // Counterweight rear wing with sports red/dark tip
                     h("path", {
-                      d: "M 117.8 114 L 118.6 125 L 120 127.5 L 121.4 125 L 122.2 114 Z",
-                      fill: "#1e3a8a"
+                      d: "M 117.5 113 L 118.2 126 L 120 129 L 121.8 126 L 122.5 113 Z",
+                      fill: isDarkMode ? "#0f172a" : "#1e293b"
                     }),
-                    // Left 3D facet (Light sheen highlight)
+                    // Counterweight aero cutouts
+                    h("circle", { cx: "120", cy: "123", r: "1.2", fill: "#3b82f6" }),
+
+                    // Main Needle Body (High-tech tapered sword blade)
                     h("path", {
-                      d: "M 120 37 L 117.6 114 L 120 115 Z",
-                      fill: "url(#needleFacetLeft)"
+                      d: "M 120 33 L 117 113 L 123 113 Z",
+                      fill: "url(#sportNeedleCoreGrad)"
                     }),
-                    // Right 3D facet (Deep shade facet for physical depth)
+
+                    // Illuminated Center Neon Core Line (Glowing Laser Spine)
                     h("path", {
-                      d: "M 120 37 L 120 115 L 122.4 114 Z",
-                      fill: "url(#needleFacetRight)"
+                      d: "M 120 35 L 119.2 112 L 120.8 112 Z",
+                      fill: "#ffffff",
+                      filter: "url(#sportGlowFilter)"
                     }),
-                    // Sharp tip highlight
-                    h("path", {
-                      d: "M 119.3 43 L 120 37 L 120.7 43 Z",
-                      fill: "#bfdbfe"
+
+                    // Hypercar Sharp Laser Tip
+                    h("polygon", {
+                      points: "120,31 118.5,37 121.5,37",
+                      fill: "#ef4444"
                     })
                   ),
-                  // Multi-tier Luxury Center Hub
-                  h("circle", { cx: "120", cy: "115", r: "7", fill: "url(#hubBezelGrad)", stroke: "#334155", strokeWidth: "0.5" }),
-                  h("circle", { cx: "120", cy: "115", r: "4.8", fill: "#2563eb" }),
-                  h("circle", { cx: "120", cy: "115", r: "2.2", fill: "url(#hubCenterPinGrad)" }),
-                  h("circle", { cx: "120", cy: "115", r: "0.8", fill: "#0f172a" })
+
+                  // 9. CNC Multi-Tiered Aluminum Center Cap & Hub
+                  // Outer Bezel Ring with metallic sheen
+                  h("circle", { cx: "120", cy: "115", r: "8.5", fill: "url(#cncAlloyBezel)", stroke: isDarkMode ? "#0f172a" : "#334155", strokeWidth: "0.75" }),
+                  // Sports Anodized Ring (Dynamic matching needle zone color)
+                  h("circle", { cx: "120", cy: "115", r: "6", fill: needlePhaseDot, className: "transition-colors duration-200" }),
+                  // Brushed Metallic Center Cap
+                  h("circle", { cx: "120", cy: "115", r: "3.5", fill: "url(#cncCenterScrew)" }),
+                  // Precision Center Torx Pin
+                  h("circle", { cx: "120", cy: "115", r: "1.2", fill: "#0f172a" })
                 ),
-                // Center Display Content: Exact pill badge matching user's reference image
+
+                // Center Display Content: Supercar Digital HUD Pill with dynamic RPM/Speedometer glow
                 h("div", { className: "text-center -mt-7 pb-1 flex justify-center z-10 relative" },
                   h("div", {
-                    className: "px-3.5 py-1 rounded-full bg-[#ecfdf5] dark:bg-emerald-950/60 border border-[#a7f3d0] dark:border-emerald-700/80 shadow-xs flex items-center justify-center gap-2 group-hover:scale-105 transition-transform duration-300"
+                    style: {
+                      backgroundColor: needlePhaseBg,
+                      borderColor: needlePhaseBorder,
+                      boxShadow: `0 3px 12px ${needlePhaseGlow}`
+                    },
+                    className: "px-3.5 py-1 rounded-full border backdrop-blur-xs flex items-center justify-center gap-2 group-hover:scale-105 transition-all duration-150 shadow-sm"
                   },
-                    h("span", { className: "w-2 h-2 rounded-full bg-[#10b981] shrink-0" }),
+                    // Pulsing LED RPM dot
                     h("span", {
-                      className: "text-xs sm:text-[13px] font-black font-mono tracking-wide text-[#065f46] dark:text-emerald-200 leading-none whitespace-nowrap"
+                      style: { backgroundColor: needlePhaseDot, boxShadow: `0 0 8px ${needlePhaseDot}` },
+                      className: "w-2 h-2 rounded-full shrink-0 transition-all duration-150 animate-pulse"
+                    }),
+                    // Bold Speedometer Digital readout
+                    h("span", {
+                      style: { color: needlePhaseText },
+                      className: "text-xs sm:text-[13px] font-black font-mono tracking-wide leading-none whitespace-nowrap transition-colors duration-150"
                     }, `${displayVal}% PASS`)
                   )
                 )
@@ -2185,56 +2292,6 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           // Chart Top Interactive Legend (Gimmick: Click to toggle/filter series)
           h("div", { key: "legend", className: "shrink-0 flex flex-nowrap items-center justify-center gap-1 sm:gap-1.5 py-1 text-[9.5px] sm:text-[10px] font-semibold select-none overflow-x-auto no-scrollbar invisible-scroll w-full max-w-full" },
             h("button", {
-              onClick: () => toggleSeries("reliability"),
-              title: "ความพร้อมใช้งาน (Reliability %)",
-              className: `flex items-center gap-1 px-1.5 py-0.5 rounded-md whitespace-nowrap shrink-0 transition-all cursor-pointer ${
-                seriesFilter.reliability
-                  ? "text-purple-700 dark:text-purple-300 font-bold bg-purple-50/90 dark:bg-purple-950/80 border border-purple-300/90 dark:border-purple-700/80 shadow-2xs"
-                  : "text-slate-400 line-through opacity-50 border border-transparent"
-              }`
-            },
-              h("span", {
-                className: "inline-flex items-center justify-center shrink-0",
-                style: { width: "14px", height: "10px" }
-              },
-                h("span", {
-                  style: {
-                    width: "14px",
-                    height: "2px",
-                    background: "#a855f7",
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "1px"
-                  }
-                },
-                  h("span", {
-                    style: {
-                      width: "6px",
-                      height: "6px",
-                      borderRadius: "50%",
-                      background: "#ffffff",
-                      border: "1.5px solid #d8b4fe",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
-                    }
-                  },
-                    h("span", {
-                      style: {
-                        width: "2px",
-                        height: "2px",
-                        borderRadius: "50%",
-                        background: "#9333ea"
-                      }
-                    })
-                  )
-                )
-              ),
-              "%"
-            ),
-            h("button", {
               onClick: () => toggleSeries("inSpec"),
               className: `flex items-center gap-1 px-1.5 py-0.5 rounded-md whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                 seriesFilter.inSpec
@@ -2336,10 +2393,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   },
                     // Exact Count Badge Directly Above Bar ("ให้ละเอียด ชัดเจน")
                     h("span", {
-                      className: `dashboard-number-animate text-[9.5px] font-mono font-black mb-1 transition-all leading-none select-none ${
+                      className: `dashboard-number-animate text-[9.5px] font-mono font-black mb-1 transition-transform leading-none select-none ${
                         isSelected ? "text-blue-600 dark:text-blue-300 scale-115 drop-shadow-sm" : "text-slate-600 dark:text-slate-300 opacity-80 group-hover:opacity-100 group-hover:-translate-y-0.5"
                       }`
-                    }, animTotal > 0 ? animTotal : ""),
+                    }, animTotal > 0 ? animTotal : (m.total > 0 && animProgress > 0 ? animTotal : (m.total > 0 ? 0 : ""))),
 
                     // Stacked Bar with vibrant colors, rounded cap, and synchronized fluid growth
                     h("div", {
@@ -2358,7 +2415,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                           height: `${inSpecHeight}%`,
                           background: "linear-gradient(180deg, #10b981 0%, #059669 100%)"
                         },
-                        className: "w-full bar-seg-inspec transition-all",
+                        className: "w-full bar-seg-inspec",
                         title: `พร้อมใช้: ${m.inSpec || effectiveInSpec} รายการ`
                       }),
                       // Blue In-Lab Segment (ส่งแล็บ)
@@ -2367,7 +2424,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                           height: `${inLabHeight}%`,
                           background: "linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)"
                         },
-                        className: "w-full bar-seg-inlab transition-all",
+                        className: "w-full bar-seg-inlab",
                         title: `ส่งแล็บ: ${m.inLab || 0} รายการ`
                       }),
                       // Amber Due Soon Segment (ใกล้ครบกำหนด)
@@ -2376,7 +2433,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                           height: `${dueSoonHeight}%`,
                           background: "linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)"
                         },
-                        className: "w-full bar-seg-duesoon transition-all",
+                        className: "w-full bar-seg-duesoon",
                         title: `ใกล้ครบกำหนด: ${m.dueSoon} รายการ`
                       }),
                       // Red Overdue Segment (Bottom: เกินกำหนด)
@@ -2385,154 +2442,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                           height: `${overdueHeight}%`,
                           background: "linear-gradient(180deg, #f43f5e 0%, #e11d48 50%, #be123c 100%)"
                         },
-                        className: "w-full bar-seg-overdue transition-all",
+                        className: "w-full bar-seg-overdue",
                         title: `เกินกำหนด: ${m.overdue} รายการ`
                       })
                     )
                   );
                 })
               ),
-
-              // Dual-Axis Line Curve for Readiness & Reliability (-o- Purple Line)
-              seriesFilter.reliability && (() => {
-                const progress = typeof animProgress === "number" && animProgress > 0 ? animProgress : 1;
-                
-                // Base Y coordinates in 1200 x 220 viewBox:
-                // y100 (47px) aligns right at the peak/top of the expanded highest green bar (Jul 556)
-                // y0 (206px) sits at the bottom base of the bars
-                const y100 = 47;
-                const y0 = 206;
-                const yRange = y0 - y100;
-
-                const pts = monthlyData.map((m, idx) => {
-                  // Readiness percentage: % of instruments inSpec / ready to use
-                  const readyPct = m.total > 0 ? Math.round(((m.inSpec || 0) / m.total) * 100) : 100;
-                  const currentPct = readyPct * progress;
-                  const yPos = y0 - ((currentPct / 100) * yRange);
-                  return {
-                    x: 50 + idx * 100, // Centers at 50, 150, 250, ... 1150 in 1200 space
-                    y: yPos,
-                    pct: readyPct
-                  };
-                });
-
-                // Angular path with clean line segments ("ทำมุมหักลงกับเดือนที่พร้อมใช้งานน้อยหรือยังไม่พร้อม")
-                const lineD = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
-                const areaD = `${lineD} L 1150 206 L 50 206 Z`;
-
-                return h("div", {
-                  key: "spline-layer",
-                  style: {
-                    position: "absolute",
-                    top: "0px",
-                    left: "8px",
-                    right: "8px",
-                    bottom: "10px",
-                    pointerEvents: "none",
-                    zIndex: 25
-                  },
-                  className: "sm:left-3 sm:right-3"
-                },
-                  // Crisp Vector SVG Layer for Angular Line & Area
-                  h("svg", {
-                    viewBox: "0 0 1200 220",
-                    preserveAspectRatio: "none",
-                    style: {
-                      width: "100%",
-                      height: "100%",
-                      overflow: "visible"
-                    },
-                    className: "crisp-vector"
-                  },
-                    h("defs", null,
-                      h("linearGradient", { id: "purpleAreaGrad", x1: "0", y1: "0", x2: "0", y2: "1" },
-                        h("stop", { offset: "0%", stopColor: "#a855f7", stopOpacity: "0.20" }),
-                        h("stop", { offset: "80%", stopColor: "#a855f7", stopOpacity: "0.03" }),
-                        h("stop", { offset: "100%", stopColor: "#a855f7", stopOpacity: "0.0" })
-                      )
-                    ),
-                    // Reference 100% Target Baseline (dashed purple guideline right at the peak of highest green bar)
-                    h("line", {
-                      x1: "40",
-                      y1: y100,
-                      x2: "1160",
-                      y2: y100,
-                      stroke: isDarkMode ? "#a855f7" : "#c084fc",
-                      strokeWidth: "1",
-                      strokeDasharray: "4 4",
-                      opacity: "0.4"
-                    }),
-                    // Subtle Purple Gradient Area Fill
-                    h("path", {
-                      d: areaD,
-                      fill: "url(#purpleAreaGrad)"
-                    }),
-                    // Sharp, High-Contrast Purple Line with clean angular vertices
-                    h("path", {
-                      d: lineD,
-                      fill: "none",
-                      stroke: isDarkMode ? "#c084fc" : "#9333ea",
-                      strokeWidth: "2.5",
-                      strokeLinecap: "round",
-                      strokeLinejoin: "round"
-                    }),
-                    // Dual-Axis Right Indicator Scale aligned with expanded Y positions (100% at highest green bar, 50%, 0%)
-                    h("g", { opacity: "0.75" },
-                      h("text", { x: "1196", y: y100 + 3, textAnchor: "end", fill: isDarkMode ? "#e9d5ff" : "#7e22ce", fontSize: "9", fontWeight: "800", fontFamily: "monospace" }, "100%"),
-                      h("text", { x: "1196", y: y100 + (yRange * 0.5) + 3, textAnchor: "end", fill: isDarkMode ? "#c084fc" : "#9333ea", fontSize: "9", fontWeight: "700", fontFamily: "monospace", opacity: "0.7" }, "50%"),
-                      h("text", { x: "1196", y: y0, textAnchor: "end", fill: isDarkMode ? "#a855f7" : "#a855f7", fontSize: "8.5", fontWeight: "600", fontFamily: "monospace", opacity: "0.5" }, "0%")
-                    )
-                  ),
-                  // Crisp, Perfectly Circular -o- Nodes sitting precisely at every vertex
-                  pts.map((pt, idx) => {
-                    const m = monthlyData[idx];
-                    const isSel = selectedMonth === m.id;
-                    const leftPct = ((idx + 0.5) / 12) * 100;
-                    const topPct = (pt.y / 220) * 100;
-
-                    return h("div", {
-                      key: `node-${idx}`,
-                      style: {
-                        position: "absolute",
-                        left: `${leftPct}%`,
-                        top: `${topPct}%`,
-                        transform: "translate(-50%, -50%)",
-                        pointerEvents: "none"
-                      },
-                      className: "flex items-center justify-center pointer-events-none"
-                    },
-                      // Pulsing ping ring when month is selected
-                      isSel && h("span", {
-                        className: "absolute w-5 h-5 rounded-full border border-purple-500 animate-ping opacity-75"
-                      }),
-                      // Crisp -o- circle: light purple outer ring (ม่วงอ่อน #d8b4fe), white inner core, vivid purple center dot
-                      h("span", {
-                        style: {
-                          width: isSel ? "13px" : "11px",
-                          height: isSel ? "13px" : "11px",
-                          borderRadius: "50%",
-                          backgroundColor: "#ffffff",
-                          border: isSel ? "2.5px solid #c084fc" : "2px solid #d8b4fe",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: "0 0 6px rgba(216, 180, 254, 0.65)"
-                        },
-                        className: `transition-all ${isSel ? "scale-115 ring-2 ring-purple-300" : ""}`
-                      },
-                        h("span", {
-                          style: {
-                            width: isSel ? "4px" : "3px",
-                            height: isSel ? "4px" : "3px",
-                            borderRadius: "50%",
-                            backgroundColor: "#9333ea"
-                          }
-                        })
-                      )
-                    );
-                  })
-                );
-              })(),
 
               // Floating Detailed Tooltip on Hover
               hoveredBar && h("div", {
@@ -2923,54 +2839,140 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         ),
 
         // Full-Height Dynamic Table Container (Always fills 100% of vertical space)
-        h("div", { className: "flex-1 min-h-0 flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/50 overflow-hidden shadow-2xs" },
+        h("div", { className: "flex-1 min-h-0 flex flex-col justify-between rounded-xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-50/60 dark:bg-slate-950/50 overflow-hidden shadow-2xs backdrop-blur-xs" },
           // Table Header
-          h("div", { className: "shrink-0 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 px-2.5 sm:px-3 py-1.5 flex items-center justify-between text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider" },
-            h("div", { className: "w-[48%] truncate" }, "หมวดหมู่ (Category)"),
-            h("div", { className: "w-[24%] text-right whitespace-nowrap" }, "จำนวน"),
+          h("div", { className: "shrink-0 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-800/60 px-2.5 sm:px-3 py-1.5 flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider select-none" },
+            h("div", { className: "w-[48%] truncate flex items-center gap-1" },
+              h("span", { className: "w-1.5 h-1.5 rounded-full bg-blue-500" }),
+              "หมวดหมู่ (Category)"
+            ),
+            h("div", { className: "w-[24%] text-right pr-1 sm:pr-2 whitespace-nowrap" }, "จำนวน"),
             h("div", { className: "w-[28%] text-right whitespace-nowrap" }, "สัดส่วน (%)")
           ),
 
           // Table Rows (Flex distributed to stretch & fill the entire available height)
-          h("div", { className: "flex-1 min-h-0 flex flex-col justify-between divide-y divide-slate-100 dark:divide-slate-800/80 font-mono" },
+          h("div", { className: "flex-1 min-h-0 flex flex-col justify-between divide-y divide-slate-200/50 dark:divide-slate-800/40 font-mono" },
             metrologyDistribution.map((row, idx) => {
+              const catLower = (row.category || "").toLowerCase();
+              
+              // Custom Gimmick Category Icons (Sleek, Frameless, Scaled Up)
+              let catIcon = null;
+              if (catLower.includes("mech")) {
+                // Mechanical: Precision Gear / Caliper
+                catIcon = h("svg", {
+                  style: { color: row.color },
+                  className: "w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 group-hover:rotate-45 transition-transform duration-300 drop-shadow-2xs",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2.1",
+                  viewBox: "0 0 24 24"
+                },
+                  h("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" }),
+                  h("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z" })
+                );
+              } else if (catLower.includes("elec")) {
+                // Electrical: High Voltage Lightning Bolt
+                catIcon = h("svg", {
+                  style: { color: row.color },
+                  className: "w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 group-hover:scale-120 transition-transform duration-300 drop-shadow-2xs",
+                  fill: "currentColor",
+                  viewBox: "0 0 24 24"
+                },
+                  h("path", { d: "M13 10V3L4 14h7v7l9-11h-7z" })
+                );
+              } else if (catLower.includes("norm") || catLower.includes("stand")) {
+                // Normal Standard: Certified Shield / Standard Star
+                catIcon = h("svg", {
+                  style: { color: row.color },
+                  className: "w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 group-hover:scale-115 transition-transform duration-300 drop-shadow-2xs",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2.1",
+                  viewBox: "0 0 24 24"
+                },
+                  h("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" })
+                );
+              } else if (catLower.includes("var")) {
+                // Various: Dynamic Cycles / Sparkles
+                catIcon = h("svg", {
+                  style: { color: row.color },
+                  className: "w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 group-hover:rotate-180 transition-transform duration-500 drop-shadow-2xs",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2.1",
+                  viewBox: "0 0 24 24"
+                },
+                  h("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" })
+                );
+              } else if (catLower.includes("prec") || catLower.includes("temp")) {
+                // Precision T: Precision Crosshair / Target Lens
+                catIcon = h("svg", {
+                  style: { color: row.color },
+                  className: "w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 group-hover:scale-120 transition-transform duration-300 drop-shadow-2xs",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2.1",
+                  viewBox: "0 0 24 24"
+                },
+                  h("circle", { cx: "12", cy: "12", r: "7" }),
+                  h("circle", { cx: "12", cy: "12", r: "2.5", fill: "currentColor" }),
+                  h("path", { strokeLinecap: "round", d: "M12 2v3m0 14v3M2 12h3m14 0h3" })
+                );
+              } else {
+                // Other / Storage Box
+                catIcon = h("svg", {
+                  style: { color: row.color },
+                  className: "w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 group-hover:scale-115 transition-transform duration-300 drop-shadow-2xs",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2.1",
+                  viewBox: "0 0 24 24"
+                },
+                  h("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" })
+                );
+              }
+
               return h("div", {
                 key: idx,
                 onClick: () => goToTable(row.category),
-                title: `คลิกเพื่อดูรายการ ${row.category} (${row.count.toLocaleString()} เครื่อง)`,
-                className: "flex-1 min-h-[26px] relative flex items-center justify-between px-2.5 sm:px-3 py-1 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all cursor-pointer group select-none overflow-hidden"
+                title: `คลิกเพื่อดูรายการ ${row.category} (${row.count.toLocaleString()} เครื่อง - ${row.pct})`,
+                className: "flex-1 min-h-[26px] sm:min-h-[29px] relative flex items-center justify-between px-2.5 sm:px-3 py-0.5 sm:py-1 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-all cursor-pointer group select-none overflow-hidden"
               },
-                // Background visual proportion micro-bar (Creates an integrated horizontal bar chart effect)
+                // Background visual proportion micro-bar (Integrated sleek horizontal progress)
                 h("div", {
                   style: {
-                    width: `${Math.max(2, row.pctNum)}%`,
+                    width: `${Math.max(2, row.pctNum * animProgress)}%`,
                     backgroundColor: row.color
                   },
-                  className: "absolute left-0 top-0 bottom-0 opacity-10 dark:opacity-20 group-hover:opacity-25 dark:group-hover:opacity-35 transition-all duration-300 pointer-events-none"
+                  className: "absolute left-0 top-0 bottom-0 opacity-10 dark:opacity-20 group-hover:opacity-25 dark:group-hover:opacity-35 transition-opacity pointer-events-none"
                 }),
 
-                // Column 1: Category Name with Color Dot
-                h("div", { className: "relative z-10 w-[48%] flex items-center gap-1.5 min-w-0 pr-1" },
+                // Column 1: Category Name with Frameless Enlarged Icon
+                h("div", { className: "relative z-10 w-[48%] flex items-center gap-2 min-w-0 pr-1" },
+                  catIcon,
+                  
+                  // Text Label
                   h("span", {
-                    className: "w-2 h-2 rounded-full shrink-0 shadow-2xs group-hover:scale-125 transition-transform",
-                    style: { backgroundColor: row.color }
-                  }),
-                  h("span", {
-                    className: "font-sans font-semibold text-[11px] sm:text-xs text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate tracking-tight transition-colors"
+                    className: "font-sans font-semibold text-[10.5px] sm:text-[11.5px] text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate tracking-tight transition-colors"
                   }, row.category)
                 ),
 
-                // Column 2: Quantity / Count
-                h("div", { className: "relative z-10 w-[24%] text-right" },
+                // Column 2: Quantity / Count (Aligned right with tabular numbers, reduced refined font size)
+                h("div", { className: "relative z-10 w-[24%] text-right pr-1 sm:pr-2 flex justify-end" },
                   h("span", {
-                    className: "dashboard-number-animate font-mono font-bold text-[11px] sm:text-xs text-slate-900 dark:!text-white group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors"
+                    className: "dashboard-number-animate font-mono font-bold text-[10.5px] sm:text-[11.5px] text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors tracking-tight tabular-nums inline-block text-right"
                   }, getAnimVal(row.count).toLocaleString())
                 ),
 
                 // Column 3: Percentage with Mini Proportion Indicator
                 h("div", { className: "relative z-10 w-[28%] flex items-center justify-end gap-1.5 text-right" },
                   h("span", {
-                    className: "font-mono font-bold text-[11px] sm:text-xs text-slate-700 dark:text-slate-300"
+                    style: {
+                      backgroundColor: `${row.color}12`,
+                      color: row.color,
+                      borderColor: `${row.color}25`
+                    },
+                    className: "px-1.5 py-0.2 rounded border font-mono font-semibold text-[9.5px] sm:text-[10px] tracking-tight tabular-nums group-hover:scale-105 transition-transform"
                   }, row.pct)
                 )
               );
@@ -2978,16 +2980,16 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           ),
 
           // Table Total Footer (Pinned to bottom of the card)
-          h("div", { className: "shrink-0 bg-slate-100/95 dark:bg-slate-800/95 border-t border-slate-200 dark:border-slate-700 px-2.5 sm:px-3 py-1.5 flex items-center justify-between font-black text-[11px] sm:text-xs text-slate-900 dark:!text-white shadow-xs" },
-            h("div", { className: "w-[48%] font-sans font-black truncate flex items-center gap-1" },
-              h("span", { className: "w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500" }),
+          h("div", { className: "shrink-0 bg-slate-100/90 dark:bg-slate-800/90 border-t border-slate-200/60 dark:border-slate-800/60 px-2.5 sm:px-3 py-1.5 flex items-center justify-between font-bold text-[10.5px] sm:text-[11.5px] text-slate-800 dark:text-slate-100 shadow-2xs" },
+            h("div", { className: "w-[48%] font-sans font-bold truncate flex items-center gap-2" },
+              h("span", { className: "text-blue-600 dark:text-blue-400 font-black text-[13px] leading-none select-none" }, "∑"),
               "รวมทั้งหมด (Total)"
             ),
-            h("div", { className: "w-[24%] text-right font-mono font-black text-blue-600 dark:text-blue-400" },
-              h("span", { className: "dashboard-number-animate" }, getAnimVal(totalMetrologyCount).toLocaleString())
+            h("div", { className: "w-[24%] text-right pr-1 sm:pr-2 font-mono font-bold text-blue-600 dark:text-blue-400 text-[11px] sm:text-[12px] flex justify-end" },
+              h("span", { className: "dashboard-number-animate tabular-nums inline-block text-right" }, getAnimVal(totalMetrologyCount).toLocaleString())
             ),
-            h("div", { className: "w-[28%] text-right font-mono font-black" },
-              h("span", { className: "px-1 py-0.2 rounded bg-slate-200/80 dark:bg-slate-700 text-[10px] text-slate-800 dark:text-slate-200 font-bold" },
+            h("div", { className: "w-[28%] text-right font-mono" },
+              h("span", { className: "px-1.5 py-0.2 rounded bg-blue-100/70 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 text-[9.5px] sm:text-[10px] text-blue-700 dark:text-blue-300 font-bold tabular-nums" },
                 "100.00%"
               )
             )
@@ -3072,6 +3074,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           const hasDueSoon = m.dueSoon > 0;
           const hasInLab = (m.inLab || 0) > 0;
           const animTotal = getAnimVal(m.total);
+          const animOverdue = getAnimVal(m.overdue);
+          const animDueSoon = getAnimVal(m.dueSoon);
 
           // Calculate proportions for micro-bar
           const tot = m.total || 1;
@@ -3101,7 +3105,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   title: `เกินกำหนด: ${m.overdue} รายการ`
                 },
                   h("span", { className: "w-1 h-1 rounded-full bg-white animate-ping" }),
-                  m.overdue
+                  animOverdue > 0 ? animOverdue : (animProgress > 0 ? animOverdue : m.overdue)
                 )
               ) : (
                 h("span", {
@@ -3109,7 +3113,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   title: `ใกล้ครบกำหนด: ${m.dueSoon} รายการ`
                 },
                   h("span", { className: "w-1 h-1 rounded-full bg-slate-900 animate-ping" }),
-                  m.dueSoon
+                  animDueSoon > 0 ? animDueSoon : (animProgress > 0 ? animDueSoon : m.dueSoon)
                 )
               )
             ),
@@ -3152,34 +3156,39 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                         ? "text-amber-600 dark:text-amber-400"
                         : "text-slate-900 dark:!text-white"
                 }`
-              }, animTotal.toLocaleString())
+              }, animTotal > 0 ? animTotal : (m.total > 0 && animProgress > 0 ? animTotal : (m.total > 0 ? 0 : "")))
             ),
 
-            // Bottom: Multi-segment Micro Health Bar
+            // Bottom: Multi-segment Micro Health Bar (Synchronized with numbers and animProgress)
             h("div", {
-              className: "w-full h-1.5 rounded-full overflow-hidden bg-slate-200/80 dark:bg-slate-700/60 flex shadow-inner border border-black/5 dark:border-white/5",
+              className: "w-full h-1.5 rounded-full overflow-hidden bg-slate-200/80 dark:bg-slate-700/60 shadow-inner border border-black/5 dark:border-white/5 relative",
               title: `พร้อมใช้: ${m.inSpec || 0} | ส่งแล็บ: ${m.inLab || 0} | ใกล้ครบ: ${m.dueSoon || 0} | เกินกำหนด: ${m.overdue || 0}`
             },
-              // In-Spec green segment
-              inSpecPct > 0 && h("div", {
-                style: { width: `${inSpecPct}%` },
-                className: "h-full bg-emerald-500"
-              }),
-              // In-Lab sky blue segment
-              inLabPct > 0 && h("div", {
-                style: { width: `${inLabPct}%` },
-                className: "h-full bg-sky-400"
-              }),
-              // Due Soon amber segment
-              dueSoonPct > 0 && h("div", {
-                style: { width: `${dueSoonPct}%` },
-                className: "h-full bg-amber-500"
-              }),
-              // Overdue rose segment
-              overduePct > 0 && h("div", {
-                style: { width: `${overduePct}%` },
-                className: "h-full bg-rose-500"
-              })
+              h("div", {
+                style: { width: `${(animProgress * 100).toFixed(1)}%` },
+                className: "h-full flex overflow-hidden rounded-full"
+              },
+                // In-Spec green segment
+                inSpecPct > 0 && h("div", {
+                  style: { width: `${inSpecPct}%` },
+                  className: "h-full bg-emerald-500 shrink-0"
+                }),
+                // In-Lab sky blue segment
+                inLabPct > 0 && h("div", {
+                  style: { width: `${inLabPct}%` },
+                  className: "h-full bg-sky-400 shrink-0"
+                }),
+                // Due Soon amber segment
+                dueSoonPct > 0 && h("div", {
+                  style: { width: `${dueSoonPct}%` },
+                  className: "h-full bg-amber-500 shrink-0"
+                }),
+                // Overdue rose segment
+                overduePct > 0 && h("div", {
+                  style: { width: `${overduePct}%` },
+                  className: "h-full bg-rose-500 shrink-0"
+                })
+              )
             )
           );
         })

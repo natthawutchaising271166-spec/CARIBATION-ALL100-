@@ -593,7 +593,7 @@ html.dark body, .dark body {
   border-radius: 6px 6px 0 0 !important;
   overflow: hidden !important;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease !important;
   background-color: transparent !important;
 }
 
