@@ -2656,12 +2656,12 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         h("div", { className: "shrink-0 h-2" }),
         // Compact Table Container with invisible scrollbar
         h("div", { className: "flex-1 min-h-0 overflow-y-auto no-scrollbar invisible-scroll rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" },
-          h("table", { className: "w-full h-full text-left border-collapse text-[10px]" },
+          h("table", { className: "w-full text-left border-collapse text-[10px] table-fixed" },
             h("thead", { className: "bg-slate-100 dark:bg-slate-800 sticky top-0 text-slate-600 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700 z-10" },
               h("tr", null,
-                h("th", { className: "py-2 px-3" }, "หมวดหมู่ (Category)"),
-                h("th", { className: "py-2 px-3 text-right" }, "จำนวน"),
-                h("th", { className: "py-2 px-3 text-right" }, "สัดส่วน (%)")
+                h("th", { className: "py-2 px-2.5 sm:px-3 text-left w-[46%] truncate" }, "หมวดหมู่ (Category)"),
+                h("th", { className: "py-2 px-2 sm:px-2.5 text-right w-[27%] whitespace-nowrap" }, "จำนวน"),
+                h("th", { className: "py-2 px-2.5 sm:px-3 text-right w-[27%] whitespace-nowrap" }, "สัดส่วน (%)")
               )
             ),
             h("tbody", { className: "divide-y divide-slate-100 dark:divide-slate-800/60 font-mono" },
@@ -2669,23 +2669,27 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 key: idx,
                 className: "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
               },
-                h("td", { className: "py-2 px-3 font-sans font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2" },
-                  h("span", { className: "w-2 h-2 rounded-full shrink-0", style: { backgroundColor: row.color } }),
-                  h("span", { className: "truncate" }, row.category)
+                h("td", { className: "py-2 px-2.5 sm:px-3 font-sans font-semibold text-slate-800 dark:text-slate-200 truncate" },
+                  h("div", { className: "flex items-center gap-1.5 min-w-0" },
+                    h("span", { className: "w-2 h-2 rounded-full shrink-0", style: { backgroundColor: row.color } }),
+                    h("span", { className: "truncate", title: row.category }, row.category)
+                  )
                 ),
-                h("td", { className: "py-2 px-3 text-right font-bold text-slate-900 dark:!text-white dashboard-number-animate" },
-                  getAnimVal(row.count).toLocaleString()
+                h("td", { className: "py-2 px-2 sm:px-2.5 text-right font-bold text-slate-900 dark:!text-white whitespace-nowrap" },
+                  h("span", { className: "dashboard-number-animate font-mono" }, getAnimVal(row.count).toLocaleString())
                 ),
-                h("td", { className: "py-2 px-3 text-right font-bold text-slate-700 dark:text-slate-300" },
+                h("td", { className: "py-2 px-2.5 sm:px-3 text-right font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap font-mono" },
                   row.pct
                 )
               ))
             ),
             h("tfoot", { className: "bg-slate-50 dark:bg-slate-800/80 font-bold text-slate-900 dark:!text-white border-t border-slate-200 dark:border-slate-700 sticky bottom-0" },
               h("tr", null,
-                h("td", { className: "py-2 px-3 font-sans font-black" }, "รวมทั้งหมด (Total)"),
-                h("td", { className: "py-2 px-3 text-right font-mono font-black dashboard-number-animate" }, getAnimVal(totalMetrologyCount).toLocaleString()),
-                h("td", { className: "py-2 px-3 text-right font-mono font-black" }, "100.00%")
+                h("td", { className: "py-2 px-2.5 sm:px-3 font-sans font-black truncate" }, "รวมทั้งหมด (Total)"),
+                h("td", { className: "py-2 px-2 sm:px-2.5 text-right font-mono font-black whitespace-nowrap" }, 
+                  h("span", { className: "dashboard-number-animate" }, getAnimVal(totalMetrologyCount).toLocaleString())
+                ),
+                h("td", { className: "py-2 px-2.5 sm:px-3 text-right font-mono font-black whitespace-nowrap" }, "100.00%")
               )
             )
           )
@@ -2707,82 +2711,172 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     // ROW 3: แผนรอบสอบเทียบรายเดือน (12-MONTH SCHEDULE HORIZON)
     // =========================================================================
     h("div", {
-      className: "shrink-0 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs p-2 sm:p-2.5 flex flex-col gap-1.5"
+      className: "shrink-0 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-2.5 sm:p-3 flex flex-col gap-2 transition-all"
     },
-      // Horizon Header
-      h("div", { className: "flex items-center gap-2 text-xs font-black text-slate-900 dark:text-white" },
-        h("span", null, "📅"),
-        h("h3", null, "แผนรอบสอบเทียบรายเดือน (12-MONTH SCHEDULE HORIZON)"),
-        h("span", { className: "text-[11px] font-normal text-slate-500 dark:text-slate-400" },
-          "• คลิกที่เดือนเพื่อคัดกรองทะเบียน"
+      // Horizon Header with Controls & Status Legend
+      h("div", { className: "flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2" },
+        h("div", { className: "flex items-center gap-2" },
+          h("div", { className: "w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs shadow-2xs" },
+            "🗓️"
+          ),
+          h("div", { className: "flex items-baseline gap-1.5" },
+            h("h3", { className: "text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-tight" },
+              "แผนรอบสอบเทียบรายเดือน (12-MONTH SCHEDULE HORIZON)"
+            ),
+            h("span", { className: "hidden md:inline text-[11px] font-normal text-slate-400 dark:text-slate-500" },
+              "• คลิกที่เดือนเพื่อคัดกรองทะเบียน"
+            )
+          )
+        ),
+
+        // Active Selection Filter Pill & Mini Legend
+        h("div", { className: "flex items-center gap-2" },
+          selectedMonth && selectedMonth !== "ALL" && h("div", {
+            className: "flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/80 border border-blue-300 dark:border-blue-700/80 px-2 py-0.5 rounded-full text-[11px] font-bold text-blue-700 dark:text-blue-300 shadow-2xs animate-in fade-in"
+          },
+            h("span", { className: "w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" }),
+            h("span", null, `เดือน: ${monthlyData.find(m => m.id === selectedMonth)?.short || selectedMonth}`),
+            h("button", {
+              onClick: (e) => { e.stopPropagation(); setSelectedMonth("ALL"); if (onFilterMonth) onFilterMonth("ALL"); },
+              className: "ml-1 text-blue-500 hover:text-blue-700 dark:hover:text-blue-200 font-black cursor-pointer",
+              title: "ล้างตัวกรองเดือน"
+            }, "✕")
+          ),
+          // Legend Badges
+          h("div", { className: "hidden lg:flex items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400" },
+            h("span", { className: "flex items-center gap-1" },
+              h("span", { className: "w-2 h-2 rounded-xs bg-emerald-500 shrink-0" }),
+              "พร้อมใช้"
+            ),
+            h("span", { className: "flex items-center gap-1" },
+              h("span", { className: "w-2 h-2 rounded-xs bg-amber-500 shrink-0" }),
+              "ใกล้ครบกำหนด"
+            ),
+            h("span", { className: "flex items-center gap-1" },
+              h("span", { className: "w-2 h-2 rounded-xs bg-rose-500 shrink-0" }),
+              "เกินกำหนด"
+            )
+          )
         )
       ),
 
       // 12 Monthly Horizon Cards Grid
-      h("div", { className: "grid grid-cols-6 sm:grid-cols-12 gap-1 sm:gap-1.5 w-full" },
+      h("div", { className: "grid grid-cols-6 sm:grid-cols-12 gap-1.5 sm:gap-2 w-full" },
         monthlyData.map(m => {
           const isSelected = selectedMonth === m.id;
           const hasOverdue = m.overdue > 0;
           const hasDueSoon = m.dueSoon > 0;
-          const alertColorClass = hasOverdue ? "bg-rose-500" : hasDueSoon ? "bg-amber-500" : "";
-          
+          const hasInLab = (m.inLab || 0) > 0;
+          const animTotal = getAnimVal(m.total);
+
+          // Calculate proportions for micro-bar
+          const tot = m.total || 1;
+          const inSpecPct = Math.round(((m.inSpec || 0) / tot) * 100);
+          const inLabPct = Math.round(((m.inLab || 0) / tot) * 100);
+          const dueSoonPct = Math.round(((m.dueSoon || 0) / tot) * 100);
+          const overduePct = Math.round(((m.overdue || 0) / tot) * 100);
+
           return h("div", {
             key: m.id,
             onClick: () => handleMonthClick(m.id),
-            className: `relative p-1.5 rounded-xl border flex flex-col items-center justify-between cursor-pointer transition-all duration-200 ${
+            className: `relative group p-2 rounded-xl border flex flex-col items-center justify-between cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 ${
               isSelected
-                ? "bg-blue-50/90 dark:bg-blue-950/70 border-blue-500 ring-2 ring-blue-500/30 shadow-xs"
+                ? "bg-blue-50/90 border-blue-500 ring-2 ring-blue-500/40 text-blue-700 dark:bg-blue-950/60 dark:border-blue-500 dark:ring-2 dark:ring-blue-500/50 dark:text-blue-200 shadow-md shadow-blue-500/10 z-10"
                 : hasOverdue
-                  ? "bg-rose-50/50 dark:bg-rose-950/30 border-rose-200/80 dark:border-rose-800/80 hover:bg-rose-100 dark:hover:bg-rose-900/50"
+                  ? "bg-rose-50/70 hover:bg-rose-100/80 border-rose-200 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 dark:border-rose-900/60 dark:hover:border-rose-700 text-rose-800 dark:text-rose-200"
                   : hasDueSoon
-                    ? "bg-amber-50/50 dark:bg-amber-950/30 border-amber-200/80 dark:border-amber-800/80 hover:bg-amber-100 dark:hover:bg-amber-900/50"
-                    : "bg-slate-50/80 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "bg-amber-50/70 hover:bg-amber-100/80 border-amber-200 dark:bg-amber-950/30 dark:hover:bg-amber-950/60 dark:border-amber-900/60 dark:hover:border-amber-700 text-amber-800 dark:text-amber-200"
+                    : "bg-slate-50/90 hover:bg-slate-100 border-slate-200/90 dark:bg-slate-800/60 dark:hover:bg-slate-800 dark:border-slate-700/60 text-slate-700 dark:text-slate-200"
             }`
           },
-            // Alert Animation Dot
-            (hasOverdue || hasDueSoon) && h("div", null,
-              h("span", { className: `absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full animate-ping opacity-75 ${alertColorClass}` }),
-              h("span", { className: `absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full shadow-xs ${alertColorClass}` })
+            // Alert Floating Badges / Dots
+            (hasOverdue || hasDueSoon) && h("div", { className: "absolute -top-1.5 -right-1 z-20 flex items-center" },
+              hasOverdue ? (
+                h("span", {
+                  className: "px-1 py-0.2 rounded-full bg-rose-600 text-[9px] font-black text-white shadow-xs border border-white dark:border-slate-900 flex items-center gap-0.5 scale-90 sm:scale-100",
+                  title: `เกินกำหนด: ${m.overdue} รายการ`
+                },
+                  h("span", { className: "w-1 h-1 rounded-full bg-white animate-ping" }),
+                  m.overdue
+                )
+              ) : (
+                h("span", {
+                  className: "px-1 py-0.2 rounded-full bg-amber-500 text-[9px] font-black text-slate-900 shadow-xs border border-white dark:border-slate-900 flex items-center gap-0.5 scale-90 sm:scale-100",
+                  title: `ใกล้ครบกำหนด: ${m.dueSoon} รายการ`
+                },
+                  h("span", { className: "w-1 h-1 rounded-full bg-slate-900 animate-ping" }),
+                  m.dueSoon
+                )
+              )
             ),
-            
-            // Thai Month
-            h("span", {
-              className: `text-[10px] sm:text-[11px] font-black truncate w-full text-center ${
-                isSelected 
-                  ? "text-blue-700 dark:text-blue-300" 
-                  : hasOverdue
-                    ? "text-rose-700 dark:text-rose-400"
-                    : hasDueSoon
-                      ? "text-amber-700 dark:text-amber-400"
-                      : "text-slate-700 dark:text-slate-300"
-              }`
-            }, m.short),
 
-            // Number of instruments in month
-            h("span", {
-              className: `kpi-horizon-number dashboard-number-animate text-xs sm:text-sm font-black font-mono my-0.5 ${
-                isSelected 
-                  ? "text-blue-600 dark:text-blue-400 scale-105" 
-                  : hasOverdue
-                    ? "text-rose-600 dark:text-rose-400"
-                    : hasDueSoon
-                      ? "text-amber-600 dark:text-amber-400"
-                      : "text-slate-900 dark:!text-white"
-              }`
-            }, getAnimVal(m.total).toLocaleString()),
+            // Top: Month Titles (Thai + EN)
+            h("div", { className: "flex flex-col items-center leading-tight w-full" },
+              h("span", {
+                className: `text-[11px] sm:text-xs font-black tracking-tight ${
+                  isSelected
+                    ? "text-blue-700 dark:text-blue-300"
+                    : hasOverdue
+                      ? "text-rose-700 dark:text-rose-400"
+                      : hasDueSoon
+                        ? "text-amber-700 dark:text-amber-400"
+                        : "text-slate-700 dark:text-slate-200"
+                }`
+              }, m.short),
+              h("span", {
+                className: `text-[8px] sm:text-[9px] font-bold uppercase tracking-widest ${
+                  isSelected 
+                    ? "text-blue-600/80 dark:text-blue-400/80" 
+                    : hasOverdue
+                      ? "text-rose-500/70 dark:text-rose-400/60"
+                      : hasDueSoon
+                        ? "text-amber-500/70 dark:text-amber-400/60"
+                        : "text-slate-400 dark:text-slate-500"
+                }`
+              }, m.en)
+            ),
 
-            // Bottom Accent Indicator Bar
+            // Middle: Animated Instrument Count
+            h("div", { className: "my-1 sm:my-1.5 flex items-baseline justify-center" },
+              h("span", {
+                className: `kpi-horizon-number dashboard-number-animate text-sm sm:text-base font-black font-mono tracking-tight ${
+                  isSelected
+                    ? "text-blue-600 dark:text-blue-300 scale-105"
+                    : hasOverdue
+                      ? "text-rose-600 dark:text-rose-400"
+                      : hasDueSoon
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-slate-900 dark:!text-white"
+                }`
+              }, animTotal.toLocaleString())
+            ),
+
+            // Bottom: Multi-segment Micro Health Bar
             h("div", {
-              className: `w-5 sm:w-7 h-1 rounded-full ${
-                isSelected
-                  ? "bg-indigo-600 shadow-[0_0_6px_rgba(99,102,241,0.6)]"
-                  : hasOverdue
-                    ? "bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.4)]"
-                    : hasDueSoon
-                      ? "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.4)]"
-                      : "bg-blue-500/70"
-              }`
-            })
+              className: "w-full h-1.5 rounded-full overflow-hidden bg-slate-200/80 dark:bg-slate-700/60 flex shadow-inner border border-black/5 dark:border-white/5",
+              title: `พร้อมใช้: ${m.inSpec || 0} | ส่งแล็บ: ${m.inLab || 0} | ใกล้ครบ: ${m.dueSoon || 0} | เกินกำหนด: ${m.overdue || 0}`
+            },
+              // In-Spec green segment
+              inSpecPct > 0 && h("div", {
+                style: { width: `${inSpecPct}%` },
+                className: "h-full bg-emerald-500"
+              }),
+              // In-Lab sky blue segment
+              inLabPct > 0 && h("div", {
+                style: { width: `${inLabPct}%` },
+                className: "h-full bg-sky-400"
+              }),
+              // Due Soon amber segment
+              dueSoonPct > 0 && h("div", {
+                style: { width: `${dueSoonPct}%` },
+                className: "h-full bg-amber-500"
+              }),
+              // Overdue rose segment
+              overduePct > 0 && h("div", {
+                style: { width: `${overduePct}%` },
+                className: "h-full bg-rose-500"
+              })
+            )
           );
         })
       )
