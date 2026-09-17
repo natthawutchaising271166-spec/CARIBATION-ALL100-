@@ -52,6 +52,38 @@
       [data-theme="dark"] .gauge-scale-number {
         fill: #ffffff !important;
       }
+      /* Dual-Axis Reliability Spline Overlay (Always positioned with 100% precision) */
+      .chart-spline-svg {
+        position: absolute !important;
+        top: 0px !important;
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 16px !important;
+        width: calc(100% - 16px) !important;
+        height: calc(100% - 16px) !important;
+        pointer-events: none !important;
+        z-index: 25 !important;
+        overflow: visible !important;
+      }
+      @media (min-width: 640px) {
+        .chart-spline-svg {
+          left: 12px !important;
+          right: 12px !important;
+          width: calc(100% - 24px) !important;
+        }
+      }
+      .chart-rel-badge-text {
+        fill: #9333ea;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 10px;
+        font-weight: 800;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+      .dark .chart-rel-badge-text,
+      html.dark .chart-rel-badge-text {
+        fill: #d8b4fe !important;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      }
       /* Firefox scrollbar support */
       * {
         scrollbar-width: thin;

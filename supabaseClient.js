@@ -26,6 +26,200 @@
   };
 
   const CONFIG_STORAGE_KEY = "QAP_SUPABASE_CONFIG_V2";
+  const OFFLINE_QUEUE_KEY = "QAP_SUPABASE_OFFLINE_SYNC_QUEUE_V2";
+  const OFFLINE_SNAPSHOT_KEY = "QAP_SUPABASE_OFFLINE_SNAPSHOT_V2";
+
+  let isSyncingOfflineQueue = false;
+
+  // -------------------------------------------------------------------------
+  // ⚡ OFFLINE QUEUE & BACKGROUND SYNCHRONIZATION ENGINE
+  // -------------------------------------------------------------------------
+  function isOnline() {
+    return typeof navigator !== "undefined" && navigator.onLine !== undefined ? navigator.onLine : true;
+  }
+
+  function getOfflineQueue() {
+    try {
+      const stored = localStorage.getItem(OFFLINE_QUEUE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.warn("[Offline Sync] Failed to read offline queue:", e);
+      return [];
+    }
+  }
+
+  function saveOfflineQueue(queue) {
+    try {
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    } catch (e) {
+      console.warn("[Offline Sync] Failed to save offline queue:", e);
+    }
+    emitQueueStatus(queue);
+  }
+
+  function emitQueueStatus(queue = null) {
+    const q = queue || getOfflineQueue();
+    try {
+      window.dispatchEvent(
+        new CustomEvent("qap-sync-queue-updated", {
+          detail: {
+            queue: q,
+            count: q.length,
+            isOnline: isOnline(),
+          },
+        })
+      );
+    } catch (e) {}
+  }
+
+  function enqueueOfflineAction({ action, tabType = "calibration_all", payload, meta = {} }) {
+    if (!action || !payload) return;
+    const queue = getOfflineQueue();
+    const itemId = payload.id || payload.codeNo || (meta && meta.id) || String(Date.now());
+
+    // Deduplicate: if an action for this exact entity already exists, update it
+    const existingIdx = queue.findIndex(
+      (item) => item.tabType === tabType && ((item.payload && item.payload.id && item.payload.id === itemId) || item.metaId === itemId)
+    );
+
+    const queueItem = {
+      queueId: `queue_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      action, // 'upsert' | 'delete' | 'batch_delete' | 'batch_upsert' | 'save_file' | 'delete_file'
+      tabType,
+      payload,
+      metaId: itemId,
+      meta,
+      retries: 0,
+    };
+
+    if (existingIdx >= 0 && action === "upsert") {
+      queue[existingIdx] = queueItem;
+    } else if (existingIdx >= 0 && action === "delete") {
+      // If deleting an entity that was previously queued for upsert, replace with delete
+      queue[existingIdx] = queueItem;
+    } else {
+      queue.push(queueItem);
+    }
+
+    saveOfflineQueue(queue);
+
+    // Request Service Worker background sync if supported
+    if ("serviceWorker" in navigator && "SyncManager" in window) {
+      navigator.serviceWorker.ready.then((reg) => {
+        if (reg && reg.sync) {
+          reg.sync.register("qap-sync-supabase").catch(() => {});
+        }
+      }).catch(() => {});
+    }
+
+    return queueItem;
+  }
+
+  function clearOfflineQueue() {
+    saveOfflineQueue([]);
+  }
+
+  // Process and replay all pending offline mutations to Supabase in FIFO sequence
+  async function processPendingQueue() {
+    if (isSyncingOfflineQueue) return { ok: false, running: true };
+    if (!isOnline()) return { ok: false, offline: true };
+    if (!isConfigured()) return { ok: false, notConfigured: true };
+
+    const queue = getOfflineQueue();
+    if (!Array.isArray(queue) || queue.length === 0) {
+      return { ok: true, count: 0 };
+    }
+
+    isSyncingOfflineQueue = true;
+    emitStatus({ status: "syncing" });
+
+    let processedCount = 0;
+    const failedItems = [];
+    const remainingQueue = [...queue];
+
+    for (let i = 0; i < queue.length; i++) {
+      const item = queue[i];
+      if (!item) continue;
+
+      try {
+        if (item.action === "upsert") {
+          await upsertInstrument(item.payload, item.tabType, true);
+        } else if (item.action === "delete") {
+          const id = item.payload.id || item.payload;
+          const code = item.payload.codeNo || "";
+          await deleteInstrument(id, item.tabType, code, true);
+        } else if (item.action === "batch_delete") {
+          await deleteInstruments(item.payload.ids || item.payload, item.tabType, true);
+        } else if (item.action === "batch_upsert") {
+          await upsertInstruments(item.payload.items || item.payload, item.tabType, true);
+        } else if (item.action === "save_file") {
+          await saveFileRecord(item.payload, true);
+        } else if (item.action === "delete_file") {
+          await deleteFileRecord(item.payload.instrumentId, item.payload.codeNo, item.payload.fileId, true);
+        }
+
+        processedCount++;
+        // Remove processed item from queue
+        const idx = remainingQueue.findIndex((q) => q.queueId === item.queueId);
+        if (idx >= 0) remainingQueue.splice(idx, 1);
+        saveOfflineQueue(remainingQueue);
+      } catch (err) {
+        console.warn(`[Offline Sync] Replay item ${item.queueId} failed:`, err);
+        item.retries = (item.retries || 0) + 1;
+        item.lastError = err.message;
+        // Keep in queue if retry count < 6, otherwise discard permanent corrupt items
+        if (item.retries >= 6) {
+          const idx = remainingQueue.findIndex((q) => q.queueId === item.queueId);
+          if (idx >= 0) remainingQueue.splice(idx, 1);
+        }
+        failedItems.push(item);
+      }
+    }
+
+    saveOfflineQueue(remainingQueue);
+    isSyncingOfflineQueue = false;
+
+    if (processedCount > 0) {
+      saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
+      emitToast(`☁️ ซิงก์ข้อมูลที่ค้างอยู่ ${processedCount} รายการขึ้น Supabase เรียบร้อยแล้ว`, "success");
+    }
+
+    emitStatus();
+    return { ok: true, processedCount, failedCount: failedItems.length };
+  }
+
+  // Cache an offline dataset snapshot (local storage + Service Worker data cache)
+  function cacheOfflineSnapshot(snapshotData) {
+    if (!snapshotData || typeof snapshotData !== "object") return;
+    try {
+      localStorage.setItem(OFFLINE_SNAPSHOT_KEY, JSON.stringify({
+        timestamp: new Date().toISOString(),
+        data: snapshotData
+      }));
+    } catch (e) {}
+
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      try {
+        navigator.serviceWorker.controller.postMessage({
+          type: "CACHE_OFFLINE_SNAPSHOT",
+          payload: snapshotData
+        });
+      } catch (e) {}
+    }
+  }
+
+  function loadOfflineSnapshot() {
+    try {
+      const stored = localStorage.getItem(OFFLINE_SNAPSHOT_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed && parsed.data ? parsed.data : null;
+      }
+    } catch (e) {}
+    return null;
+  }
+
 
   const PAGE_TABLES = {
     calibration_all: "qap_calibration_all",
@@ -790,7 +984,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
   // แยกเก็บไฟล์ PDF ลงตาราง qap_files ต่างหาก ไม่เก็บซ้ำซ้อนใน data (JSONB)
   // ----------------------------------------------------------
 
-  // Save single file record to qap_files table
+  // Save single file record to qap_files table (with offline queue fallback)
   async function saveFileRecord({
     instrumentId,
     codeNo,
@@ -799,25 +993,31 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     fileSize = 0,
     fileUrl = "",
     tabType = "calibration_all",
-  } = {}) {
+  } = {}, isSyncReplay = false) {
     if (!isConfigured() || !config.autoSync || !fileUrl) return { ok: false, skipped: true };
+
+    const cleanInstId = String(instrumentId || "").trim();
+    const cleanCodeNo = String(codeNo || "").trim();
+    const fileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}`;
+
+    const payload = {
+      id: fileId,
+      instrument_id: cleanInstId || null,
+      code_no: cleanCodeNo,
+      cert_no: String(certNo || "").trim(),
+      file_name: String(fileName || "").trim(),
+      file_size: parseByteSize(fileSize),
+      file_url: String(fileUrl).trim(),
+      tab_type: String(tabType || "calibration_all"),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (!isOnline() && !isSyncReplay) {
+      enqueueOfflineAction({ action: "save_file", tabType, payload });
+      return { ok: true, fileId, offlineQueued: true };
+    }
+
     try {
-      const cleanInstId = String(instrumentId || "").trim();
-      const cleanCodeNo = String(codeNo || "").trim();
-      const fileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}`;
-
-      const payload = {
-        id: fileId,
-        instrument_id: cleanInstId || null,
-        code_no: cleanCodeNo,
-        cert_no: String(certNo || "").trim(),
-        file_name: String(fileName || "").trim(),
-        file_size: parseByteSize(fileSize),
-        file_url: String(fileUrl).trim(),
-        tab_type: String(tabType || "calibration_all"),
-        updated_at: new Date().toISOString(),
-      };
-
       await request(`/${FILES_TABLE}`, {
         method: "POST",
         headers: {
@@ -829,13 +1029,27 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       return { ok: true, fileId };
     } catch (err) {
       console.warn("[Supabase File Sync] Save file record failed:", err);
-      return { ok: false, error: err.message };
+      if (!isSyncReplay) {
+        enqueueOfflineAction({ action: "save_file", tabType, payload });
+        return { ok: true, fileId, offlineQueued: true };
+      }
+      throw err;
     }
   }
 
-  // Delete file record from qap_files table
-  async function deleteFileRecord(instrumentId, codeNo, fileId) {
+  // Delete file record from qap_files table (with offline queue fallback)
+  async function deleteFileRecord(instrumentId, codeNo, fileId, isSyncReplay = false) {
     if (!isConfigured() || !config.autoSync) return { ok: false, skipped: true };
+
+    if (!isOnline() && !isSyncReplay) {
+      enqueueOfflineAction({
+        action: "delete_file",
+        tabType: "calibration_all",
+        payload: { instrumentId, codeNo, fileId }
+      });
+      return { ok: true, offlineQueued: true };
+    }
+
     try {
       const deleteCalls = [];
       if (fileId) {
@@ -876,7 +1090,15 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase File Sync] Delete file record failed:", err);
-      return { ok: false, error: err.message };
+      if (!isSyncReplay) {
+        enqueueOfflineAction({
+          action: "delete_file",
+          tabType: "calibration_all",
+          payload: { instrumentId, codeNo, fileId }
+        });
+        return { ok: true, offlineQueued: true };
+      }
+      throw err;
     }
   }
 
@@ -1152,9 +1374,24 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     }
   }
 
-  // 4. Realtime Single Instrument Upsert to dedicated table and master list
-  async function upsertInstrument(inst, tabType = "calibration_all") {
+  // 4. Realtime Single Instrument Upsert to dedicated table and master list (with offline queueing)
+  async function upsertInstrument(inst, tabType = "calibration_all", isSyncReplay = false) {
     if (!isConfigured() || !config.autoSync) return { ok: false, skipped: true };
+
+    if (!inst) return { ok: false, message: "Invalid instrument data" };
+
+    // Offline Handling: Enqueue action if device is offline
+    if (!isOnline() && !isSyncReplay) {
+      enqueueOfflineAction({
+        action: "upsert",
+        tabType,
+        payload: inst,
+        meta: { id: inst.id, codeNo: inst.codeNo, name: inst.instrumentName }
+      });
+      const qCount = getOfflineQueue().length;
+      emitToast(`💾 โหมดออฟไลน์: บันทึกในเครื่องแล้ว (ค้างในคิวซิงก์ ${qCount} รายการ จะส่งขึ้น Cloud เมื่อต่อเน็ต)`, "info");
+      return { ok: true, offlineQueued: true };
+    }
 
     try {
       const targetTable = getTableForPage(tabType);
@@ -1172,10 +1409,10 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
           fileSize: inst.fileSize,
           fileUrl: inst.pdfUrl || inst.certFileData,
           tabType: tabType,
-        }).catch(err => console.warn("[Supabase Sync] File record save warning:", err));
+        }, isSyncReplay).catch(err => console.warn("[Supabase Sync] File record save warning:", err));
       } else if (inst.id || inst.codeNo) {
         // If instrument previously had a file that was removed, clean from qap_files
-        await deleteFileRecord(inst.id, inst.codeNo).catch(() => {});
+        await deleteFileRecord(inst.id, inst.codeNo, null, isSyncReplay).catch(() => {});
       }
 
       // Save instrument row with clean data jsonb
@@ -1188,25 +1425,50 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
       const pdfNote = hasPdf ? " (บันทึกไฟล์ลงตาราง qap_files แยกต่างหาก)" : "";
-      emitToast(`☁️ ซิงก์บันทึกลงตาราง ${targetTable}: ${inst.codeNo || inst.instrumentName || ""}${pdfNote}`, "success");
+      if (!isSyncReplay) {
+        emitToast(`☁️ ซิงก์บันทึกลงตาราง ${targetTable}: ${inst.codeNo || inst.instrumentName || ""}${pdfNote}`, "success");
+      }
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase Sync] Upsert failed:", err);
-      return { ok: false, error: err.message };
+      if (!isSyncReplay) {
+        enqueueOfflineAction({
+          action: "upsert",
+          tabType,
+          payload: inst,
+          meta: { id: inst.id, codeNo: inst.codeNo, name: inst.instrumentName }
+        });
+        const qCount = getOfflineQueue().length;
+        emitToast(`💾 ออฟไลน์ชั่วคราว: บันทึกในเครื่องแล้ว (ค้างในคิวซิงก์ ${qCount} รายการ)`, "warning");
+        return { ok: true, offlineQueued: true };
+      }
+      throw err;
     }
   }
 
-  // 5. Delete single instrument from its dedicated table, master list, and qap_files
-  async function deleteInstrument(id, tabType = "calibration_all", codeNo = "") {
+  // 5. Delete single instrument from its dedicated table, master list, and qap_files (with offline queueing)
+  async function deleteInstrument(id, tabType = "calibration_all", codeNo = "", isSyncReplay = false) {
     if (!isConfigured() || !config.autoSync || !id) return { ok: false, skipped: true };
+
+    const cleanId = typeof id === "object" ? String(id.id || "") : String(id);
+    const cleanCode = typeof id === "object" ? String(id.codeNo || "") : String(codeNo || "");
+
+    if (!isOnline() && !isSyncReplay) {
+      enqueueOfflineAction({
+        action: "delete",
+        tabType,
+        payload: { id: cleanId, codeNo: cleanCode },
+        meta: { id: cleanId, codeNo: cleanCode }
+      });
+      emitToast(`💾 โหมดออฟไลน์: ลบในเครื่องแล้ว (จะลบบน Cloud เมื่อต่อเน็ต)`, "info");
+      return { ok: true, offlineQueued: true };
+    }
 
     try {
       const targetTable = getTableForPage(tabType);
-      const cleanId = typeof id === "object" ? String(id.id || "") : String(id);
-      const cleanCode = typeof id === "object" ? String(id.codeNo || "") : String(codeNo || "");
 
       // Clean file record from qap_files
-      await deleteFileRecord(cleanId, cleanCode).catch(() => {});
+      await deleteFileRecord(cleanId, cleanCode, null, isSyncReplay).catch(() => {});
 
       await request(`/${targetTable}?id=eq.${encodeURIComponent(cleanId)}`, {
         method: "DELETE",
@@ -1229,11 +1491,22 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ลบออกจากตาราง ${targetTable} และตาราง qap_files แล้ว`, "info");
+      if (!isSyncReplay) {
+        emitToast(`☁️ ลบออกจากตาราง ${targetTable} และตาราง qap_files แล้ว`, "info");
+      }
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase Sync] Delete failed:", err);
-      return { ok: false, error: err.message };
+      if (!isSyncReplay) {
+        enqueueOfflineAction({
+          action: "delete",
+          tabType,
+          payload: { id: cleanId, codeNo: cleanCode },
+          meta: { id: cleanId, codeNo: cleanCode }
+        });
+        return { ok: true, offlineQueued: true };
+      }
+      throw err;
     }
   }
 
@@ -1445,8 +1718,67 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     PAGE_TABLES,
     PAGE_NAMES,
     emitToast,
+    // Offline PWA Sync & Cache API
+    isOnline,
+    getPendingQueue: getOfflineQueue,
+    getPendingQueueCount: () => getOfflineQueue().length,
+    processPendingQueue,
+    enqueueOfflineAction,
+    clearOfflineQueue,
+    cacheOfflineSnapshot,
+    loadOfflineSnapshot,
+    emitQueueStatus,
   };
 
+  // -------------------------------------------------------------------------
+  // ⚡ AUTOMATIC NETWORK RECONNECTION & BACKGROUND SYNC LISTENERS
+  // -------------------------------------------------------------------------
+  if (typeof window !== "undefined") {
+    // 1. Trigger sync immediately when connection is restored
+    window.addEventListener("online", () => {
+      console.log("🌐 [Network] Connection restored! Triggering pending offline sync...");
+      emitToast("🌐 เชื่อมต่ออินเทอร์เน็ตแล้ว กำลังซิงก์ข้อมูลที่ค้างอยู่...", "info");
+      emitQueueStatus();
+      setTimeout(processPendingQueue, 1200);
+    });
+
+    window.addEventListener("offline", () => {
+      console.log("📶 [Network] Connection lost. Operating in offline mode.");
+      emitToast("📶 โหมดออฟไลน์: บันทึกและแก้ไขข้อมูลได้ต่อเนื่อง ระบบจะซิงก์ขึ้น Cloud เมื่อต่อเน็ต", "warning");
+      emitQueueStatus();
+    });
+
+    // 2. Process queue when user returns to app tab
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && isOnline() && getOfflineQueue().length > 0) {
+        processPendingQueue();
+      }
+    });
+
+    // 3. Service Worker Message Listener
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "QAP_PROCESS_OFFLINE_QUEUE") {
+          console.log("⚡ [PWA SW] Message received to process offline queue");
+          processPendingQueue();
+        }
+      });
+    }
+
+    // 4. Heartbeat Sync Check (Every 25 seconds)
+    setInterval(() => {
+      if (isOnline() && getOfflineQueue().length > 0) {
+        processPendingQueue();
+      }
+    }, 25000);
+  }
+
   // Initial status notification after boot
-  setTimeout(emitStatus, 300);
+  setTimeout(() => {
+    emitStatus();
+    emitQueueStatus();
+    if (isOnline() && getOfflineQueue().length > 0) {
+      processPendingQueue();
+    }
+  }, 500);
 })();
