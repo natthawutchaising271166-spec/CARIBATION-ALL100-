@@ -3,73 +3,119 @@
 // Guarantees 100% clarity for tables, numbers, stamps, and signatures, while instantly saving to Supabase.
 
 (function() {
+  // Helper to format file sizes in B, KB, MB
+  function formatFileSize(bytes) {
+    if (!bytes || isNaN(bytes) || bytes <= 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const num = parseFloat((bytes / Math.pow(k, i)).toFixed(1));
+    return num + " " + (sizes[i] || "B");
+  }
+  window.formatFileSize = formatFileSize;
+
   // Toast notification helper for compression & cloud sync progress
-  function showCompressionToast(message, type = 'info', duration = 4500) {
-    let toast = document.getElementById('qap-compression-toast');
+  let toastTimer = null;
+  function hideCompressionToast() {
+    const toast = document.getElementById("qap-compression-toast");
+    if (toast) {
+      toast.style.transform = "translateY(20px)";
+      toast.style.opacity = "0";
+      toast.style.pointerEvents = "none";
+      setTimeout(() => {
+        if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 300);
+    }
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+      toastTimer = null;
+    }
+  }
+
+  function showCompressionToast(message, type = "info", duration = 3500) {
+    let toast = document.getElementById("qap-compression-toast");
     if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'qap-compression-toast';
-      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999999;padding:12px 18px;border-radius:12px;font-family:Prompt,-apple-system,sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.35);transition:all 0.3s cubic-bezier(0.16,1,0.3,1);transform:translateY(20px);opacity:0;pointer-events:none;';
+      toast = document.createElement("div");
+      toast.id = "qap-compression-toast";
+      toast.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:9999999;padding:10px 16px;border-radius:12px;font-family:Prompt,-apple-system,sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.35);transition:all 0.25s cubic-bezier(0.16,1,0.3,1);transform:translateY(20px);opacity:0;pointer-events:auto;cursor:pointer;";
       document.body.appendChild(toast);
     }
 
-    if (type === 'info' || type === 'loading') {
-      toast.style.background = '#0f172a';
-      toast.style.color = '#f8fafc';
-      toast.style.border = '1px solid #3b82f6';
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+      toastTimer = null;
+    }
+
+    const closeBtnHtml = `<span onclick="event.stopPropagation(); window.hideCompressionToast && window.hideCompressionToast();" style="margin-left:auto;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,0.1);font-size:11px;font-weight:bold;cursor:pointer;opacity:0.8;transition:opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">✕</span>`;
+
+    if (type === "loading") {
+      toast.style.background = "#0f172a";
+      toast.style.color = "#f8fafc";
+      toast.style.border = "1px solid #3b82f6";
       toast.innerHTML = `
         <div style="width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0;"></div>
         <div style="display:flex;flex-direction:column;">
           <span style="font-weight:700;color:#38bdf8;">กำลังประมวลผลไฟล์ & Cloud Sync</span>
           <span style="font-size:11px;color:#94a3b8;">${message}</span>
         </div>
+        ${closeBtnHtml}
       `;
-    } else if (type === 'success') {
-      toast.style.background = '#064e3b';
-      toast.style.color = '#ecfdf5';
-      toast.style.border = '1px solid #10b981';
+    } else if (type === "info") {
+      toast.style.background = "#1e293b";
+      toast.style.color = "#f8fafc";
+      toast.style.border = "1px solid #64748b";
+      toast.innerHTML = `
+        <span style="font-size:16px;">ℹ️</span>
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-weight:700;color:#e2e8f0;">แจ้งเตือน</span>
+          <span style="font-size:11px;color:#94a3b8;">${message}</span>
+        </div>
+        ${closeBtnHtml}
+      `;
+    } else if (type === "success") {
+      toast.style.background = "#064e3b";
+      toast.style.color = "#ecfdf5";
+      toast.style.border = "1px solid #10b981";
       toast.innerHTML = `
         <span style="font-size:18px;">✅</span>
         <div style="display:flex;flex-direction:column;">
-          <span style="font-weight:700;color:#34d399;">บันทึกลง Supabase สำเร็จ</span>
+          <span style="font-weight:700;color:#34d399;">สำเร็จ</span>
           <span style="font-size:11px;color:#a7f3d0;">${message}</span>
         </div>
+        ${closeBtnHtml}
       `;
-    } else if (type === 'error') {
-      toast.style.background = '#7f1d1d';
-      toast.style.color = '#fef2f2';
-      toast.style.border = '1px solid #ef4444';
+    } else if (type === "error") {
+      toast.style.background = "#7f1d1d";
+      toast.style.color = "#fef2f2";
+      toast.style.border = "1px solid #ef4444";
       toast.innerHTML = `
         <span style="font-size:18px;">⚠️</span>
         <div style="display:flex;flex-direction:column;">
-          <span style="font-weight:700;color:#fca5a5;">แจ้งเตือน</span>
+          <span style="font-weight:700;color:#fca5a5;">ข้อผิดพลาด</span>
           <span style="font-size:11px;color:#fecaca;">${message}</span>
         </div>
+        ${closeBtnHtml}
       `;
     }
 
-    toast.style.transform = 'translateY(0)';
-    toast.style.opacity = '1';
+    toast.onclick = () => hideCompressionToast();
 
-    if (type === 'success' || type === 'error') {
-      setTimeout(() => {
-        if (toast) {
-          toast.style.transform = 'translateY(20px)';
-          toast.style.opacity = '0';
-        }
+    // Trigger appear animation
+    requestAnimationFrame(() => {
+      toast.style.transform = "translateY(0)";
+      toast.style.opacity = "1";
+    });
+
+    if (type !== "loading") {
+      toastTimer = setTimeout(() => {
+        hideCompressionToast();
       }, duration);
     }
   }
 
-  function formatFileSize(bytes) {
-    if (!bytes || bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
+  window.showCompressionToast = showCompressionToast;
+  window.hideCompressionToast = hideCompressionToast;
 
-  // Load PDF-Lib dynamically if not loaded
   async function ensurePdfLib() {
     if (window.PDFLib) return window.PDFLib;
     return new Promise((resolve, reject) => {

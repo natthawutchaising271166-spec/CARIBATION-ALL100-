@@ -1316,10 +1316,22 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
   // 4. Realtime Single Instrument Upsert to dedicated table and master list
   async function upsertInstrument(inst, tabType = "calibration_all") {
     if (!isConfigured() || !config.autoSync) return { ok: false, skipped: true };
-
     try {
-      const targetTable = getTableForPage(tabType);
-      const row = formatRow(inst, tabType);
+      const isCancel = (inst.category || "").trim().toUpperCase() === "CANCEL" ||
+        String(inst.status || "").toLowerCase().trim() === "inactive" ||
+        String(inst.status || "").toLowerCase().trim() === "cancel" ||
+        String(inst.status || "").includes("ปลดระวาง") ||
+        tabType === "cancel" ||
+        tabType === "qap_cancel";
+
+      const effectiveTab = isCancel ? "cancel" : tabType;
+      const targetTable = getTableForPage(effectiveTab);
+      const row = formatRow({
+        ...inst,
+        category: isCancel ? "CANCEL" : (inst.category || (effectiveTab === "centralized" ? "CENTRALIZED" : effectiveTab === "each_section" ? "EACH SECTION" : "NORMAL STANDARD")),
+        status: isCancel ? (inst.status || "inactive") : (inst.status || "normal")
+      }, effectiveTab);
+
       if (!row) return { ok: false, message: "Invalid instrument data" };
 
       // Save file record to qap_files table separately (decoupled from data jsonb)
@@ -1332,24 +1344,39 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
           fileName: inst.certFileName,
           fileSize: inst.fileSize,
           fileUrl: inst.pdfUrl || inst.certFileData,
-          tabType: tabType,
+          tabType: effectiveTab,
         }).catch(err => console.warn("[Supabase Sync] File record save warning:", err));
       } else if (inst.id || inst.codeNo) {
-        // If instrument previously had a file that was removed, clean from qap_files
         await deleteFileRecord(inst.id, inst.codeNo).catch(() => {});
       }
 
       // Save instrument row with clean data jsonb
       await safeUpsertRow(targetTable, row);
 
-      // Also ensure Master List (qap_calibration_all) stays synchronized if not already target
-      if (targetTable !== PAGE_TABLES.calibration_all) {
-        await safeUpsertRow(PAGE_TABLES.calibration_all, row).catch(() => {});
+      if (isCancel || targetTable === PAGE_TABLES.cancel) {
+        // When cancelled, remove from ALL active tables in database
+        for (const tbl of [PAGE_TABLES.calibration_all, PAGE_TABLES.normal_standard, PAGE_TABLES.centralized, PAGE_TABLES.each_section]) {
+          request(`/${tbl}?id=eq.${encodeURIComponent(row.id)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+          }).catch(() => {});
+        }
+      } else {
+        // Also ensure Master List (qap_calibration_all) stays synchronized if not already target
+        if (targetTable !== PAGE_TABLES.calibration_all) {
+          await safeUpsertRow(PAGE_TABLES.calibration_all, row).catch(() => {});
+        }
+        // Remove from cancel table if active
+        request(`/${PAGE_TABLES.cancel}?id=eq.${encodeURIComponent(row.id)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        }).catch(() => {});
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
       const pdfNote = hasPdf ? " (บันทึกไฟล์ลงตาราง qap_files แยกต่างหาก)" : "";
-      emitToast(`☁️ ซิงก์บันทึกลงตาราง ${targetTable}: ${inst.codeNo || inst.instrumentName || ""}${pdfNote}`, "success");
+      const actionMsg = isCancel ? "ย้ายไปตาราง qap_cancel และลบออกจากตารางใช้งานปกติในฐานข้อมูล" : `ซิงก์บันทึกลงตาราง ${targetTable}`;
+      emitToast(`☁️ ${actionMsg}: ${inst.codeNo || inst.instrumentName || ""}${pdfNote}`, "success");
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase Sync] Upsert failed:", err);
@@ -1357,14 +1384,57 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     }
   }
 
-  // 5. Delete single instrument from its dedicated table, master list, and qap_files
-  async function deleteInstrument(id, tabType = "calibration_all", codeNo = "") {
-    if (!isConfigured() || !config.autoSync || !id) return { ok: false, skipped: true };
-
+  // Helper: Move single or multiple instruments to cancel in database
+  async function moveToCancel(instrumentOrItems) {
+    if (!isConfigured() || !config.autoSync || !instrumentOrItems) return { ok: false, skipped: true };
     try {
+      const items = Array.isArray(instrumentOrItems) ? instrumentOrItems : [instrumentOrItems];
+      if (items.length === 0) return { ok: true, count: 0 };
+      const cancelItems = items.map(x => ({
+        ...x,
+        category: "CANCEL",
+        status: "inactive"
+      }));
+
+      // 1. Upsert into qap_cancel
+      await upsertInstruments(cancelItems, "cancel");
+
+      // 2. Delete from active tables in database
+      const idStrings = cancelItems.map(x => (x && x.id ? String(x.id).trim() : "")).filter(Boolean);
+      if (idStrings.length > 0) {
+        await deleteInstruments(idStrings, "calibration_all");
+        await deleteInstruments(idStrings, "normal_standard");
+        await deleteInstruments(idStrings, "centralized");
+        await deleteInstruments(idStrings, "each_section");
+      }
+
+      emitToast(`☁️ บันทึกลงฐานข้อมูล qap_cancel และลบออกจากตาราง ALL เรียบร้อย (${cancelItems.length} รายการ)`, "success");
+      return { ok: true, count: cancelItems.length };
+    } catch (err) {
+      console.warn("[Supabase Sync] Move to cancel failed:", err);
+      return { ok: false, error: err.message };
+    }
+  }
+
+  // 5. Delete single instrument from its dedicated table, master list, and qap_files
+  async function deleteInstrument(arg1, arg2 = "calibration_all", codeNo = "") {
+    if (!isConfigured() || !config.autoSync || !arg1) return { ok: false, skipped: true };
+    try {
+      const knownTables = ["calibration_all", "normal_standard", "centralized", "each_section", "cancel", "qap_calibration_all", "qap_normal_standard", "qap_centralized", "qap_each_section", "qap_cancel", "all"];
+      let cleanId = "";
+      let tabType = "calibration_all";
+      let cleanCode = codeNo || "";
+
+      if (typeof arg1 === "string" && knownTables.includes(arg1.toLowerCase()) && typeof arg2 === "string" && !knownTables.includes(arg2.toLowerCase())) {
+        tabType = arg1;
+        cleanId = arg2;
+      } else {
+        cleanId = typeof arg1 === "object" ? String(arg1.id || "") : String(arg1);
+        tabType = typeof arg2 === "string" ? arg2 : "calibration_all";
+        cleanCode = typeof arg1 === "object" ? String(arg1.codeNo || "") : String(codeNo || "");
+      }
+
       const targetTable = getTableForPage(tabType);
-      const cleanId = typeof id === "object" ? String(id.id || "") : String(id);
-      const cleanCode = typeof id === "object" ? String(id.codeNo || "") : String(codeNo || "");
 
       // Clean file record from qap_files
       await deleteFileRecord(cleanId, cleanCode).catch(() => {});
@@ -1390,7 +1460,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ลบออกจากตาราง ${targetTable} และตาราง qap_files แล้ว`, "info");
+      emitToast(`☁️ ลบออกจากฐานข้อมูลตาราง ${targetTable} แล้ว`, "info");
       return { ok: true };
     } catch (err) {
       console.warn("[Supabase Sync] Delete failed:", err);
@@ -1403,10 +1473,8 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     if (!isConfigured() || !config.autoSync || !Array.isArray(ids) || ids.length === 0) {
       return { ok: false, skipped: true };
     }
-
     try {
       const targetTable = getTableForPage(tabType);
-
       // Clean file records from qap_files
       for (const item of ids) {
         const cleanId = typeof item === "object" ? String(item.id || "") : String(item);
@@ -1435,7 +1503,6 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
               headers: { Prefer: "return=minimal" },
             });
           } catch (inErr) {
-            // Fallback to individual eq. delete if in. operator has syntax/schema limitation
             for (const singleId of chunk) {
               await request(`/${tbl}?id=eq.${encodeURIComponent(singleId)}`, {
                 method: "DELETE",
@@ -1450,7 +1517,6 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
         if (targetTable !== PAGE_TABLES.calibration_all) {
           deleteFromTable(PAGE_TABLES.calibration_all).catch(() => {});
         } else {
-          // If deleting from calibration_all, clean from all sub-tables too
           for (const tbl of [PAGE_TABLES.normal_standard, PAGE_TABLES.centralized, PAGE_TABLES.each_section, PAGE_TABLES.cancel]) {
             deleteFromTable(tbl).catch(() => {});
           }
@@ -1458,7 +1524,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ ลบ ${idStrings.length} รายการจากตาราง ${targetTable} สำเร็จ`, "info");
+      emitToast(`☁️ ลบ ${idStrings.length} รายการจากตาราง ${targetTable} ในฐานข้อมูลสำเร็จ`, "info");
       return { ok: true, count: idStrings.length };
     } catch (err) {
       console.warn("[Supabase Sync] Batch delete failed:", err && err.message);
@@ -1472,9 +1538,11 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       return { ok: false, skipped: true };
     }
     try {
+      const isCancel = tabType === "cancel" || tabType === "qap_cancel";
       const targetTable = getTableForPage(tabType);
       const formatted = items.map((it) => formatRow(it, tabType)).filter(Boolean);
       const CHUNK_SIZE = 100;
+
       for (let i = 0; i < formatted.length; i += CHUNK_SIZE) {
         const chunk = formatted.slice(i, i + CHUNK_SIZE);
         await request(`/${targetTable}`, {
@@ -1485,7 +1553,22 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
           body: JSON.stringify(chunk),
         });
       }
-      if (targetTable !== PAGE_TABLES.calibration_all) {
+
+      if (isCancel || targetTable === PAGE_TABLES.cancel) {
+        // When cancelled, remove from ALL active tables in database
+        const idStrings = formatted.map(r => r.id).filter(Boolean);
+        for (let i = 0; i < idStrings.length; i += CHUNK_SIZE) {
+          const chunk = idStrings.slice(i, i + CHUNK_SIZE);
+          const idList = chunk.map((id) => encodeURIComponent(id)).join(",");
+          if (!idList) continue;
+          for (const tbl of [PAGE_TABLES.calibration_all, PAGE_TABLES.normal_standard, PAGE_TABLES.centralized, PAGE_TABLES.each_section]) {
+            request(`/${tbl}?id=in.(${idList})`, {
+              method: "DELETE",
+              headers: { Prefer: "return=minimal" },
+            }).catch(() => {});
+          }
+        }
+      } else if (targetTable !== PAGE_TABLES.calibration_all) {
         for (let i = 0; i < formatted.length; i += CHUNK_SIZE) {
           const chunk = formatted.slice(i, i + CHUNK_SIZE);
           await request(`/${PAGE_TABLES.calibration_all}`, {
@@ -1514,7 +1597,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
-      emitToast(`☁️ อัปเดตข้อมูล ${formatted.length} รายการลงตาราง ${targetTable} สำเร็จ`, "success");
+      emitToast(`☁️ อัปเดตข้อมูล ${formatted.length} รายการลงตาราง ${targetTable} ในฐานข้อมูลสำเร็จ`, "success");
       return { ok: true, count: formatted.length };
     } catch (err) {
       console.warn("[Supabase Sync] Batch upsert failed:", err);
@@ -1581,7 +1664,6 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     }
   }
 
-  // Export globally to window
   window.qapSupabase = {
     getEmbeddedConfig: () => ({ ...EMBEDDED_SUPABASE_CONFIG }),
     isEmbedded: () => Boolean(EMBEDDED_SUPABASE_CONFIG.url && EMBEDDED_SUPABASE_CONFIG.anonKey),
@@ -1606,6 +1688,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     PAGE_TABLES,
     PAGE_NAMES,
     emitToast,
+      moveToCancel,
   };
 
   // Initial status notification after boot
