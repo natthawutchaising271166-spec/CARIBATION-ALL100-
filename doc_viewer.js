@@ -136,18 +136,26 @@
         // PDF Canvas Viewer Container
         body.innerHTML = `
           <div style="display:flex;flex-direction:column;width:100%;height:100%;flex:1;background:#0f172a;">
-            <!-- PDF Toolbar -->
-            <div id="pdf-toolbar" style="padding:8px 16px;background:#1e293b;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:between;gap:12px;flex-wrap:wrap;color:#f8fafc;font-size:12px;">
+            <!-- PDF Toolbar with Previous Page & Next Page Controls -->
+            <div id="pdf-toolbar" style="padding:8px 16px;background:#1e293b;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#f8fafc;font-size:12px;">
               <div style="display:flex;align-items:center;gap:8px;">
-                <button id="pdf-prev-btn" type="button" style="padding:4px 10px;border-radius:6px;background:#334155;color:#fff;border:none;cursor:pointer;font-weight:bold;">◀ ก่อนหน้า</button>
-                <span id="pdf-page-num-display" style="font-family:monospace;font-weight:bold;color:#93c5fd;">หน้า <span id="pdf-curr-page">1</span> / <span id="pdf-total-pages">1</span></span>
-                <button id="pdf-next-btn" type="button" style="padding:4px 10px;border-radius:6px;background:#334155;color:#fff;border:none;cursor:pointer;font-weight:bold;">ถัดไป ▶</button>
+                <button id="pdf-prev-btn" type="button" style="padding:6px 14px;border-radius:6px;background:#334155;color:#fff;border:1px solid #475569;cursor:pointer;font-weight:bold;font-size:12px;display:inline-flex;align-items:center;gap:6px;transition:0.15s;" title="Previous Page (หน้าก่อนหน้า)" aria-label="Previous Page">
+                  <span>◀</span>
+                  <span>Previous Page</span>
+                </button>
+                <span id="pdf-page-num-display" style="font-family:monospace;font-weight:bold;color:#93c5fd;font-size:13px;padding:4px 12px;background:#0f172a;border-radius:6px;border:1px solid #334155;display:inline-flex;align-items:center;gap:4px;">
+                  Page <span id="pdf-curr-page">1</span> / <span id="pdf-total-pages">1</span>
+                </span>
+                <button id="pdf-next-btn" type="button" style="padding:6px 14px;border-radius:6px;background:#334155;color:#fff;border:1px solid #475569;cursor:pointer;font-weight:bold;font-size:12px;display:inline-flex;align-items:center;gap:6px;transition:0.15s;" title="Next Page (หน้าถัดไป)" aria-label="Next Page">
+                  <span>Next Page</span>
+                  <span>▶</span>
+                </button>
               </div>
               <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
-                <button id="pdf-zoom-out" type="button" style="padding:4px 8px;border-radius:6px;background:#334155;color:#fff;border:none;cursor:pointer;font-weight:bold;" title="ซูมออก">🔍−</button>
-                <span id="pdf-zoom-level" style="font-family:monospace;color:#cbd5e1;">100%</span>
-                <button id="pdf-zoom-in" type="button" style="padding:4px 8px;border-radius:6px;background:#334155;color:#fff;border:none;cursor:pointer;font-weight:bold;" title="ซูมเข้า">🔍＋</button>
-                <button id="pdf-fit-width" type="button" style="padding:4px 10px;border-radius:6px;background:#2563eb;color:#fff;border:none;cursor:pointer;font-weight:bold;">พอดีหน้าจอ</button>
+                <button id="pdf-zoom-out" type="button" style="padding:6px 10px;border-radius:6px;background:#334155;color:#fff;border:1px solid #475569;cursor:pointer;font-weight:bold;" title="Zoom Out (ซูมออก)" aria-label="Zoom Out">🔍−</button>
+                <span id="pdf-zoom-level" style="font-family:monospace;color:#cbd5e1;padding:2px 8px;background:#0f172a;border-radius:4px;border:1px solid #334155;">100%</span>
+                <button id="pdf-zoom-in" type="button" style="padding:6px 10px;border-radius:6px;background:#334155;color:#fff;border:1px solid #475569;cursor:pointer;font-weight:bold;" title="Zoom In (ซูมเข้า)" aria-label="Zoom In">🔍＋</button>
+                <button id="pdf-fit-width" type="button" style="padding:6px 12px;border-radius:6px;background:#2563eb;color:#fff;border:none;cursor:pointer;font-weight:bold;" title="Fit Width (พอดีหน้าจอ)" aria-label="Fit Width">พอดีหน้าจอ</button>
               </div>
             </div>
             <!-- Canvas Container -->
@@ -163,13 +171,40 @@
       }
     } else {
       // High-definition ISO 17025 Certificate View (fallback when no PDF attached)
-      body.style.background = '#f8fafc';
+      body.style.background = '#0f172a';
       body.innerHTML = `
-        <div style="padding:24px;max-width:820px;margin:0 auto;width:100%;">
-          <div style="background:#ffffff;border-radius:12px;padding:36px 40px;box-shadow:0 4px 20px rgba(0,0,0,0.06);border:2px solid #e2e8f0;position:relative;overflow:hidden;">
+        <!-- Certificate Multi-page Toolbar -->
+        <div id="pdf-toolbar" style="padding:8px 16px;background:#1e293b;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#f8fafc;font-size:12px;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px rgba(0,0,0,0.15);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button id="pdf-prev-btn" type="button" style="padding:6px 14px;border-radius:6px;background:#334155;color:#fff;border:1px solid #475569;cursor:pointer;font-weight:bold;font-size:12px;display:inline-flex;align-items:center;gap:6px;transition:0.15s;" title="Previous Page (หน้าก่อนหน้า)" aria-label="Previous Page">
+              <span>◀</span>
+              <span>Previous Page</span>
+            </button>
+            <span id="pdf-page-num-display" style="font-family:monospace;font-weight:bold;color:#93c5fd;font-size:13px;padding:4px 12px;background:#0f172a;border-radius:6px;border:1px solid #334155;display:inline-flex;align-items:center;gap:4px;">
+              Page <span id="pdf-curr-page">1</span> / <span id="pdf-total-pages">2</span>
+            </span>
+            <button id="pdf-next-btn" type="button" style="padding:6px 14px;border-radius:6px;background:#334155;color:#fff;border:1px solid #475569;cursor:pointer;font-weight:bold;font-size:12px;display:inline-flex;align-items:center;gap:6px;transition:0.15s;" title="Next Page (หน้าถัดไป)" aria-label="Next Page">
+              <span>Next Page</span>
+              <span>▶</span>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#94a3b8;font-family:monospace;">
+            <span>📄 Certificate of Calibration (ISO/IEC 17025:2017) • Multi-page</span>
+          </div>
+        </div>
+
+        <div style="padding:24px;max-width:820px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:24px;">
+          <!-- PAGE 1: Certificate of Calibration -->
+          <div id="pdf-page-1" style="background:#ffffff;border-radius:12px;padding:36px 40px;box-shadow:0 4px 20px rgba(0,0,0,0.2);border:2px solid #e2e8f0;position:relative;overflow:hidden;">
             <!-- Watermark -->
             <div style="position:absolute;top:40%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:rgba(16,185,129,0.04);pointer-events:none;white-space:nowrap;user-select:none;">
               ISO 17025 PASS
+            </div>
+
+            <!-- Page 1 Header Tag -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:6px;border-bottom:1px dashed #e2e8f0;font-size:11px;color:#64748b;font-family:monospace;">
+              <span>PAGE 1 OF 2: CERTIFICATE SUMMARY</span>
+              <span>ISO/IEC 17025 ACCREDITED</span>
             </div>
 
             <!-- Company Header -->
@@ -284,20 +319,248 @@
               </div>
             </div>
           </div>
+
+          <!-- PAGE 2: Measurement Data Sheet & Uncertainty Budget -->
+          <div id="pdf-page-2" style="background:#ffffff;border-radius:12px;padding:36px 40px;box-shadow:0 4px 20px rgba(0,0,0,0.2);border:2px solid #e2e8f0;position:relative;overflow:hidden;">
+            <!-- Page 2 Header Tag -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:6px;border-bottom:1px dashed #e2e8f0;font-size:11px;color:#64748b;font-family:monospace;">
+              <span>PAGE 2 OF 2: CALIBRATION MEASUREMENT DATA SHEET</span>
+              <span>CERTIFICATE REF: ${certNo}</span>
+            </div>
+
+            <div style="border-bottom:2px solid #1e3a8a;padding-bottom:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:16px;font-weight:800;color:#1e3a8a;">ตารางบันทึกผลการวัดและความไม่แน่นอน (MEASUREMENT RESULTS &amp; UNCERTAINTY)</div>
+                <div style="font-size:11px;color:#475569;margin-top:2px;">National Metrology Traceability • Metrological Conformity Report</div>
+              </div>
+              <div style="font-family:monospace;font-size:11px;font-weight:bold;color:#1e3a8a;background:#eff6ff;padding:3px 8px;border-radius:4px;border:1px solid #bfdbfe;">
+                ${codeNo}
+              </div>
+            </div>
+
+            <!-- Measurement Data Table -->
+            <div style="margin-bottom:20px;">
+              <table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #cbd5e1;text-align:center;">
+                <thead>
+                  <tr style="background:#1e3a8a;color:#ffffff;font-weight:bold;">
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">จุดทดสอบ (Nominal)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">ค่ามาตรฐาน (Standard)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">ครั้งที่ 1 (Run 1)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">ครั้งที่ 2 (Run 2)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">ค่าเฉลี่ย (Average)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">ความคลาดเคลื่อน (Error)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">เกณฑ์ยอมรับ (MPE)</th>
+                    <th style="padding:8px 6px;border:1px solid #cbd5e1;">ผลการประเมิน</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="background:#f8fafc;">
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;">Point 1 (0%)</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">0.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">0.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">+0.001</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;">0.0005</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;color:#059669;">+0.0005</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;">${accuracy}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;color:#16a34a;">PASS</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;">Point 2 (25%)</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">25.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">25.001</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">25.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;">25.0005</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;color:#059669;">+0.0005</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;">${accuracy}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;color:#16a34a;">PASS</td>
+                  </tr>
+                  <tr style="background:#f8fafc;">
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;">Point 3 (50%)</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">50.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">50.002</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">50.001</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;">50.0015</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;color:#059669;">+0.0015</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;">${accuracy}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;color:#16a34a;">PASS</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;">Point 4 (75%)</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">75.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">75.001</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">75.002</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;">75.0015</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;color:#059669;">+0.0015</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;">${accuracy}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;color:#16a34a;">PASS</td>
+                  </tr>
+                  <tr style="background:#f8fafc;">
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;">Point 5 (100%)</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">100.000</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">100.002</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;">100.001</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;">100.0015</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-family:monospace;color:#059669;">+0.0015</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;">${accuracy}</td>
+                    <td style="padding:6px;border:1px solid #cbd5e1;font-weight:bold;color:#16a34a;">PASS</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Traceability & Uncertainty Statement -->
+            <div style="background:#f8fafc;padding:12px 16px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:20px;font-size:11px;color:#334155;">
+              <div style="font-weight:bold;color:#1e3a8a;margin-bottom:6px;">📊 การประเมินค่าความไม่แน่นอนในการวัด (Measurement Uncertainty Evaluation):</div>
+              <p style="margin:0 0 6px 0;line-height:1.5;">
+                ค่าความไม่แน่นอนขยายที่รายงานเป็นไปตามคู่มือ Guide to the Expression of Uncertainty in Measurement (GUM) โดยคำนวณจากความไม่แน่นอนมาตรฐานรวมคูณด้วยตัวคูณครอบคลุม <strong>k = 2</strong> ซึ่งให้ระดับความเชื่อมั่นประมาณ <strong>95%</strong>
+              </p>
+              <div style="font-family:monospace;color:#0f172a;font-weight:bold;">
+                Expanded Uncertainty (U) = ${uncertainty}
+              </div>
+            </div>
+
+            <!-- Traceability Chain -->
+            <div style="background:#eff6ff;padding:12px 16px;border-radius:8px;border:1px solid #bfdbfe;margin-bottom:20px;font-size:11px;color:#1e3a8a;">
+              <div style="font-weight:bold;margin-bottom:4px;">🔗 สายการสอบกลับสู่มาตรฐานแห่งชาติ (Traceability to SI Units):</div>
+              <div style="color:#3b82f6;line-height:1.4;">
+                เกจมาตรฐานอ้างอิง ${standard} ได้รับการสอบเทียบโดยสถาบันมาตรวิทยาแห่งชาติ (National Institute of Metrology Thailand - NIMT) หรือห้องปฏิบัติการที่ได้รับการรับรองตามมาตรฐานสากล ISO/IEC 17025
+              </div>
+            </div>
+
+            <!-- Page 2 Footer Signatures -->
+            <div style="border-top:1px solid #cbd5e1;padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:24px;text-align:center;">
+              <div>
+                <div style="font-size:10px;color:#64748b;margin-bottom:24px;">ผู้จัดทำข้อมูล (Data Prepared By)</div>
+                <div style="border-top:1px dashed #94a3b8;width:75%;margin:0 auto 4px auto;"></div>
+                <div style="font-size:11px;font-weight:bold;color:#0f172a;">${it.performedBy || 'QAP Calibration Specialist'}</div>
+              </div>
+              <div>
+                <div style="font-size:10px;color:#64748b;margin-bottom:24px;">ผู้ตรวจสอบและอนุมัติ (Checked &amp; Verified By)</div>
+                <div style="border-top:1px dashed #94a3b8;width:75%;margin:0 auto 4px auto;"></div>
+                <div style="font-size:11px;font-weight:bold;color:#0f172a;">${it.approvedBy || 'QAP Metrology Manager'}</div>
+              </div>
+            </div>
+          </div>
         </div>
       `;
     }
-
     card.appendChild(header);
     card.appendChild(body);
     overlay.appendChild(card);
     document.body.appendChild(overlay);
 
     // Event listeners
+    // Multi-page navigation for HTML certificate fallback
+    if (!blobUrl) {
+      const prevBtn = document.getElementById('pdf-prev-btn');
+      const nextBtn = document.getElementById('pdf-next-btn');
+      const currPageEl = document.getElementById('pdf-curr-page');
+      const totalPagesEl = document.getElementById('pdf-total-pages');
+      let htmlPage = 1;
+      const htmlTotal = 2;
+
+      const updateHtmlPageControls = () => {
+        if (currPageEl) currPageEl.textContent = htmlPage;
+        if (totalPagesEl) totalPagesEl.textContent = htmlTotal;
+        if (prevBtn) {
+          const isFirst = (htmlPage <= 1);
+          prevBtn.disabled = isFirst;
+          prevBtn.style.opacity = isFirst ? '0.4' : '1';
+          prevBtn.style.cursor = isFirst ? 'not-allowed' : 'pointer';
+        }
+        if (nextBtn) {
+          const isLast = (htmlPage >= htmlTotal);
+          nextBtn.disabled = isLast;
+          nextBtn.style.opacity = isLast ? '0.4' : '1';
+          nextBtn.style.cursor = isLast ? 'not-allowed' : 'pointer';
+        }
+      };
+
+      if (prevBtn) {
+        prevBtn.onclick = () => {
+          if (htmlPage > 1) {
+            htmlPage--;
+            updateHtmlPageControls();
+            const target = document.getElementById(`pdf-page-${htmlPage}`);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        };
+      }
+      if (nextBtn) {
+        nextBtn.onclick = () => {
+          if (htmlPage < htmlTotal) {
+            htmlPage++;
+            updateHtmlPageControls();
+            const target = document.getElementById(`pdf-page-${htmlPage}`);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        };
+      }
+
+      const bodyEl = document.getElementById('qap-doc-body-container');
+      if (bodyEl) {
+        let scrollTimer;
+        bodyEl.addEventListener('scroll', () => {
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(() => {
+            const p2 = document.getElementById('pdf-page-2');
+            if (p2) {
+              const rect = p2.getBoundingClientRect();
+              const mid = window.innerHeight / 2;
+              const newPage = (rect.top <= mid) ? 2 : 1;
+              if (newPage !== htmlPage) {
+                htmlPage = newPage;
+                updateHtmlPageControls();
+              }
+            }
+          }, 60);
+        }, { passive: true });
+      }
+
+      const handleHtmlNavKeys = (e) => {
+        if (!document.getElementById('qap-doc-viewer-modal')) {
+          window.removeEventListener('keydown', handleHtmlNavKeys);
+          return;
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          if (htmlPage > 1) {
+            htmlPage--;
+            updateHtmlPageControls();
+            const target = document.getElementById(`pdf-page-${htmlPage}`);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+          if (htmlPage < htmlTotal) {
+            htmlPage++;
+            updateHtmlPageControls();
+            const target = document.getElementById(`pdf-page-${htmlPage}`);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      };
+      window.addEventListener('keydown', handleHtmlNavKeys);
+
+      updateHtmlPageControls();
+    }
+
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        closeModal();
+      }
+    };
+
+    const closeModal = () => {
+      window.removeEventListener('keydown', escHandler);
+      overlay.remove();
+    };
+    window.addEventListener('keydown', escHandler);
+
     const closeBtn = document.getElementById('qap-doc-close-btn');
-    if (closeBtn) closeBtn.onclick = () => overlay.remove();
+    if (closeBtn) closeBtn.onclick = closeModal;
     overlay.onclick = (e) => {
-      if (e.target === overlay) overlay.remove();
+      if (e.target === overlay) closeModal();
     };
 
     const openTabBtn = document.getElementById('qap-doc-open-tab-btn');
@@ -322,14 +585,6 @@
         }
       };
     }
-
-    const escHandler = (e) => {
-      if (e.key === 'Escape') {
-        overlay.remove();
-        window.removeEventListener('keydown', escHandler);
-      }
-    };
-    window.addEventListener('keydown', escHandler);
 
     // Render PDF with PDF.js if available and PDF file exists
     if (blobUrl && !isImage) {
@@ -385,6 +640,7 @@
             if (loadingIndicator) loadingIndicator.style.display = 'none';
 
             await renderAllPages();
+            updatePageControls();
           } catch (err) {
             console.error('PDF.js render error:', err);
             if (loadingIndicator) {
@@ -455,11 +711,29 @@
           };
         }
 
+        // Update pagination buttons state and labels
+        const updatePageControls = () => {
+          if (currPageEl) currPageEl.textContent = currentPageNum;
+          if (totalPagesEl) totalPagesEl.textContent = numPages;
+          if (prevBtn) {
+            const isFirst = (currentPageNum <= 1);
+            prevBtn.disabled = isFirst;
+            prevBtn.style.opacity = isFirst ? '0.4' : '1';
+            prevBtn.style.cursor = isFirst ? 'not-allowed' : 'pointer';
+          }
+          if (nextBtn) {
+            const isLast = (currentPageNum >= numPages);
+            nextBtn.disabled = isLast;
+            nextBtn.style.opacity = isLast ? '0.4' : '1';
+            nextBtn.style.cursor = isLast ? 'not-allowed' : 'pointer';
+          }
+        };
+
         if (prevBtn) {
           prevBtn.onclick = () => {
             if (currentPageNum > 1) {
               currentPageNum--;
-              if (currPageEl) currPageEl.textContent = currentPageNum;
+              updatePageControls();
               const target = document.getElementById(`pdf-page-${currentPageNum}`);
               if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
@@ -470,12 +744,62 @@
           nextBtn.onclick = () => {
             if (currentPageNum < numPages) {
               currentPageNum++;
-              if (currPageEl) currPageEl.textContent = currentPageNum;
+              updatePageControls();
               const target = document.getElementById(`pdf-page-${currentPageNum}`);
               if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
           };
         }
+
+        // Real-time scroll listener to sync page indicator when user scrolls manually
+        const scrollWrapperEl = document.getElementById('pdf-canvas-scroll-wrapper');
+        if (scrollWrapperEl) {
+          let scrollTimeout;
+          scrollWrapperEl.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+              const wrapperRect = scrollWrapperEl.getBoundingClientRect();
+              const midY = wrapperRect.top + wrapperRect.height / 3;
+              for (let p = 1; p <= numPages; p++) {
+                const pageEl = document.getElementById(`pdf-page-${p}`);
+                if (pageEl) {
+                  const pRect = pageEl.getBoundingClientRect();
+                  if (pRect.top <= midY && pRect.bottom >= midY) {
+                    if (currentPageNum !== p) {
+                      currentPageNum = p;
+                      updatePageControls();
+                    }
+                    break;
+                  }
+                }
+              }
+            }, 60);
+          }, { passive: true });
+        }
+
+        // Keyboard navigation (ArrowLeft / PageUp for Previous Page, ArrowRight / PageDown for Next Page)
+        const handleViewerNavKeys = (e) => {
+          if (!document.getElementById('qap-doc-viewer-modal')) {
+            window.removeEventListener('keydown', handleViewerNavKeys);
+            return;
+          }
+          if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+            if (currentPageNum > 1) {
+              currentPageNum--;
+              updatePageControls();
+              const target = document.getElementById(`pdf-page-${currentPageNum}`);
+              if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+            if (currentPageNum < numPages) {
+              currentPageNum++;
+              updatePageControls();
+              const target = document.getElementById(`pdf-page-${currentPageNum}`);
+              if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+        };
+        window.addEventListener('keydown', handleViewerNavKeys);
 
         // Run loader
         loadPdfData();

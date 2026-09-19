@@ -268,6 +268,7 @@ CREATE POLICY "Allow public all access on qap_files"
 -- ดัชนีประสิทธิภาพสำหรับ qap_files
 CREATE INDEX IF NOT EXISTS idx_qap_files_inst_id ON public.qap_files(instrument_id);
 CREATE INDEX IF NOT EXISTS idx_qap_files_code_no ON public.qap_files(code_no);
+CREATE INDEX IF NOT EXISTS idx_qap_files_cert_no ON public.qap_files(cert_no);
 
 DROP TRIGGER IF EXISTS tr_qap_files_updated_at ON public.qap_files;
 CREATE TRIGGER tr_qap_files_updated_at
@@ -275,7 +276,164 @@ CREATE TRIGGER tr_qap_files_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
--- คัดลอกไฟล์เดิมที่มีอยู่ในตารางหลักเข้าสู่ตารางแยก qap_files แบบอัตโนมัติ (Migration)
+-- ----------------------------------------------------------
+-- ฟังก์ชัน Auto-Extract และ Sanitization ลิ้งก์ไฟล์ในฐานข้อมูล
+-- แยกไฟล์ PDF เข้าสู่ตาราง qap_files และล้างช่อง data (JSONB) อัตโนมัติในระดับ Database Trigger
+-- ----------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.clean_qap_notes(raw_notes text)
+RETURNS text AS $$
+BEGIN
+    IF raw_notes IS NULL THEN
+        RETURN '';
+    END IF;
+    RETURN trim(regexp_replace(
+        regexp_replace(
+            regexp_replace(raw_notes, '\[(?:ไฟล์|PDF|File|Link|แนบไฟล์)[^\]]*\]', '', 'gi'),
+            'https?://[^\s]+(?:\.pdf|/storage/v1/[^\s]+)', '', 'gi'),
+        'data:application/pdf[^\s]*', '', 'gi'
+    ));
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.handle_qap_instrument_sync_files()
+RETURNS TRIGGER AS $$
+DECLARE
+    f_url text;
+    f_name text;
+    f_size bigint;
+    h_elem jsonb;
+    cleaned_hist jsonb := '[]'::jsonb;
+    inst_code text;
+    inst_cert text;
+    file_record_id text;
+    target_tab text;
+BEGIN
+    inst_code := COALESCE(NEW.code_no, '');
+    inst_cert := COALESCE(NEW.cert_no, '');
+    target_tab := COALESCE(NEW.tab_type, TG_TABLE_NAME);
+    
+    -- 1. ตรวจสอบและดึงไฟล์จาก NEW.pdf_url หรือ NEW.data
+    f_url := NULL;
+    IF NEW.pdf_url IS NOT NULL AND length(trim(NEW.pdf_url)) > 10 THEN
+        f_url := NEW.pdf_url;
+        f_name := NEW.cert_file_name;
+        f_size := NEW.file_size;
+    ELSIF NEW.data IS NOT NULL THEN
+        IF NEW.data ? 'pdfUrl' AND NEW.data->>'pdfUrl' IS NOT NULL AND length(trim(NEW.data->>'pdfUrl')) > 10 THEN
+            f_url := NEW.data->>'pdfUrl';
+        ELSIF NEW.data ? 'certFileData' AND NEW.data->>'certFileData' IS NOT NULL AND length(trim(NEW.data->>'certFileData')) > 10 THEN
+            f_url := NEW.data->>'certFileData';
+        ELSIF NEW.data ? 'file_url' AND NEW.data->>'file_url' IS NOT NULL AND length(trim(NEW.data->>'file_url')) > 10 THEN
+            f_url := NEW.data->>'file_url';
+        END IF;
+        
+        IF f_url IS NOT NULL THEN
+            f_name := COALESCE(NEW.data->>'certFileName', NEW.data->>'cert_file_name', NEW.cert_file_name, 'certificate.pdf');
+            f_size := COALESCE((NEW.data->>'fileSize')::bigint, (NEW.data->>'file_size')::bigint, NEW.file_size, 0);
+        END IF;
+    END IF;
+
+    -- หากมีไฟล์ ให้ทำการ Upsert เข้าสู่ตาราง qap_files โดยอัตโนมัติ
+    IF f_url IS NOT NULL AND length(f_url) > 10 THEN
+        file_record_id := 'file_' || regexp_replace(COALESCE(inst_code, NEW.id, gen_random_uuid()::text), '[^a-zA-Z0-9_-]', '_', 'g');
+        INSERT INTO public.qap_files (id, instrument_id, code_no, cert_no, file_name, file_size, file_url, tab_type, updated_at)
+        VALUES (
+            file_record_id,
+            NEW.id,
+            inst_code,
+            inst_cert,
+            COALESCE(f_name, 'certificate.pdf'),
+            COALESCE(f_size, 0),
+            f_url,
+            target_tab,
+            NOW()
+        )
+        ON CONFLICT (id) DO UPDATE
+        SET instrument_id = EXCLUDED.instrument_id,
+            code_no = EXCLUDED.code_no,
+            cert_no = EXCLUDED.cert_no,
+            file_name = EXCLUDED.file_name,
+            file_size = EXCLUDED.file_size,
+            file_url = EXCLUDED.file_url,
+            tab_type = EXCLUDED.tab_type,
+            updated_at = NOW();
+    END IF;
+
+    -- 2. วนลูปตรวจสอบ history ใน NEW.data หากมีไฟล์แนบ ให้บันทึกลง qap_files และตัดออกจาก history jsonb
+    IF NEW.data IS NOT NULL AND (NEW.data ? 'history' OR NEW.data ? 'calibrationHistory') THEN
+        cleaned_hist := '[]'::jsonb;
+        FOR h_elem IN SELECT * FROM jsonb_array_elements(COALESCE(NEW.data->'history', NEW.data->'calibrationHistory', '[]'::jsonb))
+        LOOP
+            IF h_elem ? 'pdfUrl' AND h_elem->>'pdfUrl' IS NOT NULL AND length(trim(h_elem->>'pdfUrl')) > 10 THEN
+                INSERT INTO public.qap_files (id, instrument_id, code_no, cert_no, file_name, file_size, file_url, tab_type, updated_at)
+                VALUES (
+                    'file_' || regexp_replace(COALESCE(h_elem->>'id', (NEW.id || '_' || COALESCE(h_elem->>'certNo', '1'))), '[^a-zA-Z0-9_-]', '_', 'g'),
+                    NEW.id,
+                    inst_code,
+                    COALESCE(h_elem->>'certNo', inst_cert),
+                    COALESCE(h_elem->>'certFileName', 'certificate.pdf'),
+                    COALESCE((h_elem->>'fileSize')::bigint, 0),
+                    h_elem->>'pdfUrl',
+                    target_tab,
+                    NOW()
+                )
+                ON CONFLICT (id) DO UPDATE
+                SET file_url = EXCLUDED.file_url,
+                    file_name = EXCLUDED.file_name,
+                    file_size = EXCLUDED.file_size,
+                    updated_at = NOW();
+            END IF;
+
+            -- ล้างฟิลด์ไฟล์ออกจาก history element
+            cleaned_hist := cleaned_hist || jsonb_build_array(
+                h_elem - 'pdfUrl' - 'certFileData' - 'certFileName' - 'fileSize' - 'originalFileSize' - 'file_url' - 'file_data' - 'link' - 'url' - 'docUrl'
+            );
+        END LOOP;
+
+        IF NEW.data ? 'history' THEN
+            NEW.data := jsonb_set(NEW.data, '{history}', cleaned_hist);
+        END IF;
+        IF NEW.data ? 'calibrationHistory' THEN
+            NEW.data := jsonb_set(NEW.data, '{calibrationHistory}', cleaned_hist);
+        END IF;
+    END IF;
+
+    -- 3. ล้างฟิลด์ไฟล์และคอลัมน์ซ้ำซ้อนออกจาก NEW.data (JSONB)
+    IF NEW.data IS NOT NULL THEN
+        NEW.data := NEW.data - 'pdfUrl' - 'certFileData' - 'pdf_url' - 'cert_file_data' - 'certFileName' - 'cert_file_name' - 'fileSize' - 'file_size' - 'originalFileSize' - 'original_file_size' - 'file_url' - 'fileData' - 'file_data' - 'url' - 'link' - 'fileLink' - 'file_link' - 'filePath' - 'file_path' - 'blobUrl' - 'blob_url' - 'storageUrl' - 'storage_url' - 'attachment' - 'attachments' - 'docUrl' - 'doc_url';
+        
+        -- ล้างคอลัมน์หลักเพื่อไม่ให้ซ้ำซ้อนใน data jsonb
+        NEW.data := NEW.data - 'id' - 'no' - 'code_no' - 'codeNo' - 'instrument_name' - 'instrumentName' - 'serial_no' - 'serialNo' - 'model' - 'maker_name' - 'makerName' - 'category' - 'tab_type' - 'tabType' - 'status' - 'due_date' - 'dueDate' - 'cal_date' - 'calDate' - 'section' - 'sub_section' - 'subSection' - 'location' - 'cert_no' - 'certNo' - 'accuracy' - 'calibrated_by' - 'calibratedBy' - 'notes' - 'remark';
+    END IF;
+
+    -- 4. ตั้งค่าคอลัมน์ไฟล์ในตารางหลักเป็น NULL เพื่อความสะอาด 100% (เพราะแยกเก็บใน qap_files แล้ว)
+    NEW.pdf_url := NULL;
+    NEW.cert_file_name := NULL;
+    NEW.file_size := NULL;
+
+    -- 5. ทำความสะอาดช่อง notes
+    NEW.notes := public.clean_qap_notes(NEW.notes);
+    NEW.updated_at := NOW();
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- เชื่อมต่อ Trigger ให้กับทั้ง 5 ตารางหลักเพื่อแยกไฟล์และล้างข้อมูลอัตโนมัติ
+`;
+
+    tableKeys.forEach((key) => {
+      const tbl = PAGE_TABLES[key];
+      sql += `DROP TRIGGER IF EXISTS tr_${tbl}_sync_files ON public.${tbl};
+CREATE TRIGGER tr_${tbl}_sync_files
+    BEFORE INSERT OR UPDATE ON public.${tbl}
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_qap_instrument_sync_files();
+
+`;
+    });
+
+    sql += `-- คัดลอกไฟล์เดิมที่มีอยู่ในตารางหลักเข้าสู่ตารางแยก qap_files แบบอัตโนมัติ (Migration)
 INSERT INTO public.qap_files (id, instrument_id, code_no, cert_no, file_name, file_size, file_url, tab_type)
 SELECT 
     'file_' || regexp_replace(COALESCE(code_no, id), '[^a-zA-Z0-9_-]', '_', 'g') AS id,
@@ -459,7 +617,8 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       category: String(inst.category || "").trim(),
       tab_type: String(tabType || inst.tabType || "calibration_all"),
       status: String(inst.status || "in_spec"),
-      due_date: inst.dueDate ? String(inst.dueDate).trim() : null,
+      due_date: (inst.next_due_date || inst.nextDueDate || inst.dueDate) ? String(inst.next_due_date || inst.nextDueDate || inst.dueDate).trim() : null,
+      next_due_date: (inst.next_due_date || inst.nextDueDate || inst.dueDate) ? String(inst.next_due_date || inst.nextDueDate || inst.dueDate).trim() : null,
       cal_date: inst.calDate ? String(inst.calDate).trim() : null,
       section: String(inst.section || "").trim(),
       sub_section: String(inst.subSection || "").trim(),
@@ -499,7 +658,7 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     const makerName = getVal(["maker_name", "Maker Name", "makerName", "Maker_Name", "maker", "Maker", "brand", "Brand", "MAKER_NAME"]);
     const category = getVal(["category", "Category", "CATEGORY"]);
     const status = getVal(["status", "Status", "STATUS"], "in_spec");
-    const dueDate = getVal(["due_date", "Due Date", "dueDate", "Due_Date", "dueYear", "Due Year", "DUE_DATE"]);
+    const dueDate = getVal(["next_due_date", "nextDueDate", "due_date", "Due Date", "dueDate", "Due_Date", "dueYear", "Due Year", "DUE_DATE", "NEXT_DUE_DATE"]);
     const calDate = getVal(["cal_date", "Cal. Date", "Cal Date", "calDate", "Cal_Date", "CAL_DATE"]);
     const section = getVal(["section", "Section", "SECTION"]);
     const subSection = getVal(["sub_section", "Sub Section", "subSection", "Sub_Section", "SUB_SECTION"]);
@@ -550,6 +709,8 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
       category: String(category),
       status: String(status),
       dueDate: String(dueDate),
+      nextDueDate: String(dueDate),
+      next_due_date: String(dueDate),
       calDate: String(calDate),
       section: String(section),
       subSection: String(subSection),

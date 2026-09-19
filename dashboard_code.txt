@@ -1,0 +1,19 @@
+Ube = ({
+  instruments = [],
+  allInstruments = [],
+  normalInstruments = [],
+  centralizedInstruments = [],
+  eachInstruments = [],
+  cancelInstruments = [],
+  onOpenAddModal = () => {},
+  onOpenImportModal = () => {},
+  onFilterStatus = () => {},
+  currentStatusFilter = "ALL",
+  onFilterMonth = () => {},
+  currentMonthFilter = "ALL",
+  onNavigateToInstruments = () => {},
+  onNavigateTab = () => {},
+  onNavigateToPage = () => {},
+  onViewDetail = () => {},
+  onViewInstrumentDetail = () => {}
+}
