@@ -488,10 +488,75 @@ SET data = jsonb_set(
 )
 WHERE data ? 'history';
 
+-- ----------------------------------------------------------
+-- ตารางสำหรับประวัติการสอบเทียบย้อนหลัง (CalibrationHistory)
+-- เพื่อความโปร่งใส ตรวจสอบย้อนหลัง (Audit Log) ตามมาตรฐาน ISO 17025
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public."CalibrationHistory" (
+    id TEXT PRIMARY KEY,
+    instrument_id TEXT,
+    code_no TEXT NOT NULL,
+    instrument_name TEXT,
+    cert_no TEXT,
+    cal_date TEXT,
+    due_date TEXT,
+    calibrated_by TEXT,
+    result TEXT DEFAULT 'PASS',
+    accuracy TEXT,
+    notes TEXT,
+    pdf_url TEXT,
+    cert_file_name TEXT,
+    file_size BIGINT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.calibration_history (
+    id TEXT PRIMARY KEY,
+    instrument_id TEXT,
+    code_no TEXT NOT NULL,
+    instrument_name TEXT,
+    cert_no TEXT,
+    cal_date TEXT,
+    due_date TEXT,
+    calibrated_by TEXT,
+    result TEXT DEFAULT 'PASS',
+    accuracy TEXT,
+    notes TEXT,
+    pdf_url TEXT,
+    cert_file_name TEXT,
+    file_size BIGINT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+GRANT ALL ON TABLE public."CalibrationHistory" TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.calibration_history TO anon, authenticated, service_role;
+
+ALTER TABLE public."CalibrationHistory" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.calibration_history ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    DROP POLICY IF EXISTS "Allow public all access on CalibrationHistory" ON public."CalibrationHistory";
+    DROP POLICY IF EXISTS "Allow public all access on calibration_history" ON public.calibration_history;
+END $$;
+
+CREATE POLICY "Allow public all access on CalibrationHistory"
+    ON public."CalibrationHistory" FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow public all access on calibration_history"
+    ON public.calibration_history FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_cal_hist_code_no ON public."CalibrationHistory"(code_no);
+CREATE INDEX IF NOT EXISTS idx_cal_hist_inst_id ON public."CalibrationHistory"(instrument_id);
+CREATE INDEX IF NOT EXISTS idx_cal_hist_cal_date ON public."CalibrationHistory"(cal_date);
+CREATE INDEX IF NOT EXISTS idx_cal_hist_cert_no ON public."CalibrationHistory"(cert_no);
+
 -- สั่งให้ PostgREST โหลด Schema Cache ใหม่ทันที
 NOTIFY pgrst, 'reload schema';
 
--- ตรวจสอบความสมบูรณ์ของทั้ง 5 ตาราง และตารางไฟล์ qap_files
+-- ตรวจสอบความสมบูรณ์ของทั้ง 5 ตาราง ตารางไฟล์ และตารางประวัติการสอบเทียบ
 SELECT 'qap_calibration_all' AS table_name, count(*) AS count FROM public.qap_calibration_all
 UNION ALL
 SELECT 'qap_normal_standard', count(*) FROM public.qap_normal_standard
@@ -502,7 +567,9 @@ SELECT 'qap_each_section', count(*) FROM public.qap_each_section
 UNION ALL
 SELECT 'qap_cancel', count(*) FROM public.qap_cancel
 UNION ALL
-SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
+SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files
+UNION ALL
+SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."CalibrationHistory";
 `;
 
     return sql;
@@ -1664,6 +1731,324 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     }
   }
 
+  // 8. Fetch Calibration History for an instrument directly from Supabase (with fallback & qap_files linking)
+  async function fetchCalibrationHistory(inst) {
+    if (!inst) return { ok: false, records: [], source: "none", error: "No instrument provided" };
+    const codeNo = String(inst.codeNo || inst.code_no || "").trim();
+    const instId = String(inst.id || "").trim();
+
+    let records = [];
+    let source = "none";
+
+    // 8.1 Try querying public.CalibrationHistory / calibration_history table
+    if (isConfigured()) {
+      const endpointsToTry = [
+        codeNo ? `/CalibrationHistory?or=(code_no.eq.${encodeURIComponent(codeNo)},codeNo.eq.${encodeURIComponent(codeNo)})&order=cal_date.desc,created_at.desc` : null,
+        instId ? `/CalibrationHistory?instrument_id=eq.${encodeURIComponent(instId)}&order=cal_date.desc,created_at.desc` : null,
+        codeNo ? `/calibration_history?or=(code_no.eq.${encodeURIComponent(codeNo)},instrument_id.eq.${encodeURIComponent(instId)})&order=cal_date.desc,created_at.desc` : null,
+      ].filter(Boolean);
+
+      for (const ep of endpointsToTry) {
+        try {
+          const res = await request(ep);
+          if (Array.isArray(res) && res.length > 0) {
+            records = res.map((r, i) => ({
+              id: r.id || `hist_${i}`,
+              instrumentId: r.instrument_id || instId,
+              codeNo: r.code_no || codeNo,
+              certNo: r.cert_no || r.certNo || `CERT-${codeNo || i + 1}`,
+              calDate: r.cal_date || r.calDate || "",
+              dueDate: r.due_date || r.dueDate || r.next_due_date || "",
+              calibratedBy: r.calibrated_by || r.calibratedBy || r.labCal || "-",
+              result: (r.result || "PASS").toUpperCase(),
+              accuracy: r.accuracy || "",
+              notes: r.notes || r.remark || r.remarks || "",
+              pdfUrl: r.pdf_url || r.pdfUrl || null,
+              certFileName: r.cert_file_name || r.certFileName || null,
+              fileSize: r.file_size || r.fileSize || null,
+              createdAt: r.created_at || r.createdAt || null,
+              sourceTable: "CalibrationHistory (Cloud Supabase)",
+            }));
+            source = "CalibrationHistory (Supabase Cloud Table)";
+            break;
+          }
+        } catch (e) {
+          // Table may not exist yet in schema cache, proceed to instrument query
+        }
+      }
+
+      // 8.2 If no records from dedicated table, query instrument row from page tables in Supabase
+      if (records.length === 0) {
+        const pageTables = Object.values(PAGE_TABLES);
+        for (const tbl of pageTables) {
+          try {
+            const queryEp = codeNo
+              ? `/${tbl}?code_no=eq.${encodeURIComponent(codeNo)}&select=id,code_no,cert_no,cal_date,due_date,calibrated_by,notes,data&limit=1`
+              : `/${tbl}?id=eq.${encodeURIComponent(instId)}&select=id,code_no,cert_no,cal_date,due_date,calibrated_by,notes,data&limit=1`;
+            const rows = await request(queryEp);
+            if (Array.isArray(rows) && rows.length > 0) {
+              const row = rows[0];
+              const d = (row && typeof row.data === "object") ? row.data : {};
+              const rawHist = (Array.isArray(d.calibrationHistory) && d.calibrationHistory.length > 0)
+                ? d.calibrationHistory
+                : (Array.isArray(d.history) && d.history.length > 0)
+                ? d.history
+                : [];
+              if (rawHist.length > 0) {
+                records = rawHist.map((h, i) => ({
+                  id: h.id || `hist_${row.id}_${i}`,
+                  instrumentId: row.id,
+                  codeNo: row.code_no || codeNo,
+                  certNo: h.certNo || h.cert_no || row.cert_no || `CERT-${codeNo || i + 1}`,
+                  calDate: h.calDate || h.cal_date || row.cal_date || "",
+                  dueDate: h.dueDate || h.due_date || row.due_date || "",
+                  calibratedBy: h.calibratedBy || h.calibrated_by || h.labCal || row.calibrated_by || "-",
+                  result: (h.result || "PASS").toUpperCase(),
+                  accuracy: h.accuracy || "",
+                  notes: h.notes || h.remarks || h.remark || row.notes || "",
+                  pdfUrl: h.pdfUrl || h.certFileData || null,
+                  certFileName: h.certFileName || null,
+                  fileSize: h.fileSize || null,
+                  createdAt: h.createdAt || null,
+                  sourceTable: `${tbl} (data.calibrationHistory)`,
+                }));
+                source = `${tbl} (Supabase Cloud Record)`;
+                break;
+              }
+            }
+          } catch (e) {}
+        }
+      }
+
+      // 8.3 Cross-reference certificates from qap_files table to ensure file attachment links
+      try {
+        const fileEp = codeNo
+          ? `/${FILES_TABLE}?code_no=eq.${encodeURIComponent(codeNo)}&select=*`
+          : `/${FILES_TABLE}?instrument_id=eq.${encodeURIComponent(instId)}&select=*`;
+        const files = await request(fileEp);
+        if (Array.isArray(files) && files.length > 0) {
+          records = records.map(rec => {
+            const matchedFile = files.find(f => (f.cert_no && rec.certNo && f.cert_no.trim() === rec.certNo.trim()) || f.file_url === rec.pdfUrl) || files[0];
+            if (matchedFile && !rec.pdfUrl) {
+              return {
+                ...rec,
+                pdfUrl: matchedFile.file_url,
+                certFileName: matchedFile.file_name || rec.certFileName,
+                fileSize: matchedFile.file_size || rec.fileSize,
+              };
+            }
+            return rec;
+          });
+        }
+      } catch (e) {}
+    }
+
+    // 8.4 Fallback to local instrument data if still empty
+    if (records.length === 0) {
+      const localHist = (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0)
+        ? inst.calibrationHistory
+        : (Array.isArray(inst.history) && inst.history.length > 0)
+        ? inst.history
+        : [];
+      if (localHist.length > 0) {
+        records = localHist.map((h, i) => ({
+          id: h.id || `local_hist_${i}`,
+          instrumentId: instId,
+          codeNo: codeNo,
+          certNo: h.certNo || inst.certNo || `CERT-${codeNo || i + 1}`,
+          calDate: h.calDate || inst.calDate || "",
+          dueDate: h.dueDate || inst.dueDate || "",
+          calibratedBy: h.calibratedBy || h.labCal || inst.calibratedBy || inst.labCal || "-",
+          result: (h.result || "PASS").toUpperCase(),
+          accuracy: h.accuracy || inst.accuracy || "",
+          notes: h.notes || h.remarks || inst.notes || "",
+          pdfUrl: h.pdfUrl || h.certFileData || inst.pdfUrl || inst.certFileData || null,
+          certFileName: h.certFileName || inst.certFileName || null,
+          fileSize: h.fileSize || inst.fileSize || null,
+          createdAt: h.createdAt || null,
+          sourceTable: "Local Storage (Device Cache)",
+        }));
+        source = "Local Storage (Device Cache)";
+      } else if (inst.calDate || inst.dueDate || inst.certNo) {
+        // If instrument has current calibration info, present it as cycle 1 baseline
+        records = [{
+          id: `curr_${inst.id || Date.now()}`,
+          instrumentId: instId,
+          codeNo: codeNo,
+          certNo: inst.certNo || `CERT-${codeNo || "CURRENT"}`,
+          calDate: inst.calDate || "",
+          dueDate: inst.dueDate || "",
+          calibratedBy: inst.labCal || inst.calibratedBy || "-",
+          result: "PASS",
+          accuracy: inst.accuracy || "",
+          notes: inst.notes || inst.remark || "",
+          pdfUrl: inst.pdfUrl || inst.certFileData || null,
+          certFileName: inst.certFileName || null,
+          fileSize: inst.fileSize || null,
+          createdAt: inst.updated_at || new Date().toISOString(),
+          sourceTable: "Current Calibration (รอบปัจจุบัน)",
+        }];
+        source = source !== "none" ? source : "Current Calibration Baseline";
+      }
+    }
+
+    return {
+      ok: true,
+      records: records.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime()),
+      source,
+      lastSync: new Date().toISOString(),
+      codeNo,
+      instrumentId: instId,
+    };
+  }
+
+  // 9. Save new calibration record to Supabase CalibrationHistory table & sync to instrument
+  async function addCalibrationHistoryRecord(inst, record, tabType = "calibration_all") {
+    if (!inst || !record) return { ok: false, error: "Missing instrument or record" };
+    const codeNo = String(inst.codeNo || inst.code_no || "").trim();
+    const instId = String(inst.id || "").trim();
+    const recordId = record.id || `hist_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+    const newHistItem = {
+      id: recordId,
+      instrument_id: instId,
+      code_no: codeNo,
+      instrument_name: inst.instrumentName || "",
+      cert_no: record.certNo || `CERT-${codeNo}-${(record.calDate || "").replace(/-/g, "")}`,
+      cal_date: record.calDate || "",
+      due_date: record.dueDate || "",
+      calibrated_by: record.calibratedBy || inst.labCal || "Internal QA",
+      result: (record.result || "PASS").toUpperCase(),
+      accuracy: record.accuracy || inst.accuracy || "",
+      notes: record.notes || record.remarks || "",
+      pdf_url: record.pdfUrl || null,
+      cert_file_name: record.certFileName || null,
+      file_size: parseByteSize(record.fileSize),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    let tableSaved = false;
+    if (isConfigured()) {
+      // 9.1 Attempt insertion into CalibrationHistory table
+      try {
+        await request("/CalibrationHistory", {
+          method: "POST",
+          headers: { Prefer: "return=representation" },
+          body: JSON.stringify(newHistItem),
+        });
+        tableSaved = true;
+      } catch (e1) {
+        try {
+          await request("/calibration_history", {
+            method: "POST",
+            headers: { Prefer: "return=representation" },
+            body: JSON.stringify(newHistItem),
+          });
+          tableSaved = true;
+        } catch (e2) {}
+      }
+
+      // 9.2 Also sync to instrument data jsonb in main table
+      try {
+        const normalizedItem = {
+          id: recordId,
+          certNo: newHistItem.cert_no,
+          calDate: newHistItem.cal_date,
+          dueDate: newHistItem.due_date,
+          calibratedBy: newHistItem.calibrated_by,
+          result: newHistItem.result,
+          accuracy: newHistItem.accuracy,
+          notes: newHistItem.notes,
+          pdfUrl: newHistItem.pdf_url,
+          certFileName: newHistItem.cert_file_name,
+          fileSize: newHistItem.file_size,
+          createdAt: newHistItem.created_at,
+        };
+
+        const existingHist = Array.isArray(inst.calibrationHistory)
+          ? inst.calibrationHistory
+          : Array.isArray(inst.history)
+          ? inst.history
+          : [];
+        const updatedHist = [normalizedItem, ...existingHist.filter(h => h.id !== recordId)];
+
+        const updatedInst = {
+          ...inst,
+          calDate: record.calDate || inst.calDate,
+          dueDate: record.dueDate || inst.dueDate,
+          next_due_date: record.dueDate || inst.dueDate,
+          certNo: newHistItem.cert_no || inst.certNo,
+          calibratedBy: newHistItem.calibrated_by || inst.calibratedBy,
+          history: updatedHist,
+          calibrationHistory: updatedHist,
+        };
+
+        await upsertInstrument(updatedInst, tabType);
+      } catch (e3) {
+        console.warn("[Supabase] Failed to sync history to instrument table:", e3);
+      }
+
+      // 9.3 If record contains PDF file, save to qap_files
+      if (record.pdfUrl) {
+        saveFileRecord({
+          instrumentId: instId,
+          codeNo: codeNo,
+          certNo: newHistItem.cert_no,
+          fileName: record.certFileName || "certificate.pdf",
+          fileSize: record.fileSize,
+          fileUrl: record.pdfUrl,
+          tabType,
+        }).catch(() => {});
+      }
+
+      emitToast(`✓ บันทึกประวัติสอบเทียบของ ${codeNo} ลงฐานข้อมูล Supabase สำเร็จ`, "success");
+    }
+
+    return { ok: true, record: newHistItem, tableSaved };
+  }
+
+  // 10. Delete a calibration history record
+  async function deleteCalibrationHistoryRecord(inst, recordId, tabType = "calibration_all") {
+    if (!inst || !recordId) return { ok: false, error: "Missing instrument or record ID" };
+
+    if (isConfigured()) {
+      try {
+        await request(`/CalibrationHistory?id=eq.${encodeURIComponent(recordId)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" }
+        });
+      } catch (e1) {
+        try {
+          await request(`/calibration_history?id=eq.${encodeURIComponent(recordId)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" }
+          });
+        } catch (e2) {}
+      }
+
+      // Remove from instrument history
+      try {
+        const existingHist = Array.isArray(inst.calibrationHistory)
+          ? inst.calibrationHistory
+          : Array.isArray(inst.history)
+          ? inst.history
+          : [];
+        const updatedHist = existingHist.filter(h => h.id !== recordId);
+        const updatedInst = {
+          ...inst,
+          history: updatedHist,
+          calibrationHistory: updatedHist,
+        };
+        await upsertInstrument(updatedInst, tabType);
+      } catch (e3) {}
+
+      emitToast(`🗑️ ลบรายการประวัติการสอบเทียบเรียบร้อย`, "info");
+    }
+
+    return { ok: true };
+  }
+
   window.qapSupabase = {
     getEmbeddedConfig: () => ({ ...EMBEDDED_SUPABASE_CONFIG }),
     isEmbedded: () => Boolean(EMBEDDED_SUPABASE_CONFIG.url && EMBEDDED_SUPABASE_CONFIG.anonKey),
@@ -1684,11 +2069,14 @@ SELECT 'qap_files (แยกไฟล์)', count(*) FROM public.qap_files;
     deleteFileRecord,
     pullFilesFromSupabase,
     linkFilesToInstruments,
+    fetchCalibrationHistory,
+    addCalibrationHistoryRecord,
+    deleteCalibrationHistoryRecord,
     FILES_TABLE,
     PAGE_TABLES,
     PAGE_NAMES,
     emitToast,
-      moveToCancel,
+    moveToCancel,
   };
 
   // Initial status notification after boot

@@ -246,11 +246,16 @@
 }
 
 .cockpit-col-donut,
-.cockpit-col-trend,
 .cockpit-col-ppm {
   width: 100% !important;
   min-height: 0 !important;
   overflow: hidden !important;
+}
+
+.cockpit-col-trend {
+  width: 100% !important;
+  min-height: 0 !important;
+  overflow: visible !important;
 }
 
 /* Tablet & Medium Screen Layout (768px to 959px) */
@@ -307,7 +312,7 @@
     order: 2 !important;
     height: 100% !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   .cockpit-col-ppm {
     grid-column: 3 !important;

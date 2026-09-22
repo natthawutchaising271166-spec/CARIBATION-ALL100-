@@ -53,6 +53,23 @@
         --scrollbar-thumb-hover: #64748b;
         --scrollbar-corner: #0f172a;
       }
+      /* Category Table Faint Gray Borders (สีเส้นขอบสีเทาจางๆ สไตล์ Minimal Clean) */
+      .category-faint-border {
+        border-color: rgba(203, 213, 225, 0.6) !important;
+      }
+      .dark .category-faint-border,
+      html.dark .category-faint-border,
+      [data-theme="dark"] .category-faint-border {
+        border-color: rgba(148, 163, 184, 0.22) !important;
+      }
+      .category-faint-divide > :not(:last-child) {
+        border-color: rgba(203, 213, 225, 0.45) !important;
+      }
+      .dark .category-faint-divide > :not(:last-child),
+      html.dark .category-faint-divide > :not(:last-child),
+      [data-theme="dark"] .category-faint-divide > :not(:last-child) {
+        border-color: rgba(148, 163, 184, 0.15) !important;
+      }
       /* Gauge Scale Numbers in Dark Mode */
       .gauge-scale-number {
         fill: #0f172a;
