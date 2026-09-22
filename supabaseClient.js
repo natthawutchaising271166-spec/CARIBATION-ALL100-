@@ -85,6 +85,105 @@
 
   let config = loadConfig();
 
+  // Memory cache to hold preloaded calibration history records for instant load times (ISO/IEC 17025)
+  const _historyCache = new Map();
+  let _filesCache = [];
+
+  // Helper to determine Calibration Folder Color status:
+  // Green: All records have files attached
+  // Yellow: Partial attachments (some records have files, but not all)
+  // White: No files attached at all
+  function getFolderStatus(inst) {
+    if (!inst) return { status: "white", color: "white", attachedCount: 0, totalCount: 0 };
+    const c = String(inst.codeNo || inst.code_no || "").trim();
+    const i = String(inst.id || "").trim();
+
+    // 1. Get history array from memory cache or instrument object
+    let h = null;
+    if (_historyCache && (c || i)) {
+      h = _historyCache.get(c) || _historyCache.get(i);
+    }
+    if (!h || !h.length) {
+      if (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0) {
+        h = inst.calibrationHistory;
+      } else if (Array.isArray(inst.history) && inst.history.length > 0) {
+        h = inst.history;
+      }
+    }
+
+    const files = Array.isArray(_filesCache) ? _filesCache : [];
+
+    // Case A: Instrument has no history records list -> check baseline instrument calibration
+    if (!h || h.length === 0) {
+      const hasDirectFile = Boolean(inst.pdfUrl || inst.certFileData || inst.file_url);
+      const hasDbFile = files.some(f => (c && String(f.code_no || "").trim().toUpperCase() === c.toUpperCase()) || (i && String(f.instrument_id || "").trim() === i));
+      if (hasDirectFile || hasDbFile) {
+        return { status: "green", color: "green", attachedCount: 1, totalCount: 1 };
+      }
+      return { status: "white", color: "white", attachedCount: 0, totalCount: 0 };
+    }
+
+    // Case B: Instrument has history records list
+    const sorted = [...h].sort((a, b) => {
+      const da = a.calDate || a.cal_date || "";
+      const db = b.calDate || b.cal_date || "";
+      return new Date(db).getTime() - new Date(da).getTime() || String(db).localeCompare(String(da));
+    });
+    const latest = sorted[0];
+
+    let attachedCount = 0;
+    const usedFileKeys = new Set();
+    for (const item of sorted) {
+      const isLatest = (item === latest);
+      const hasDirect = Boolean(item.pdfUrl || item.certFileData || item.file_url);
+      const hasLatestInstFile = isLatest && Boolean(inst.pdfUrl || inst.certFileData);
+
+      let matchedDb = false;
+      if (!hasDirect && !hasLatestInstFile) {
+        for (const f of files) {
+          const fKey = f.id || f.file_url || `${f.code_no}_${f.cert_no}`;
+          if (usedFileKeys.has(fKey)) continue;
+          const fCert = String(f.cert_no || "").trim().toUpperCase();
+          const fCode = String(f.code_no || "").trim().toUpperCase();
+          const fId = String(f.instrument_id || "").trim();
+          const itemCert = String(item.certNo || item.cert_no || "").trim().toUpperCase();
+
+          if (isLatest) {
+            if ((c && fCode === c.toUpperCase()) || (i && fId === i) || (itemCert && fCert === itemCert)) {
+              matchedDb = true;
+              usedFileKeys.add(fKey);
+              break;
+            }
+          } else {
+            // Older cycle only matches if distinct cert matches and there are multiple files or specific file
+            if (itemCert && fCert === itemCert && files.length > 1) {
+              matchedDb = true;
+              usedFileKeys.add(fKey);
+              break;
+            }
+          }
+        }
+      }
+
+      if (hasDirect || hasLatestInstFile || matchedDb) {
+        attachedCount++;
+      }
+    }
+
+    if (attachedCount === 0) {
+      return { status: "white", color: "white", attachedCount: 0, totalCount: h.length };
+    } else if (attachedCount >= h.length) {
+      return { status: "green", color: "green", attachedCount, totalCount: h.length };
+    } else {
+      return { status: "yellow", color: "yellow", attachedCount, totalCount: h.length };
+    }
+  }
+
+  // Bind to window immediately so React can call it anytime
+  if (typeof window !== "undefined") {
+    window.qapGetFolderStatus = getFolderStatus;
+  }
+
   function saveConfig(newCfg) {
     config = { ...config, ...newCfg, tables: PAGE_TABLES };
     try {
@@ -921,6 +1020,194 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     }
   }
 
+  // Helper to sync history and files of imported/pushed instruments to dedicated tables
+  async function syncHistoryAndFilesOfInstruments(items, tabType) {
+    if (!isConfigured() || !config.autoSync || !Array.isArray(items) || items.length === 0) return;
+    try {
+      const filePayloads = [];
+      const historyPayloads = [];
+      const nowStr = new Date().toISOString();
+
+      items.forEach((it) => {
+        if (!it) return;
+        const cleanInstId = String(it.id || "").trim();
+        const cleanCodeNo = String(it.codeNo || it.code_no || "").trim();
+        const cleanInstName = String(it.instrumentName || it.instrument_name || "").trim();
+
+        // 1. Check instrument-level file
+        const rootUrl = String(it.pdfUrl || it.certFileData || "").trim();
+        if (rootUrl) {
+          const rootCertNo = String(it.certNo || it.cert_no || "").trim();
+          const rootFileName = String(it.certFileName || it.cert_file_name || "").trim();
+          const rootFileSize = parseByteSize(it.fileSize || it.file_size);
+          const fileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}`;
+          filePayloads.push({
+            id: fileId,
+            instrument_id: cleanInstId || null,
+            code_no: cleanCodeNo,
+            cert_no: rootCertNo,
+            file_name: rootFileName,
+            file_size: rootFileSize,
+            file_url: rootUrl,
+            tab_type: String(tabType || "calibration_all"),
+            updated_at: nowStr,
+          });
+        }
+
+        // 2. Check historical records
+        const histList = Array.isArray(it.calibrationHistory) && it.calibrationHistory.length > 0
+          ? it.calibrationHistory
+          : Array.isArray(it.history) && it.history.length > 0
+          ? it.history
+          : [];
+
+        histList.forEach((h, hIdx) => {
+          if (!h) return;
+          const rId = h.id || `hist_${cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") || cleanInstId || "import"}_${hIdx}_${Math.random().toString(36).substr(2, 4)}`;
+          const cert = String(h.certNo || h.cert_no || it.certNo || it.cert_no || `CERT-${cleanCodeNo}-${hIdx}`).trim();
+          const cDate = h.calDate || h.cal_date || "";
+          const dDate = h.dueDate || h.due_date || "";
+          const calBy = h.calibratedBy || h.calibrated_by || it.labCal || it.calibratedBy || "-";
+          const res = String(h.result || "PASS").toUpperCase();
+          const acc = h.accuracy || it.accuracy || "";
+          const nts = h.notes || h.remarks || h.remark || "";
+          const pUrl = String(h.pdfUrl || h.pdf_url || h.certFileData || "").trim();
+          const fName = String(h.certFileName || h.cert_file_name || "").trim();
+          const fSize = parseByteSize(h.fileSize || h.file_size);
+
+          historyPayloads.push({
+            id: rId,
+            instrument_id: cleanInstId || null,
+            code_no: cleanCodeNo,
+            instrument_name: cleanInstName,
+            cert_no: cert,
+            cal_date: cDate,
+            due_date: dDate,
+            calibrated_by: calBy,
+            result: res,
+            accuracy: acc,
+            notes: nts,
+            pdf_url: pUrl || null,
+            cert_file_name: fName || null,
+            file_size: fSize,
+            created_at: h.createdAt || h.created_at || nowStr,
+            updated_at: nowStr,
+          });
+
+          // If the history item has a PDF, add it as a file payload too!
+          if (pUrl) {
+            const hFileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}_h${hIdx}`;
+            filePayloads.push({
+              id: hFileId,
+              instrument_id: cleanInstId || null,
+              code_no: cleanCodeNo,
+              cert_no: cert,
+              file_name: fName || `${cert}.pdf`,
+              file_size: fSize,
+              file_url: pUrl,
+              tab_type: String(tabType || "calibration_all"),
+              updated_at: nowStr,
+            });
+          }
+        });
+      });
+
+      // Batch insert filePayloads to qap_files (FILES_TABLE)
+      if (filePayloads.length > 0) {
+        // Dedup file payloads by id
+        const seenF = new Set();
+        const uniqueFiles = [];
+        for (const fp of filePayloads) {
+          if (!seenF.has(fp.id)) {
+            seenF.add(fp.id);
+            uniqueFiles.push(fp);
+          }
+        }
+
+        // Chunk files upload
+        const fChunks = [];
+        for (let i = 0; i < uniqueFiles.length; i += 50) {
+          fChunks.push(uniqueFiles.slice(i, i + 50));
+        }
+        for (const ch of fChunks) {
+          await request(`/${FILES_TABLE}`, {
+            method: "POST",
+            headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+            body: JSON.stringify(ch),
+          }).catch((err) => {
+            console.warn("[Supabase Sync] Batch file insert failed, falling back to clean files:", err);
+            // Fallback: strip file payloads that might cause issues and retry
+            const fallbackCh = ch.map(item => {
+              const copy = { ...item };
+              delete copy.file_size;
+              return copy;
+            });
+            request(`/${FILES_TABLE}`, {
+              method: "POST",
+              headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+              body: JSON.stringify(fallbackCh),
+            }).catch(() => {});
+          });
+        }
+
+        // Merge into local _filesCache
+        uniqueFiles.forEach(payload => {
+          const idx = _filesCache.findIndex(f => f.id === payload.id);
+          if (idx >= 0) {
+            _filesCache[idx] = { ..._filesCache[idx], ...payload };
+          } else {
+            _filesCache.push(payload);
+          }
+        });
+        if (typeof window !== "undefined" && window.qapSupabase) {
+          window.qapSupabase._filesCache = _filesCache;
+        }
+      }
+
+      // Batch insert historyPayloads to CalibrationHistory
+      if (historyPayloads.length > 0) {
+        // Dedup history payloads by id or (codeNo + certNo)
+        const seenH = new Set();
+        const uniqueHist = [];
+        for (const hp of historyPayloads) {
+          const key = hp.id || `${hp.code_no}_${hp.cert_no}`;
+          if (!seenH.has(key)) {
+            seenH.add(key);
+            uniqueHist.push(hp);
+          }
+        }
+
+        // Chunk history upload
+        const hChunks = [];
+        for (let i = 0; i < uniqueHist.length; i += 50) {
+          hChunks.push(uniqueHist.slice(i, i + 50));
+        }
+        for (const ch of hChunks) {
+          // Try /CalibrationHistory, fallback to /calibration_history
+          try {
+            await request("/CalibrationHistory", {
+              method: "POST",
+              headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+              body: JSON.stringify(ch),
+            });
+          } catch (e1) {
+            try {
+              await request("/calibration_history", {
+                method: "POST",
+                headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+                body: JSON.stringify(ch),
+              });
+            } catch (e2) {
+              console.warn("[Supabase Sync] Batch history insert failed:", e2);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[Supabase Sync] syncHistoryAndFilesOfInstruments failed:", err);
+    }
+  }
+
   // Helper to push items to a specific table in chunks
   async function pushToTable(tbl, items, tabType) {
     if (!Array.isArray(items) || items.length === 0) return 0;
@@ -981,11 +1268,51 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         }
       }
     }
+
+    try {
+      await syncHistoryAndFilesOfInstruments(items, tabType);
+    } catch (syncErr) {
+      console.warn("[Supabase Sync] syncHistoryAndFilesOfInstruments failed inside pushToTable:", syncErr);
+    }
+
     return formatted.length;
   }
 
   // Safe upsert single row with fallback if remote table lacks pdf columns
   async function safeUpsertRow(tbl, row) {
+    const codeNo = String(row.code_no || (row.data && row.data.codeNo) || "").trim();
+    if (codeNo) {
+      try {
+        // Attempt updating existing row by code_no to preserve table-specific ID
+        const patchRes = await request(`/${tbl}?code_no=eq.${encodeURIComponent(codeNo)}`, {
+          method: "PATCH",
+          headers: {
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify(row),
+        });
+        if (Array.isArray(patchRes) && patchRes.length > 0) {
+          return patchRes;
+        }
+      } catch (patchErr) {
+        const msg = String(patchErr && patchErr.message ? patchErr.message : patchErr);
+        if (msg.includes("does not exist") && (msg.includes("pdf_url") || msg.includes("cert_file_name") || msg.includes("file_size"))) {
+          const fallback = { ...row };
+          delete fallback.pdf_url;
+          delete fallback.cert_file_name;
+          delete fallback.file_size;
+          try {
+            const pRes = await request(`/${tbl}?code_no=eq.${encodeURIComponent(codeNo)}`, {
+              method: "PATCH",
+              headers: { Prefer: "return=representation" },
+              body: JSON.stringify(fallback),
+            });
+            if (Array.isArray(pRes) && pRes.length > 0) return pRes;
+          } catch (e) {}
+        }
+      }
+    }
+
     try {
       return await request(`/${tbl}`, {
         method: "POST",
@@ -1054,6 +1381,34 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         body: JSON.stringify(payload),
       });
 
+      // Update in-memory _filesCache in real time
+      const existingIdx = _filesCache.findIndex(f => f.id === payload.id || (f.code_no && payload.code_no && f.code_no.trim() === payload.code_no.trim() && f.cert_no && payload.cert_no && f.cert_no.trim() === payload.cert_no.trim()));
+      if (existingIdx >= 0) {
+        _filesCache[existingIdx] = { ..._filesCache[existingIdx], ...payload };
+      } else {
+        _filesCache.push(payload);
+      }
+      if (typeof window !== "undefined" && window.qapSupabase) {
+        window.qapSupabase._filesCache = _filesCache;
+      }
+
+      // Update _historyCache for this instrument
+      const histLists = [];
+      if (cleanCodeNo && _historyCache.has(cleanCodeNo)) histLists.push(_historyCache.get(cleanCodeNo));
+      if (cleanInstId && _historyCache.has(cleanInstId)) histLists.push(_historyCache.get(cleanInstId));
+      histLists.forEach(hist => {
+        if (Array.isArray(hist)) {
+          const certSearch = String(payload.cert_no || "").trim().toUpperCase();
+          hist.forEach(h => {
+            if ((certSearch && h.certNo && String(h.certNo).trim().toUpperCase() === certSearch) || !h.pdfUrl) {
+              h.pdfUrl = payload.file_url;
+              h.certFileName = payload.file_name || h.certFileName;
+              h.fileSize = payload.file_size || h.fileSize;
+            }
+          });
+        }
+      });
+
       return { ok: true, fileId };
     } catch (err) {
       console.warn("[Supabase File Sync] Save file record failed:", err);
@@ -1065,6 +1420,16 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
   async function deleteFileRecord(instrumentId, codeNo, fileId) {
     if (!isConfigured() || !config.autoSync) return { ok: false, skipped: true };
     try {
+      // Clean up in-memory _filesCache
+      _filesCache = _filesCache.filter(f => {
+        if (fileId && f.id === fileId) return false;
+        if (instrumentId && f.instrument_id === String(instrumentId).trim()) return false;
+        if (codeNo && f.code_no && f.code_no.trim().toUpperCase() === String(codeNo).trim().toUpperCase()) return false;
+        return true;
+      });
+      if (typeof window !== "undefined" && window.qapSupabase) {
+        window.qapSupabase._filesCache = _filesCache;
+      }
       const deleteCalls = [];
       if (fileId) {
         deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileId)}`, {
@@ -1140,10 +1505,10 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     for (const inst of instruments) {
       if (!inst) continue;
       const instId = String(inst.id || "").trim();
-      const codeNo = String(inst.codeNo || "").trim().toUpperCase();
-      const certNo = String(inst.certNo || "").trim().toUpperCase();
+      const codeNo = String(inst.codeNo || inst.code_no || "").trim().toUpperCase();
+      const certNo = String(inst.certNo || inst.cert_no || "").trim().toUpperCase();
 
-      const matchedFile = fileByCodeNo.get(codeNo) || fileByInstId.get(instId) || (certNo ? fileByCertNo.get(certNo) : null);
+      const matchedFile = (codeNo ? fileByCodeNo.get(codeNo) : null) || (instId ? fileByInstId.get(instId) : null) || (certNo ? fileByCertNo.get(certNo) : null);
       if (matchedFile) {
         const fileUrl = matchedFile.file_url || null;
         const fileName = matchedFile.file_name || null;
@@ -1154,53 +1519,39 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         inst.certFileName = fileName;
         inst.fileSize = fileSize;
 
-        // Also link to first history item
-        if (Array.isArray(inst.history) && inst.history.length > 0) {
-          inst.history[0].pdfUrl = fileUrl;
-          inst.history[0].certFileData = fileUrl;
-          inst.history[0].certFileName = fileName;
-          inst.history[0].fileSize = fileSize;
-        }
-        if (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0) {
-          inst.calibrationHistory[0].pdfUrl = fileUrl;
-          inst.calibrationHistory[0].certFileData = fileUrl;
-          inst.calibrationHistory[0].certFileName = fileName;
-          inst.calibrationHistory[0].fileSize = fileSize;
-        }
-
-        // Link individual history certificates if matching records exist
-        if (Array.isArray(inst.history)) {
-          for (const h of inst.history) {
-            if (h && h.certNo) {
-              const hCert = String(h.certNo).trim().toUpperCase();
-              const hFile = fileByCertNo.get(hCert);
-              if (hFile) {
-                h.pdfUrl = hFile.file_url || fileUrl;
-                h.certFileData = hFile.file_url || fileUrl;
-                h.certFileName = hFile.file_name || fileName;
-                h.fileSize = hFile.file_size || fileSize;
+        const linkList = (list) => {
+          if (!Array.isArray(list) || list.length === 0) return;
+          const sorted = [...list].sort((a, b) => new Date(b.calDate || b.cal_date || 0).getTime() - new Date(a.calDate || a.cal_date || 0).getTime());
+          const latest = sorted[0];
+          const usedFileKeys = new Set();
+          for (const h of sorted) {
+            if (!h) continue;
+            const isLatest = (h === latest);
+            if (isLatest) {
+              if (!h.pdfUrl && fileUrl) {
+                h.pdfUrl = fileUrl;
+                h.certFileData = fileUrl;
+                h.certFileName = fileName;
+                h.fileSize = fileSize;
+                if (matchedFile) usedFileKeys.add(matchedFile.id || matchedFile.file_url);
+              }
+            } else {
+              // Older cycle: ONLY link if distinct file exists for it
+              const hCert = String(h.certNo || h.cert_no || "").trim().toUpperCase();
+              const hFile = hCert ? fileByCertNo.get(hCert) : null;
+              if (hFile && !usedFileKeys.has(hFile.id || hFile.file_url) && fileRows.length > 1) {
+                usedFileKeys.add(hFile.id || hFile.file_url);
+                h.pdfUrl = hFile.file_url;
+                h.certFileData = hFile.file_url;
+                h.certFileName = hFile.file_name;
+                h.fileSize = hFile.file_size;
               }
             }
           }
-        }
-      } else {
-        // If no file in qap_files, ensure cleared
-        inst.pdfUrl = null;
-        inst.certFileData = null;
-        inst.certFileName = null;
-        inst.fileSize = null;
-        if (Array.isArray(inst.history) && inst.history.length > 0) {
-          inst.history[0].pdfUrl = null;
-          inst.history[0].certFileData = null;
-          inst.history[0].certFileName = null;
-          inst.history[0].fileSize = null;
-        }
-        if (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0) {
-          inst.calibrationHistory[0].pdfUrl = null;
-          inst.calibrationHistory[0].certFileData = null;
-          inst.calibrationHistory[0].certFileName = null;
-          inst.calibrationHistory[0].fileSize = null;
-        }
+        };
+
+        linkList(inst.history);
+        linkList(inst.calibrationHistory);
       }
     }
 
@@ -1343,12 +1694,25 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       ]);
 
       // Dynamically link files to instruments on the webpage
-      if (Array.isArray(fileRows) && fileRows.length > 0) {
-        linkFilesToInstruments(all, fileRows);
-        linkFilesToInstruments(normalStandard, fileRows);
-        linkFilesToInstruments(centralized, fileRows);
-        linkFilesToInstruments(eachSection, fileRows);
-        linkFilesToInstruments(cancel, fileRows);
+      _filesCache = Array.isArray(fileRows) ? fileRows : [];
+      if (typeof window !== "undefined" && window.qapSupabase) {
+        window.qapSupabase._filesCache = _filesCache;
+      }
+
+      if (_filesCache.length > 0) {
+        linkFilesToInstruments(all, _filesCache);
+        linkFilesToInstruments(normalStandard, _filesCache);
+        linkFilesToInstruments(centralized, _filesCache);
+        linkFilesToInstruments(eachSection, _filesCache);
+        linkFilesToInstruments(cancel, _filesCache);
+      }
+
+      // Preload Calibration Histories in the background to ensure instant clicks later
+      const allInstruments = [...all, ...normalStandard, ...centralized, ...eachSection, ...cancel];
+      try {
+        await preloadCalibrationHistory(_filesCache, allInstruments);
+      } catch (historyErr) {
+        console.warn("[Supabase Pull] Failed to preload histories:", historyErr);
       }
 
       const totalCount = all.length + normalStandard.length + centralized.length + eachSection.length + cancel.length;
@@ -1377,6 +1741,195 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       saveConfig({ status: "error", lastError: err.message });
       emitToast(`ซิงก์ดึงข้อมูลล้มเหลว: ${err.message}`, "error");
       return { ok: false, message: err.message };
+    }
+  }
+
+  // 3.5 Preload ALL Calibration History records into memory cache for instant loads
+  async function preloadCalibrationHistory(fileRows = [], allInstruments = []) {
+    if (!isConfigured()) return;
+    try {
+      if (Array.isArray(fileRows) && fileRows.length > 0) {
+        _filesCache = fileRows;
+        if (typeof window !== "undefined" && window.qapSupabase) {
+          window.qapSupabase._filesCache = _filesCache;
+        }
+      }
+      let rawRecords = [];
+      const endpoints = [
+        "/CalibrationHistory?order=cal_date.desc,created_at.desc&limit=10000",
+        "/calibration_history?order=cal_date.desc,created_at.desc&limit=10000"
+      ];
+      for (const ep of endpoints) {
+        try {
+          const res = await request(ep);
+          if (Array.isArray(res) && res.length > 0) {
+            rawRecords = res;
+            break;
+          }
+        } catch (e) {}
+      }
+
+      _historyCache.clear();
+
+      // Collect records grouped by code_no
+      const codeRecordsMap = new Map();
+
+      const addRecordToCode = (code, rec) => {
+        if (!code || !rec) return;
+        const cKey = String(code).trim();
+        if (!cKey) return;
+        if (!codeRecordsMap.has(cKey)) codeRecordsMap.set(cKey, []);
+        const list = codeRecordsMap.get(cKey);
+        // Avoid duplicate by id or (calDate + certNo)
+        const isDup = list.some(item => (rec.id && item.id && item.id === rec.id) || (item.calDate === rec.calDate && item.certNo === rec.certNo));
+        if (!isDup) {
+          list.push(rec);
+        }
+      };
+
+      if (rawRecords.length > 0) {
+        rawRecords.forEach((r, i) => {
+          const codeNo = String(r.code_no || r.codeNo || "").trim();
+          const instId = String(r.instrument_id || r.instrumentId || "").trim();
+          
+          const rec = {
+            id: r.id || `hist_${i}`,
+            instrumentId: r.instrument_id || r.instrumentId || instId,
+            codeNo: r.code_no || r.codeNo || codeNo,
+            certNo: r.cert_no || r.certNo || `CERT-${codeNo || i + 1}`,
+            calDate: r.cal_date || r.calDate || "",
+            dueDate: r.due_date || r.dueDate || r.next_due_date || "",
+            calibratedBy: r.calibrated_by || r.calibratedBy || r.labCal || "-",
+            result: (r.result || "PASS").toUpperCase(),
+            accuracy: r.accuracy || "",
+            notes: r.notes || r.remark || r.remarks || "",
+            pdfUrl: r.pdf_url || r.pdfUrl || null,
+            certFileName: r.cert_file_name || r.certFileName || null,
+            fileSize: r.file_size || r.fileSize || null,
+            createdAt: r.created_at || r.createdAt || null,
+            sourceTable: "CalibrationHistory (Preloaded)",
+          };
+
+          if (codeNo) addRecordToCode(codeNo, rec);
+        });
+      }
+
+      // Merge and complement records using allInstruments from page tables
+      if (Array.isArray(allInstruments) && allInstruments.length > 0) {
+        allInstruments.forEach((inst) => {
+          if (!inst) return;
+          const codeNo = String(inst.codeNo || inst.code_no || "").trim();
+          const instId = String(inst.id || "").trim();
+          if (!codeNo && !instId) return;
+
+          const rawHist = (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0)
+            ? inst.calibrationHistory
+            : (Array.isArray(inst.history) && inst.history.length > 0)
+            ? inst.history
+            : [];
+
+          if (rawHist.length > 0) {
+            rawHist.forEach((h, i) => {
+              const rec = {
+                id: h.id || `hist_${instId || codeNo}_${i}`,
+                instrumentId: instId,
+                codeNo: codeNo,
+                certNo: h.certNo || h.cert_no || inst.certNo || `CERT-${codeNo || i + 1}`,
+                calDate: h.calDate || h.cal_date || "",
+                dueDate: h.dueDate || h.due_date || "",
+                calibratedBy: h.calibratedBy || h.calibrated_by || inst.labCal || inst.calibratedBy || "-",
+                result: (h.result || "PASS").toUpperCase(),
+                accuracy: h.accuracy || inst.accuracy || "",
+                notes: h.notes || h.remarks || h.remark || "",
+                pdfUrl: h.pdfUrl || h.certFileData || null,
+                certFileName: h.certFileName || null,
+                fileSize: h.fileSize || null,
+                createdAt: h.createdAt || null,
+              };
+              if (codeNo) addRecordToCode(codeNo, rec);
+            });
+          } else if (inst.calDate || inst.certNo || inst.pdfUrl || inst.certFileData) {
+            const baseRec = {
+              id: `curr_${instId || codeNo}`,
+              instrumentId: instId,
+              codeNo: codeNo,
+              certNo: inst.certNo || `CERT-${codeNo || "1"}`,
+              calDate: inst.calDate || inst.cal_date || "",
+              dueDate: inst.dueDate || inst.due_date || "",
+              calibratedBy: inst.labCal || inst.calibratedBy || "-",
+              result: "PASS",
+              accuracy: inst.accuracy || "",
+              notes: inst.notes || "",
+              pdfUrl: inst.pdfUrl || inst.certFileData || null,
+              certFileName: inst.certFileName || null,
+              fileSize: inst.fileSize || null,
+              createdAt: null,
+            };
+            if (codeNo) addRecordToCode(codeNo, baseRec);
+          }
+        });
+
+        // Link files from _filesCache and sort each code's history
+        for (const [cKey, recs] of codeRecordsMap.entries()) {
+          recs.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+          const latestRec = recs[0];
+          const usedPreloadKeys = new Set();
+
+          recs.forEach(rec => {
+            if (rec.pdfUrl) return;
+            if (Array.isArray(_filesCache) && _filesCache.length > 0) {
+              const recCert = String(rec.certNo || "").trim().toUpperCase();
+              let matched = null;
+              if (rec === latestRec || recs.length === 1) {
+                matched = _filesCache.find(f => {
+                  const fKey = f.id || f.file_url;
+                  if (usedPreloadKeys.has(fKey)) return false;
+                  return (recCert && String(f.cert_no || "").trim().toUpperCase() === recCert) ||
+                    (cKey && String(f.code_no || "").trim().toUpperCase() === cKey.toUpperCase());
+                });
+              } else if (_filesCache.length > 1 && recCert) {
+                matched = _filesCache.find(f => {
+                  const fKey = f.id || f.file_url;
+                  return !usedPreloadKeys.has(fKey) && String(f.cert_no || "").trim().toUpperCase() === recCert;
+                });
+              }
+              if (matched) {
+                usedPreloadKeys.add(matched.id || matched.file_url);
+                rec.pdfUrl = matched.file_url;
+                rec.certFileName = matched.file_name || rec.certFileName;
+                rec.fileSize = matched.file_size || rec.fileSize;
+              }
+            }
+          });
+          _historyCache.set(cKey, recs);
+        }
+
+        // Apply unified history and synchronized calibration fields across EVERY instrument in memory
+        allInstruments.forEach((inst) => {
+          if (!inst) return;
+          const codeNo = String(inst.codeNo || inst.code_no || "").trim();
+          const instId = String(inst.id || "").trim();
+          const unified = codeRecordsMap.get(codeNo) || [];
+          if (instId) {
+            _historyCache.set(instId, unified);
+          }
+          inst.history = [...unified];
+          inst.calibrationHistory = [...unified];
+          if (unified.length > 0) {
+            const latest = unified[0];
+            if (latest.calDate && (!inst.calDate || inst.calDate === "-")) inst.calDate = latest.calDate;
+            if (latest.dueDate && (!inst.dueDate || inst.dueDate === "-")) inst.dueDate = latest.dueDate;
+            if (latest.certNo && (!inst.certNo || inst.certNo === "-")) inst.certNo = latest.certNo;
+            if (latest.calibratedBy && (!inst.calibratedBy || inst.calibratedBy === "-")) inst.calibratedBy = latest.calibratedBy;
+            if (latest.pdfUrl && !inst.pdfUrl) inst.pdfUrl = latest.pdfUrl;
+            if (latest.certFileName && !inst.certFileName) inst.certFileName = latest.certFileName;
+          }
+        });
+      }
+
+      console.log(`[Supabase Preloader] Unified and cached calibration history for ${_historyCache.size} instruments/codes`);
+    } catch (err) {
+      console.warn("[Supabase Preloader] Failed to preload calibration history:", err);
     }
   }
 
@@ -1432,6 +1985,16 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         // Also ensure Master List (qap_calibration_all) stays synchronized if not already target
         if (targetTable !== PAGE_TABLES.calibration_all) {
           await safeUpsertRow(PAGE_TABLES.calibration_all, row).catch(() => {});
+        } else {
+          // If targetTable is calibration_all, find its category table and sync it too
+          const cat = (inst.category || "").toUpperCase();
+          const catTab = cat === "CENTRALIZED" ? PAGE_TABLES.centralized
+            : cat === "EACH SECTION" ? PAGE_TABLES.each_section
+            : cat === "NORMAL STANDARD" ? PAGE_TABLES.normal_standard
+            : cat === "CANCEL" ? PAGE_TABLES.cancel : null;
+          if (catTab) {
+            await safeUpsertRow(catTab, row).catch(() => {});
+          }
         }
         // Remove from cancel table if active
         request(`/${PAGE_TABLES.cancel}?id=eq.${encodeURIComponent(row.id)}`, {
@@ -1737,6 +2300,19 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     const codeNo = String(inst.codeNo || inst.code_no || "").trim();
     const instId = String(inst.id || "").trim();
 
+    // Check preloaded memory cache first for sub-millisecond click response (ISO/IEC 17025)
+    const cached = _historyCache.get(codeNo) || _historyCache.get(instId);
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      return {
+        ok: true,
+        records: [...cached].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime()),
+        source: "Supabase Preloaded Cache (ISO/IEC 17025)",
+        lastSync: new Date().toISOString(),
+        codeNo,
+        instrumentId: instId,
+      };
+    }
+
     let records = [];
     let source = "none";
 
@@ -1827,9 +2403,30 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           : `/${FILES_TABLE}?instrument_id=eq.${encodeURIComponent(instId)}&select=*`;
         const files = await request(fileEp);
         if (Array.isArray(files) && files.length > 0) {
-          records = records.map(rec => {
-            const matchedFile = files.find(f => (f.cert_no && rec.certNo && f.cert_no.trim() === rec.certNo.trim()) || f.file_url === rec.pdfUrl) || files[0];
-            if (matchedFile && !rec.pdfUrl) {
+          const sortedRecs = [...records].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+          const latestRec = sortedRecs[0];
+          const usedFetchKeys = new Set();
+
+          records = sortedRecs.map(rec => {
+            if (rec.pdfUrl) return rec;
+            const recCert = String(rec.certNo || "").trim().toUpperCase();
+            let matchedFile = null;
+            if (rec === latestRec || sortedRecs.length === 1) {
+              matchedFile = files.find(f => {
+                const fKey = f.id || f.file_url;
+                if (usedFetchKeys.has(fKey)) return false;
+                return (f.cert_no && recCert && String(f.cert_no).trim().toUpperCase() === recCert) ||
+                       (codeNo && f.code_no && String(f.code_no).trim().toUpperCase() === codeNo.toUpperCase()) ||
+                       (instId && f.instrument_id === instId);
+              });
+            } else if (files.length > 1 && recCert) {
+              matchedFile = files.find(f => {
+                const fKey = f.id || f.file_url;
+                return !usedFetchKeys.has(fKey) && f.cert_no && String(f.cert_no).trim().toUpperCase() === recCert;
+              });
+            }
+            if (matchedFile) {
+              usedFetchKeys.add(matchedFile.id || matchedFile.file_url);
               return {
                 ...rec,
                 pdfUrl: matchedFile.file_url,
@@ -1892,9 +2489,13 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       }
     }
 
+    const sorted = records.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+    if (codeNo && sorted.length > 0) _historyCache.set(codeNo, sorted);
+    if (instId && sorted.length > 0) _historyCache.set(instId, sorted);
+
     return {
       ok: true,
-      records: records.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime()),
+      records: sorted,
       source,
       lastSync: new Date().toISOString(),
       codeNo,
@@ -1966,12 +2567,26 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           createdAt: newHistItem.created_at,
         };
 
-        const existingHist = Array.isArray(inst.calibrationHistory)
+        const cachedList = (codeNo && _historyCache.get(codeNo)) || (instId && _historyCache.get(instId)) || [];
+        const instHist = Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0
           ? inst.calibrationHistory
-          : Array.isArray(inst.history)
+          : Array.isArray(inst.history) && inst.history.length > 0
           ? inst.history
           : [];
-        const updatedHist = [normalizedItem, ...existingHist.filter(h => h.id !== recordId)];
+        const combined = [...cachedList, ...instHist];
+        const seen = new Set();
+        const deduped = [];
+        for (const h of combined) {
+          const key = h.id || `${h.calDate}_${h.certNo}`;
+          if (!seen.has(key) && h.id !== recordId && h.certNo !== normalizedItem.certNo) {
+            seen.add(key);
+            deduped.push(h);
+          }
+        }
+        const updatedHist = [normalizedItem, ...deduped].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+
+        if (codeNo) _historyCache.set(codeNo, updatedHist);
+        if (instId) _historyCache.set(instId, updatedHist);
 
         const updatedInst = {
           ...inst,
@@ -2002,6 +2617,39 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         }).catch(() => {});
       }
 
+      // Update local memory cache so click matches instantly (ISO/IEC 17025)
+      try {
+        const cacheItem = {
+          id: recordId,
+          instrumentId: instId,
+          codeNo: codeNo,
+          certNo: newHistItem.cert_no,
+          calDate: newHistItem.cal_date,
+          dueDate: newHistItem.due_date,
+          calibratedBy: newHistItem.calibrated_by,
+          result: newHistItem.result,
+          accuracy: newHistItem.accuracy,
+          notes: newHistItem.notes,
+          pdfUrl: newHistItem.pdf_url,
+          certFileName: newHistItem.cert_file_name,
+          fileSize: newHistItem.file_size,
+          createdAt: newHistItem.created_at,
+          sourceTable: "CalibrationHistory (Preloaded)",
+        };
+
+        const updateCachedList = (key) => {
+          if (!key) return;
+          const currentList = _historyCache.get(key) || [];
+          const updatedList = [cacheItem, ...currentList.filter(item => item.id !== recordId)];
+          _historyCache.set(key, updatedList);
+        };
+
+        updateCachedList(codeNo);
+        updateCachedList(instId);
+      } catch (cacheErr) {
+        console.warn("[Supabase Cache Sync] Failed to update cache:", cacheErr);
+      }
+
       emitToast(`✓ บันทึกประวัติสอบเทียบของ ${codeNo} ลงฐานข้อมูล Supabase สำเร็จ`, "success");
     }
 
@@ -2027,18 +2675,35 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         } catch (e2) {}
       }
 
-      // Remove from instrument history
+      // Update local memory cache and get updated list
+      let updatedHist = [];
       try {
-        const existingHist = Array.isArray(inst.calibrationHistory)
-          ? inst.calibrationHistory
-          : Array.isArray(inst.history)
-          ? inst.history
-          : [];
-        const updatedHist = existingHist.filter(h => h.id !== recordId);
+        const codeNo = String(inst.codeNo || inst.code_no || "").trim();
+        const instId = String(inst.id || "").trim();
+        const currentList = (codeNo && _historyCache.get(codeNo)) || (instId && _historyCache.get(instId)) || (
+          Array.isArray(inst.calibrationHistory) ? inst.calibrationHistory : Array.isArray(inst.history) ? inst.history : []
+        );
+        updatedHist = currentList.filter(item => item.id !== recordId);
+        if (codeNo) _historyCache.set(codeNo, updatedHist);
+        if (instId) _historyCache.set(instId, updatedHist);
+      } catch (cacheErr) {
+        console.warn("[Supabase Cache Sync] Failed to delete from cache:", cacheErr);
+      }
+
+      // Sync updated history and latest cycle to instrument table
+      try {
+        const latestCycle = updatedHist[0] || null;
         const updatedInst = {
           ...inst,
           history: updatedHist,
           calibrationHistory: updatedHist,
+          ...(latestCycle ? {
+            calDate: latestCycle.calDate || inst.calDate,
+            dueDate: latestCycle.dueDate || inst.dueDate,
+            next_due_date: latestCycle.dueDate || inst.dueDate,
+            certNo: latestCycle.certNo || inst.certNo,
+            calibratedBy: latestCycle.calibratedBy || inst.calibratedBy,
+          } : {})
         };
         await upsertInstrument(updatedInst, tabType);
       } catch (e3) {}
@@ -2050,6 +2715,9 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
   }
 
   window.qapSupabase = {
+    _historyCache,
+    _filesCache,
+    getFolderStatus,
     getEmbeddedConfig: () => ({ ...EMBEDDED_SUPABASE_CONFIG }),
     isEmbedded: () => Boolean(EMBEDDED_SUPABASE_CONFIG.url && EMBEDDED_SUPABASE_CONFIG.anonKey),
     getConfig: () => ({ ...config, isConfigured: isConfigured() }),
