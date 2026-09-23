@@ -88,6 +88,8 @@
   // Memory cache to hold preloaded calibration history records for instant load times (ISO/IEC 17025)
   const _historyCache = new Map();
   let _filesCache = [];
+  let _historyTableAvailable = null; // null = untested, true = available, false = not available
+  let _historyTableEndpoint = null;
 
   // Helper to determine Calibration Folder Color status:
   // Green: All records have files attached
@@ -111,12 +113,20 @@
       }
     }
 
-    const files = Array.isArray(_filesCache) ? _filesCache : [];
+    const allFiles = Array.isArray(_filesCache) ? _filesCache : [];
+    // Filter files matching this instrument's code_no or instrument_id
+    const cUpper = c.toUpperCase();
+    const instDbFiles = allFiles.filter(f => {
+      if (!f) return false;
+      const fCode = f.code_no ? String(f.code_no).trim().toUpperCase() : "";
+      const fId = f.instrument_id ? String(f.instrument_id).trim() : "";
+      return (cUpper && fCode === cUpper) || (i && fId === i);
+    });
 
-    // Case A: Instrument has no history records list -> check baseline instrument calibration
+    // Case A: Instrument has no history list -> single record
     if (!h || h.length === 0) {
       const hasDirectFile = Boolean(inst.pdfUrl || inst.certFileData || inst.file_url);
-      const hasDbFile = files.some(f => (c && String(f.code_no || "").trim().toUpperCase() === c.toUpperCase()) || (i && String(f.instrument_id || "").trim() === i));
+      const hasDbFile = instDbFiles.length > 0;
       if (hasDirectFile || hasDbFile) {
         return { status: "green", color: "green", attachedCount: 1, totalCount: 1 };
       }
@@ -125,57 +135,67 @@
 
     // Case B: Instrument has history records list
     const sorted = [...h].sort((a, b) => {
-      const da = a.calDate || a.cal_date || "";
-      const db = b.calDate || b.cal_date || "";
+      const da = normalizeDateUniform(a.calDate || a.cal_date || 0);
+      const db = normalizeDateUniform(b.calDate || b.cal_date || 0);
       return new Date(db).getTime() - new Date(da).getTime() || String(db).localeCompare(String(da));
     });
     const latest = sorted[0];
 
     let attachedCount = 0;
-    const usedFileKeys = new Set();
+    const usedDbFileKeys = new Set();
+
     for (const item of sorted) {
       const isLatest = (item === latest);
       const hasDirect = Boolean(item.pdfUrl || item.certFileData || item.file_url);
       const hasLatestInstFile = isLatest && Boolean(inst.pdfUrl || inst.certFileData);
 
-      let matchedDb = false;
-      if (!hasDirect && !hasLatestInstFile) {
-        for (const f of files) {
-          const fKey = f.id || f.file_url || `${f.code_no}_${f.cert_no}`;
-          if (usedFileKeys.has(fKey)) continue;
-          const fCert = String(f.cert_no || "").trim().toUpperCase();
-          const fCode = String(f.code_no || "").trim().toUpperCase();
-          const fId = String(f.instrument_id || "").trim();
-          const itemCert = String(item.certNo || item.cert_no || "").trim().toUpperCase();
-
-          if (isLatest) {
-            if ((c && fCode === c.toUpperCase()) || (i && fId === i) || (itemCert && fCert === itemCert)) {
-              matchedDb = true;
-              usedFileKeys.add(fKey);
-              break;
-            }
-          } else {
-            // Older cycle only matches if distinct cert matches and there are multiple files or specific file
-            if (itemCert && fCert === itemCert && files.length > 1) {
-              matchedDb = true;
-              usedFileKeys.add(fKey);
-              break;
-            }
-          }
-        }
+      if (hasDirect || hasLatestInstFile) {
+        attachedCount++;
+        continue;
       }
 
-      if (hasDirect || hasLatestInstFile || matchedDb) {
+      // Try matching against instDbFiles
+      const itemCert = String(item.certNo || item.cert_no || "").trim().toUpperCase();
+      const itemDate = normalizeDateUniform(item.calDate || item.cal_date);
+
+      let matchedFile = null;
+      // 1. Try exact cert match
+      if (itemCert) {
+        matchedFile = instDbFiles.find(f => {
+          const fKey = f.id || f.file_url;
+          if (usedDbFileKeys.has(fKey)) return false;
+          return f.cert_no && String(f.cert_no).trim().toUpperCase() === itemCert;
+        });
+      }
+      // 2. Try date match
+      if (!matchedFile && itemDate) {
+        matchedFile = instDbFiles.find(f => {
+          const fKey = f.id || f.file_url;
+          if (usedDbFileKeys.has(fKey)) return false;
+          return f.cal_date && isSameDate(f.cal_date, itemDate);
+        });
+      }
+      // 3. Fallback: match any unallocated file for this instrument
+      if (!matchedFile && instDbFiles.length > 0) {
+        matchedFile = instDbFiles.find(f => {
+          const fKey = f.id || f.file_url;
+          return !usedDbFileKeys.has(fKey);
+        });
+      }
+
+      if (matchedFile) {
+        usedDbFileKeys.add(matchedFile.id || matchedFile.file_url);
         attachedCount++;
       }
     }
 
+    const totalCount = h.length;
     if (attachedCount === 0) {
-      return { status: "white", color: "white", attachedCount: 0, totalCount: h.length };
-    } else if (attachedCount >= h.length) {
-      return { status: "green", color: "green", attachedCount, totalCount: h.length };
+      return { status: "white", color: "white", attachedCount: 0, totalCount };
+    } else if (attachedCount >= totalCount) {
+      return { status: "green", color: "green", attachedCount, totalCount };
     } else {
-      return { status: "yellow", color: "yellow", attachedCount, totalCount: h.length };
+      return { status: "yellow", color: "yellow", attachedCount, totalCount };
     }
   }
 
@@ -1182,23 +1202,32 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         for (let i = 0; i < uniqueHist.length; i += 50) {
           hChunks.push(uniqueHist.slice(i, i + 50));
         }
-        for (const ch of hChunks) {
-          // Try /CalibrationHistory, fallback to /calibration_history
-          try {
-            await request("/CalibrationHistory", {
-              method: "POST",
-              headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-              body: JSON.stringify(ch),
-            });
-          } catch (e1) {
+        if (_historyTableAvailable !== false) {
+          for (const ch of hChunks) {
+            const targetEp = _historyTableEndpoint || "/CalibrationHistory";
             try {
-              await request("/calibration_history", {
+              await request(targetEp, {
                 method: "POST",
                 headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
                 body: JSON.stringify(ch),
               });
-            } catch (e2) {
-              console.warn("[Supabase Sync] Batch history insert failed:", e2);
+              _historyTableAvailable = true;
+              _historyTableEndpoint = targetEp;
+            } catch (e1) {
+              const err1 = String(e1 && e1.message ? e1.message : "");
+              if (err1.includes("404") || err1.includes("PGRST205") || err1.includes("schema cache")) {
+                try {
+                  await request("/calibration_history", {
+                    method: "POST",
+                    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+                    body: JSON.stringify(ch),
+                  });
+                  _historyTableAvailable = true;
+                  _historyTableEndpoint = "/calibration_history";
+                } catch (e2) {
+                  _historyTableAvailable = false;
+                }
+              }
             }
           }
         }
@@ -1341,6 +1370,88 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
   }
 
   // ----------------------------------------------------------
+  // Exact Date Normalization & Matching Utilities (ISO/IEC 17025)
+  // ----------------------------------------------------------
+  function normalizeDateUniform(dateStr) {
+    if (!dateStr) return "";
+    const str = String(dateStr).trim();
+    if (!str || str === "-" || str === "null" || str === "undefined") return "";
+
+    // 1. Check YYYY-MM-DD
+    const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+    if (isoMatch) {
+      let y = parseInt(isoMatch[1], 10);
+      const m = String(parseInt(isoMatch[2], 10)).padStart(2, "0");
+      const d = String(parseInt(isoMatch[3], 10)).padStart(2, "0");
+      if (y > 2400) y -= 543; // Buddhist Era conversion
+      return `${y}-${m}-${d}`;
+    }
+
+    // 2. Check DD/MM/YYYY or DD-MM-YYYY
+    const dmyMatch = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+    if (dmyMatch) {
+      const d = String(parseInt(dmyMatch[1], 10)).padStart(2, "0");
+      const m = String(parseInt(dmyMatch[2], 10)).padStart(2, "0");
+      let y = parseInt(dmyMatch[3], 10);
+      if (y < 100) y = y < 50 ? 2000 + y : 1900 + y;
+      if (y > 2400) y -= 543;
+      return `${y}-${m}-${d}`;
+    }
+
+    // 3. Check English/Thai month names e.g. "20-Jun-26", "22-Sep-2026", "15 ม.ค. 2569"
+    const monthMap = {
+      jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+      jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12",
+      "ม.ค.": "01", "ก.พ.": "02", "มี.ค.": "03", "เม.ย.": "04", "พ.ค.": "05", "มิ.ย.": "06",
+      "ก.ค.": "07", "ส.ค.": "08", "ก.ย.": "09", "ต.ค.": "10", "พ.ย.": "11", "ธ.ค.": "12",
+      "มกราคม": "01", "กุมภาพันธ์": "02", "มีนาคม": "03", "เมษายน": "04", "พฤษภาคม": "05", "มิถุนายน": "06",
+      "กรกฎาคม": "07", "สิงหาคม": "08", "กันยายน": "09", "ตุลาคม": "10", "พฤศจิกายน": "11", "ธันวาคม": "12"
+    };
+
+    const textMatch = str.match(/^(\d{1,2})[-/.\s]+([A-Za-zก-๙.]+)[-/.\s]+(\d{2,4})/);
+    if (textMatch) {
+      const d = String(parseInt(textMatch[1], 10)).padStart(2, "0");
+      const mKey = textMatch[2].toLowerCase().replace(/[^a-zก-๙.]/g, "").substring(0, 3);
+      const m = monthMap[mKey] || monthMap[textMatch[2].toLowerCase()] || "01";
+      let y = parseInt(textMatch[3], 10);
+      if (y < 100) y = y < 50 ? 2000 + y : 1900 + y;
+      if (y > 2400) y -= 543;
+      return `${y}-${m}-${d}`;
+    }
+
+    // 4. Check Excel numeric serial date (e.g. 45000)
+    if (/^\d{5}$/.test(str)) {
+      const serial = parseInt(str, 10);
+      const dateObj = new Date((serial - 25569) * 86400 * 1000);
+      if (!isNaN(dateObj.getTime())) {
+        const y = dateObj.getUTCFullYear();
+        const m = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getUTCDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+    }
+
+    // 5. Fallback date parse
+    const parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+      const y = parsed.getFullYear();
+      const m = String(parsed.getMonth() + 1).padStart(2, "0");
+      const d = String(parsed.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    return str;
+  }
+
+  function isSameDate(d1, d2) {
+    if (!d1 && !d2) return true;
+    if (!d1 || !d2) return false;
+    const n1 = normalizeDateUniform(d1);
+    const n2 = normalizeDateUniform(d2);
+    return n1 === n2 || String(d1).trim().toLowerCase() === String(d2).trim().toLowerCase();
+  }
+
+  // ----------------------------------------------------------
   // Dedicated File Storage & Decoupled Linker (qap_files)
   // แยกเก็บไฟล์ PDF ลงตาราง qap_files ต่างหาก ไม่เก็บซ้ำซ้อนใน data (JSONB)
   // ----------------------------------------------------------
@@ -1350,6 +1461,7 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     instrumentId,
     codeNo,
     certNo = "",
+    calDate = "",
     fileName = "",
     fileSize = 0,
     fileUrl = "",
@@ -1359,13 +1471,16 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     try {
       const cleanInstId = String(instrumentId || "").trim();
       const cleanCodeNo = String(codeNo || "").trim();
-      const fileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}`;
+      const cleanCertNo = String(certNo || "").trim();
+      const normDate = normalizeDateUniform(calDate);
+      const certSlug = cleanCertNo ? cleanCertNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (normDate ? normDate.replace(/[^0-9]/g, "") : "");
+      const fileId = `file_${cleanCodeNo ? cleanCodeNo.replace(/[^a-zA-Z0-9_-]/g, "_") : (cleanInstId || Date.now())}${certSlug ? "_" + certSlug : ""}`;
 
       const payload = {
         id: fileId,
         instrument_id: cleanInstId || null,
         code_no: cleanCodeNo,
-        cert_no: String(certNo || "").trim(),
+        cert_no: cleanCertNo,
         file_name: String(fileName || "").trim(),
         file_size: parseByteSize(fileSize),
         file_url: String(fileUrl).trim(),
@@ -1373,16 +1488,44 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         updated_at: new Date().toISOString(),
       };
 
-      await request(`/${FILES_TABLE}`, {
-        method: "POST",
-        headers: {
-          Prefer: "resolution=merge-duplicates,return=minimal",
-        },
-        body: JSON.stringify(payload),
-      });
+      const sendPayload = async (dataObj) => {
+        try {
+          await request(`/${FILES_TABLE}`, {
+            method: "POST",
+            headers: {
+              Prefer: "resolution=merge-duplicates,return=minimal",
+            },
+            body: JSON.stringify(dataObj),
+          });
+        } catch (postErr) {
+          const errMsg = String(postErr.message || "");
+          const match = errMsg.match(/Could not find the '([^']+)' column/);
+          if (match && match[1] && dataObj[match[1]] !== undefined) {
+            const retryObj = { ...dataObj };
+            delete retryObj[match[1]];
+            await request(`/${FILES_TABLE}`, {
+              method: "POST",
+              headers: {
+                Prefer: "resolution=merge-duplicates,return=minimal",
+              },
+              body: JSON.stringify(retryObj),
+            });
+            return;
+          }
+          throw postErr;
+        }
+      };
+
+      await sendPayload(payload);
+
+      // In-memory representation retains cal_date for ultra-accurate client-side linking
+      const cacheObj = { ...payload, cal_date: normDate || null };
 
       // Update in-memory _filesCache in real time
-      const existingIdx = _filesCache.findIndex(f => f.id === payload.id || (f.code_no && payload.code_no && f.code_no.trim() === payload.code_no.trim() && f.cert_no && payload.cert_no && f.cert_no.trim() === payload.cert_no.trim()));
+      const existingIdx = _filesCache.findIndex(f => f.id === payload.id || (
+        f.code_no && payload.code_no && f.code_no.trim().toUpperCase() === payload.code_no.trim().toUpperCase() &&
+        f.cert_no && payload.cert_no && f.cert_no.trim().toUpperCase() === payload.cert_no.trim().toUpperCase()
+      ));
       if (existingIdx >= 0) {
         _filesCache[existingIdx] = { ..._filesCache[existingIdx], ...payload };
       } else {
@@ -1392,15 +1535,17 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         window.qapSupabase._filesCache = _filesCache;
       }
 
-      // Update _historyCache for this instrument
+      // Update _historyCache for this instrument referencing exact cert and date
       const histLists = [];
       if (cleanCodeNo && _historyCache.has(cleanCodeNo)) histLists.push(_historyCache.get(cleanCodeNo));
       if (cleanInstId && _historyCache.has(cleanInstId)) histLists.push(_historyCache.get(cleanInstId));
       histLists.forEach(hist => {
         if (Array.isArray(hist)) {
-          const certSearch = String(payload.cert_no || "").trim().toUpperCase();
+          const certSearch = cleanCertNo.toUpperCase();
           hist.forEach(h => {
-            if ((certSearch && h.certNo && String(h.certNo).trim().toUpperCase() === certSearch) || !h.pdfUrl) {
+            const hCert = String(h.certNo || h.cert_no || "").trim().toUpperCase();
+            const dateMatch = normDate && isSameDate(h.calDate || h.cal_date, normDate);
+            if ((certSearch && hCert === certSearch) || (dateMatch && !h.pdfUrl) || (hist.length === 1 && !h.pdfUrl)) {
               h.pdfUrl = payload.file_url;
               h.certFileName = payload.file_name || h.certFileName;
               h.fileSize = payload.file_size || h.fileSize;
@@ -1417,19 +1562,48 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
   }
 
   // Delete file record from qap_files table
-  async function deleteFileRecord(instrumentId, codeNo, fileId) {
-    if (!isConfigured() || !config.autoSync) return { ok: false, skipped: true };
+  async function deleteFileRecord(instIdOrOpts, codeNoArg, fileIdArg, certNoArg) {
+    let instrumentId = "";
+    let codeNo = "";
+    let fileId = "";
+    let certNo = "";
+    let fileUrl = "";
+
+    if (instIdOrOpts && typeof instIdOrOpts === "object") {
+      instrumentId = String(instIdOrOpts.instrumentId || instIdOrOpts.instrument_id || instIdOrOpts.id || "").trim();
+      codeNo = String(instIdOrOpts.codeNo || instIdOrOpts.code_no || "").trim();
+      fileId = String(instIdOrOpts.fileId || instIdOrOpts.file_id || "").trim();
+      certNo = String(instIdOrOpts.certNo || instIdOrOpts.cert_no || "").trim();
+      fileUrl = String(instIdOrOpts.fileUrl || instIdOrOpts.file_url || "").trim();
+    } else {
+      instrumentId = String(instIdOrOpts || "").trim();
+      codeNo = String(codeNoArg || "").trim();
+      fileId = String(fileIdArg || "").trim();
+      certNo = String(certNoArg || "").trim();
+    }
+
     try {
       // Clean up in-memory _filesCache
       _filesCache = _filesCache.filter(f => {
         if (fileId && f.id === fileId) return false;
-        if (instrumentId && f.instrument_id === String(instrumentId).trim()) return false;
-        if (codeNo && f.code_no && f.code_no.trim().toUpperCase() === String(codeNo).trim().toUpperCase()) return false;
+        if (fileUrl && (f.file_url === fileUrl || f.url === fileUrl)) return false;
+        if (certNo && f.cert_no && String(f.cert_no).trim().toUpperCase() === certNo.toUpperCase()) {
+          if (!codeNo && !instrumentId) return false;
+          if (codeNo && f.code_no && String(f.code_no).trim().toUpperCase() === codeNo.toUpperCase()) return false;
+          if (instrumentId && f.instrument_id && String(f.instrument_id).trim() === instrumentId) return false;
+        }
+        if (!certNo && !fileId && !fileUrl) {
+          if (instrumentId && f.instrument_id === instrumentId) return false;
+          if (codeNo && f.code_no && String(f.code_no).trim().toUpperCase() === codeNo.toUpperCase()) return false;
+        }
         return true;
       });
       if (typeof window !== "undefined" && window.qapSupabase) {
         window.qapSupabase._filesCache = _filesCache;
       }
+
+      if (!isConfigured() || !config.autoSync) return { ok: true };
+
       const deleteCalls = [];
       if (fileId) {
         deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileId)}`, {
@@ -1437,33 +1611,38 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           headers: { Prefer: "return=minimal" },
         }).catch(() => {}));
       }
-      if (instrumentId) {
-        const cleanInstId = String(instrumentId).trim();
-        deleteCalls.push(request(`/${FILES_TABLE}?instrument_id=eq.${encodeURIComponent(cleanInstId)}`, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" },
-        }).catch(() => {}));
-        const fileIdInst = `file_${cleanInstId.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
-        deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileIdInst)}`, {
+      if (certNo && (codeNo || instrumentId)) {
+        const cParam = codeNo ? `&code_no=eq.${encodeURIComponent(codeNo)}` : "";
+        deleteCalls.push(request(`/${FILES_TABLE}?cert_no=eq.${encodeURIComponent(certNo)}${cParam}`, {
           method: "DELETE",
           headers: { Prefer: "return=minimal" },
         }).catch(() => {}));
       }
-      if (codeNo) {
-        const cleanCode = String(codeNo).trim();
-        deleteCalls.push(request(`/${FILES_TABLE}?code_no=eq.${encodeURIComponent(cleanCode)}`, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" },
-        }).catch(() => {}));
-        deleteCalls.push(request(`/${FILES_TABLE}?code_no=ilike.${encodeURIComponent(cleanCode)}`, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" },
-        }).catch(() => {}));
-        const fileIdCode = `file_${cleanCode.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
-        deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileIdCode)}`, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" },
-        }).catch(() => {}));
+      if (!certNo && !fileId && !fileUrl) {
+        if (instrumentId) {
+          const cleanInstId = String(instrumentId).trim();
+          deleteCalls.push(request(`/${FILES_TABLE}?instrument_id=eq.${encodeURIComponent(cleanInstId)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+          }).catch(() => {}));
+          const fileIdInst = `file_${cleanInstId.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+          deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileIdInst)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+          }).catch(() => {}));
+        }
+        if (codeNo) {
+          const cleanCode = String(codeNo).trim();
+          deleteCalls.push(request(`/${FILES_TABLE}?code_no=eq.${encodeURIComponent(cleanCode)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+          }).catch(() => {}));
+          const fileIdCode = `file_${cleanCode.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+          deleteCalls.push(request(`/${FILES_TABLE}?id=eq.${encodeURIComponent(fileIdCode)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+          }).catch(() => {}));
+        }
       }
       await Promise.all(deleteCalls);
       return { ok: true };
@@ -1486,20 +1665,27 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
   }
 
   // Client-side dynamic linker: links instruments with files from qap_files
-  // ใช้หน้าเวปเป็นตัวดึงข้อมูล แล้วเชื่อมข้อมูลให้ตรงกันเองว่า เครื่องมือไหน ไฟล์ไหน
+  // ใช้หน้าเวปเป็นตัวดึงข้อมูล แล้วเชื่อมข้อมูลให้ตรงตามรายการโดยอ้างอิงจากวันที่และเลขที่ใบรับรองอย่างละเอียด
   function linkFilesToInstruments(instruments = [], fileRows = []) {
     if (!Array.isArray(instruments) || instruments.length === 0) return instruments;
     if (!Array.isArray(fileRows)) fileRows = [];
 
-    const fileByInstId = new Map();
-    const fileByCodeNo = new Map();
     const fileByCertNo = new Map();
+    const filesByCodeNo = new Map();
+    const fileByInstId = new Map();
 
     for (const f of fileRows) {
       if (!f) continue;
-      if (f.instrument_id) fileByInstId.set(String(f.instrument_id).trim(), f);
-      if (f.code_no) fileByCodeNo.set(String(f.code_no).trim().toUpperCase(), f);
-      if (f.cert_no) fileByCertNo.set(String(f.cert_no).trim().toUpperCase(), f);
+      const cNo = f.code_no ? String(f.code_no).trim().toUpperCase() : "";
+      const certNo = f.cert_no ? String(f.cert_no).trim().toUpperCase() : "";
+      const instId = f.instrument_id ? String(f.instrument_id).trim() : "";
+
+      if (certNo) fileByCertNo.set(certNo, f);
+      if (instId) fileByInstId.set(instId, f);
+      if (cNo) {
+        if (!filesByCodeNo.has(cNo)) filesByCodeNo.set(cNo, []);
+        filesByCodeNo.get(cNo).push(f);
+      }
     }
 
     for (const inst of instruments) {
@@ -1507,51 +1693,69 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       const instId = String(inst.id || "").trim();
       const codeNo = String(inst.codeNo || inst.code_no || "").trim().toUpperCase();
       const certNo = String(inst.certNo || inst.cert_no || "").trim().toUpperCase();
+      const codeFiles = (codeNo ? filesByCodeNo.get(codeNo) : null) || (instId ? [fileByInstId.get(instId)].filter(Boolean) : []);
 
-      const matchedFile = (codeNo ? fileByCodeNo.get(codeNo) : null) || (instId ? fileByInstId.get(instId) : null) || (certNo ? fileByCertNo.get(certNo) : null);
-      if (matchedFile) {
-        const fileUrl = matchedFile.file_url || null;
-        const fileName = matchedFile.file_name || null;
-        const fileSize = matchedFile.file_size || null;
+      const usedFiles = new Set();
 
-        inst.pdfUrl = fileUrl;
-        inst.certFileData = fileUrl;
-        inst.certFileName = fileName;
-        inst.fileSize = fileSize;
+      // Link each cycle in history to its exact matching certificate or date
+      const linkList = (list) => {
+        if (!Array.isArray(list) || list.length === 0) return;
+        const sorted = [...list].sort((a, b) => new Date(normalizeDateUniform(b.calDate || b.cal_date || 0)).getTime() - new Date(normalizeDateUniform(a.calDate || a.cal_date || 0)).getTime());
+        const latest = sorted[0];
 
-        const linkList = (list) => {
-          if (!Array.isArray(list) || list.length === 0) return;
-          const sorted = [...list].sort((a, b) => new Date(b.calDate || b.cal_date || 0).getTime() - new Date(a.calDate || a.cal_date || 0).getTime());
-          const latest = sorted[0];
-          const usedFileKeys = new Set();
-          for (const h of sorted) {
-            if (!h) continue;
-            const isLatest = (h === latest);
-            if (isLatest) {
-              if (!h.pdfUrl && fileUrl) {
-                h.pdfUrl = fileUrl;
-                h.certFileData = fileUrl;
-                h.certFileName = fileName;
-                h.fileSize = fileSize;
-                if (matchedFile) usedFileKeys.add(matchedFile.id || matchedFile.file_url);
-              }
-            } else {
-              // Older cycle: ONLY link if distinct file exists for it
-              const hCert = String(h.certNo || h.cert_no || "").trim().toUpperCase();
-              const hFile = hCert ? fileByCertNo.get(hCert) : null;
-              if (hFile && !usedFileKeys.has(hFile.id || hFile.file_url) && fileRows.length > 1) {
-                usedFileKeys.add(hFile.id || hFile.file_url);
-                h.pdfUrl = hFile.file_url;
-                h.certFileData = hFile.file_url;
-                h.certFileName = hFile.file_name;
-                h.fileSize = hFile.file_size;
-              }
-            }
+        for (const h of sorted) {
+          if (!h) continue;
+          if (h.pdfUrl || h.certFileData) {
+            continue; // Already has file attached
           }
-        };
+          const hCert = String(h.certNo || h.cert_no || "").trim().toUpperCase();
+          const hDate = normalizeDateUniform(h.calDate || h.cal_date);
 
-        linkList(inst.history);
-        linkList(inst.calibrationHistory);
+          let matched = null;
+          if (hCert) {
+            matched = codeFiles.find(cf => !usedFiles.has(cf.id || cf.file_url) && cf.cert_no && String(cf.cert_no).trim().toUpperCase() === hCert) || fileByCertNo.get(hCert);
+          }
+          if (!matched && hDate) {
+            matched = codeFiles.find(cf => !usedFiles.has(cf.id || cf.file_url) && cf.cal_date && isSameDate(cf.cal_date, hDate));
+          }
+          if (!matched && codeFiles.length > 0) {
+            matched = codeFiles.find(cf => !usedFiles.has(cf.id || cf.file_url));
+          }
+
+          if (matched) {
+            usedFiles.add(matched.id || matched.file_url);
+            h.pdfUrl = matched.file_url || h.pdfUrl;
+            h.certFileData = matched.file_url || h.certFileData;
+            h.certFileName = matched.file_name || h.certFileName;
+            h.fileSize = matched.file_size || h.fileSize;
+          }
+        }
+      };
+
+      linkList(inst.history);
+      linkList(inst.calibrationHistory);
+
+      // Now set top-level instrument file based on top/latest calibration cycle
+      const instHistory = (Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0)
+        ? inst.calibrationHistory
+        : (Array.isArray(inst.history) && inst.history.length > 0 ? inst.history : []);
+
+      const sortedHist = [...instHistory].sort((a, b) => new Date(normalizeDateUniform(b.calDate || b.cal_date || 0)).getTime() - new Date(normalizeDateUniform(a.calDate || a.cal_date || 0)).getTime());
+      const topCycle = sortedHist[0];
+
+      if (topCycle && (topCycle.pdfUrl || topCycle.certFileData)) {
+        inst.pdfUrl = topCycle.pdfUrl || topCycle.certFileData;
+        inst.certFileData = topCycle.pdfUrl || topCycle.certFileData;
+        inst.certFileName = topCycle.certFileName || inst.certFileName || null;
+        inst.fileSize = topCycle.fileSize || inst.fileSize || null;
+      } else if (!inst.pdfUrl && !inst.certFileData) {
+        const directFile = (certNo ? fileByCertNo.get(certNo) : null) || (codeFiles.length > 0 ? codeFiles[0] : null) || (instId ? fileByInstId.get(instId) : null);
+        if (directFile) {
+          inst.pdfUrl = directFile.file_url;
+          inst.certFileData = directFile.file_url;
+          inst.certFileName = directFile.file_name;
+          inst.fileSize = directFile.file_size;
+        }
       }
     }
 
@@ -1755,18 +1959,29 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         }
       }
       let rawRecords = [];
-      const endpoints = [
-        "/CalibrationHistory?order=cal_date.desc,created_at.desc&limit=10000",
-        "/calibration_history?order=cal_date.desc,created_at.desc&limit=10000"
-      ];
-      for (const ep of endpoints) {
-        try {
-          const res = await request(ep);
-          if (Array.isArray(res) && res.length > 0) {
-            rawRecords = res;
-            break;
+      if (_historyTableAvailable !== false) {
+        const endpoints = _historyTableEndpoint 
+          ? [_historyTableEndpoint + "?order=cal_date.desc,created_at.desc&limit=10000"]
+          : [
+              "/CalibrationHistory?order=cal_date.desc,created_at.desc&limit=10000",
+              "/calibration_history?order=cal_date.desc,created_at.desc&limit=10000"
+            ];
+        for (const ep of endpoints) {
+          try {
+            const res = await request(ep);
+            if (Array.isArray(res)) {
+              rawRecords = res;
+              _historyTableAvailable = true;
+              _historyTableEndpoint = ep.split("?")[0];
+              break;
+            }
+          } catch (e) {
+            const errStr = String(e && e.message ? e.message : "");
+            if (errStr.includes("404") || errStr.includes("PGRST205") || errStr.includes("schema cache")) {
+              _historyTableAvailable = false;
+            }
           }
-        } catch (e) {}
+        }
       }
 
       _historyCache.clear();
@@ -1954,20 +2169,39 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
 
       if (!row) return { ok: false, message: "Invalid instrument data" };
 
-      // Save file record to qap_files table separately (decoupled from data jsonb)
-      const hasPdf = !!(inst.pdfUrl || inst.certFileData);
-      if (hasPdf) {
+      // Save all cycle files and root file to qap_files separately
+      const rawHist = Array.isArray(inst.calibrationHistory) && inst.calibrationHistory.length > 0
+        ? inst.calibrationHistory
+        : Array.isArray(inst.history) && inst.history.length > 0
+        ? inst.history
+        : [];
+
+      for (const h of rawHist) {
+        if (h && (h.pdfUrl || h.certFileData)) {
+          await saveFileRecord({
+            instrumentId: inst.id,
+            codeNo: inst.codeNo,
+            certNo: h.certNo || inst.certNo,
+            calDate: h.calDate || h.cal_date || inst.calDate,
+            fileName: h.certFileName || inst.certFileName,
+            fileSize: h.fileSize || inst.fileSize,
+            fileUrl: h.pdfUrl || h.certFileData,
+            tabType: effectiveTab,
+          }).catch(() => {});
+        }
+      }
+
+      if (inst.pdfUrl || inst.certFileData) {
         await saveFileRecord({
           instrumentId: inst.id,
           codeNo: inst.codeNo,
           certNo: inst.certNo,
+          calDate: inst.calDate,
           fileName: inst.certFileName,
           fileSize: inst.fileSize,
           fileUrl: inst.pdfUrl || inst.certFileData,
           tabType: effectiveTab,
         }).catch(err => console.warn("[Supabase Sync] File record save warning:", err));
-      } else if (inst.id || inst.codeNo) {
-        await deleteFileRecord(inst.id, inst.codeNo).catch(() => {});
       }
 
       // Save instrument row with clean data jsonb
@@ -2317,12 +2551,17 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     let source = "none";
 
     // 8.1 Try querying public.CalibrationHistory / calibration_history table
-    if (isConfigured()) {
-      const endpointsToTry = [
-        codeNo ? `/CalibrationHistory?or=(code_no.eq.${encodeURIComponent(codeNo)},codeNo.eq.${encodeURIComponent(codeNo)})&order=cal_date.desc,created_at.desc` : null,
-        instId ? `/CalibrationHistory?instrument_id=eq.${encodeURIComponent(instId)}&order=cal_date.desc,created_at.desc` : null,
-        codeNo ? `/calibration_history?or=(code_no.eq.${encodeURIComponent(codeNo)},instrument_id.eq.${encodeURIComponent(instId)})&order=cal_date.desc,created_at.desc` : null,
-      ].filter(Boolean);
+    if (isConfigured() && _historyTableAvailable !== false) {
+      const endpointsToTry = _historyTableEndpoint
+        ? [
+            codeNo ? `${_historyTableEndpoint}?or=(code_no.eq.${encodeURIComponent(codeNo)},codeNo.eq.${encodeURIComponent(codeNo)})&order=cal_date.desc,created_at.desc` : null,
+            instId ? `${_historyTableEndpoint}?instrument_id=eq.${encodeURIComponent(instId)}&order=cal_date.desc,created_at.desc` : null,
+          ].filter(Boolean)
+        : [
+            codeNo ? `/CalibrationHistory?or=(code_no.eq.${encodeURIComponent(codeNo)},codeNo.eq.${encodeURIComponent(codeNo)})&order=cal_date.desc,created_at.desc` : null,
+            instId ? `/CalibrationHistory?instrument_id=eq.${encodeURIComponent(instId)}&order=cal_date.desc,created_at.desc` : null,
+            codeNo ? `/calibration_history?or=(code_no.eq.${encodeURIComponent(codeNo)},instrument_id.eq.${encodeURIComponent(instId)})&order=cal_date.desc,created_at.desc` : null,
+          ].filter(Boolean);
 
       for (const ep of endpointsToTry) {
         try {
@@ -2345,11 +2584,16 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
               createdAt: r.created_at || r.createdAt || null,
               sourceTable: "CalibrationHistory (Cloud Supabase)",
             }));
+            _historyTableAvailable = true;
+            _historyTableEndpoint = ep.split("?")[0];
             source = "CalibrationHistory (Supabase Cloud Table)";
             break;
           }
         } catch (e) {
-          // Table may not exist yet in schema cache, proceed to instrument query
+          const errStr = String(e && e.message ? e.message : "");
+          if (errStr.includes("404") || errStr.includes("PGRST205") || errStr.includes("schema cache")) {
+            _historyTableAvailable = false;
+          }
         }
       }
 
@@ -2489,7 +2733,7 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       }
     }
 
-    const sorted = records.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+    const sorted = records.sort((a, b) => new Date(normalizeDateUniform(b.calDate || 0)).getTime() - new Date(normalizeDateUniform(a.calDate || 0)).getTime());
     if (codeNo && sorted.length > 0) _historyCache.set(codeNo, sorted);
     if (instId && sorted.length > 0) _historyCache.set(instId, sorted);
 
@@ -2508,6 +2752,8 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     if (!inst || !record) return { ok: false, error: "Missing instrument or record" };
     const codeNo = String(inst.codeNo || inst.code_no || "").trim();
     const instId = String(inst.id || "").trim();
+    const normCalDate = normalizeDateUniform(record.calDate);
+    const normDueDate = normalizeDateUniform(record.dueDate);
     const recordId = record.id || `hist_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
     const newHistItem = {
@@ -2515,9 +2761,9 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       instrument_id: instId,
       code_no: codeNo,
       instrument_name: inst.instrumentName || "",
-      cert_no: record.certNo || `CERT-${codeNo}-${(record.calDate || "").replace(/-/g, "")}`,
-      cal_date: record.calDate || "",
-      due_date: record.dueDate || "",
+      cert_no: record.certNo || `CERT-${codeNo}-${normCalDate ? normCalDate.replace(/-/g, "") : Date.now()}`,
+      cal_date: normCalDate || record.calDate || "",
+      due_date: normDueDate || record.dueDate || "",
       calibrated_by: record.calibratedBy || inst.labCal || "Internal QA",
       result: (record.result || "PASS").toUpperCase(),
       accuracy: record.accuracy || inst.accuracy || "",
@@ -2530,25 +2776,35 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     };
 
     let tableSaved = false;
-    if (isConfigured()) {
-      // 9.1 Attempt insertion into CalibrationHistory table
+    if (isConfigured() && _historyTableAvailable !== false) {
+      const targetEp = _historyTableEndpoint || "/CalibrationHistory";
       try {
-        await request("/CalibrationHistory", {
+        await request(targetEp, {
           method: "POST",
           headers: { Prefer: "return=representation" },
           body: JSON.stringify(newHistItem),
         });
         tableSaved = true;
+        _historyTableAvailable = true;
+        _historyTableEndpoint = targetEp;
       } catch (e1) {
-        try {
-          await request("/calibration_history", {
-            method: "POST",
-            headers: { Prefer: "return=representation" },
-            body: JSON.stringify(newHistItem),
-          });
-          tableSaved = true;
-        } catch (e2) {}
+        const err1 = String(e1 && e1.message ? e1.message : "");
+        if (err1.includes("404") || err1.includes("PGRST205") || err1.includes("schema cache")) {
+          try {
+            await request("/calibration_history", {
+              method: "POST",
+              headers: { Prefer: "return=representation" },
+              body: JSON.stringify(newHistItem),
+            });
+            tableSaved = true;
+            _historyTableAvailable = true;
+            _historyTableEndpoint = "/calibration_history";
+          } catch (e2) {
+            _historyTableAvailable = false;
+          }
+        }
       }
+    }
 
       // 9.2 Also sync to instrument data jsonb in main table
       try {
@@ -2574,27 +2830,32 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           ? inst.history
           : [];
         const combined = [...cachedList, ...instHist];
-        const seen = new Set();
         const deduped = [];
         for (const h of combined) {
-          const key = h.id || `${h.calDate}_${h.certNo}`;
-          if (!seen.has(key) && h.id !== recordId && h.certNo !== normalizedItem.certNo) {
-            seen.add(key);
+          const isSame = (h.id && h.id === recordId) ||
+                         (h.certNo && normalizedItem.certNo && String(h.certNo).trim().toUpperCase() === String(normalizedItem.certNo).trim().toUpperCase()) ||
+                         (isSameDate(h.calDate, normalizedItem.calDate) && String(h.certNo || "").trim() === String(normalizedItem.certNo || "").trim());
+          if (!isSame) {
             deduped.push(h);
           }
         }
-        const updatedHist = [normalizedItem, ...deduped].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+        const updatedHist = [normalizedItem, ...deduped].sort((a, b) => new Date(normalizeDateUniform(b.calDate || 0)).getTime() - new Date(normalizeDateUniform(a.calDate || 0)).getTime());
 
         if (codeNo) _historyCache.set(codeNo, updatedHist);
         if (instId) _historyCache.set(instId, updatedHist);
 
+        const latestRec = updatedHist[0] || normalizedItem;
         const updatedInst = {
           ...inst,
-          calDate: record.calDate || inst.calDate,
-          dueDate: record.dueDate || inst.dueDate,
-          next_due_date: record.dueDate || inst.dueDate,
-          certNo: newHistItem.cert_no || inst.certNo,
-          calibratedBy: newHistItem.calibrated_by || inst.calibratedBy,
+          calDate: latestRec.calDate || record.calDate || inst.calDate,
+          dueDate: latestRec.dueDate || record.dueDate || inst.dueDate,
+          next_due_date: latestRec.dueDate || record.dueDate || inst.dueDate,
+          certNo: latestRec.certNo || newHistItem.cert_no || inst.certNo,
+          calibratedBy: latestRec.calibratedBy || newHistItem.calibrated_by || inst.calibratedBy,
+          pdfUrl: latestRec.pdfUrl || record.pdfUrl || inst.pdfUrl || null,
+          certFileData: latestRec.pdfUrl || record.pdfUrl || inst.certFileData || null,
+          certFileName: latestRec.certFileName || record.certFileName || null,
+          fileSize: latestRec.fileSize || record.fileSize || null,
           history: updatedHist,
           calibrationHistory: updatedHist,
         };
@@ -2610,6 +2871,7 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           instrumentId: instId,
           codeNo: codeNo,
           certNo: newHistItem.cert_no,
+          calDate: newHistItem.cal_date,
           fileName: record.certFileName || "certificate.pdf",
           fileSize: record.fileSize,
           fileUrl: record.pdfUrl,
@@ -2640,7 +2902,12 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         const updateCachedList = (key) => {
           if (!key) return;
           const currentList = _historyCache.get(key) || [];
-          const updatedList = [cacheItem, ...currentList.filter(item => item.id !== recordId)];
+          const filtered = currentList.filter(item => !(
+            (item.id && item.id === recordId) ||
+            (item.certNo && cacheItem.certNo && String(item.certNo).trim().toUpperCase() === String(cacheItem.certNo).trim().toUpperCase()) ||
+            (isSameDate(item.calDate, cacheItem.calDate) && String(item.certNo || "").trim() === String(cacheItem.certNo || "").trim())
+          ));
+          const updatedList = [cacheItem, ...filtered].sort((a, b) => new Date(normalizeDateUniform(b.calDate || 0)).getTime() - new Date(normalizeDateUniform(a.calDate || 0)).getTime());
           _historyCache.set(key, updatedList);
         };
 
@@ -2650,68 +2917,123 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         console.warn("[Supabase Cache Sync] Failed to update cache:", cacheErr);
       }
 
-      emitToast(`✓ บันทึกประวัติสอบเทียบของ ${codeNo} ลงฐานข้อมูล Supabase สำเร็จ`, "success");
+      emitToast(`✓ บันทึกประวัติสอบเทียบของ ${codeNo} (${newHistItem.cal_date || "-"}) สำเร็จ`, "success");
+      return { ok: true, record: newHistItem, tableSaved };
     }
 
-    return { ok: true, record: newHistItem, tableSaved };
-  }
+  // 10. Delete a calibration history record strictly by exact date and certNo reference
+  async function deleteCalibrationHistoryRecord(inst, recordIdOrItem, tabType = "calibration_all") {
+    if (!inst || !recordIdOrItem) return { ok: false, error: "Missing instrument or record ID" };
 
-  // 10. Delete a calibration history record
-  async function deleteCalibrationHistoryRecord(inst, recordId, tabType = "calibration_all") {
-    if (!inst || !recordId) return { ok: false, error: "Missing instrument or record ID" };
+    const recordId = typeof recordIdOrItem === "object" ? String(recordIdOrItem.id || "").trim() : String(recordIdOrItem).trim();
+    const certNo = typeof recordIdOrItem === "object" ? String(recordIdOrItem.certNo || recordIdOrItem.cert_no || "").trim() : "";
+    const calDate = typeof recordIdOrItem === "object" ? String(recordIdOrItem.calDate || recordIdOrItem.cal_date || "").trim() : "";
+    const pdfUrl = typeof recordIdOrItem === "object" ? String(recordIdOrItem.pdfUrl || recordIdOrItem.file_url || "").trim() : "";
+    const codeNo = String(inst.codeNo || inst.code_no || "").trim();
+    const instId = String(inst.id || "").trim();
+    const normCalDate = normalizeDateUniform(calDate);
 
-    if (isConfigured()) {
-      try {
-        await request(`/CalibrationHistory?id=eq.${encodeURIComponent(recordId)}`, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" }
-        });
-      } catch (e1) {
-        try {
-          await request(`/calibration_history?id=eq.${encodeURIComponent(recordId)}`, {
+    // 1. Delete from Supabase CalibrationHistory table
+    if (isConfigured() && _historyTableAvailable !== false) {
+      const targetEp = _historyTableEndpoint || "/CalibrationHistory";
+      const tryDelete = async (ep) => {
+        const calls = [];
+        if (recordId) {
+          calls.push(request(`${ep}?id=eq.${encodeURIComponent(recordId)}`, {
             method: "DELETE",
             headers: { Prefer: "return=minimal" }
-          });
-        } catch (e2) {}
-      }
+          }));
+        }
+        if (certNo && (codeNo || instId)) {
+          const cParam = codeNo ? `&code_no=eq.${encodeURIComponent(codeNo)}` : `&instrument_id=eq.${encodeURIComponent(instId)}`;
+          calls.push(request(`${ep}?cert_no=eq.${encodeURIComponent(certNo)}${cParam}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" }
+          }));
+        }
+        if (normCalDate && (codeNo || instId)) {
+          const cParam = codeNo ? `&code_no=eq.${encodeURIComponent(codeNo)}` : `&instrument_id=eq.${encodeURIComponent(instId)}`;
+          calls.push(request(`${ep}?cal_date=eq.${encodeURIComponent(normCalDate)}${cParam}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" }
+          }));
+        }
+        await Promise.all(calls);
+      };
 
-      // Update local memory cache and get updated list
-      let updatedHist = [];
       try {
-        const codeNo = String(inst.codeNo || inst.code_no || "").trim();
-        const instId = String(inst.id || "").trim();
-        const currentList = (codeNo && _historyCache.get(codeNo)) || (instId && _historyCache.get(instId)) || (
-          Array.isArray(inst.calibrationHistory) ? inst.calibrationHistory : Array.isArray(inst.history) ? inst.history : []
-        );
-        updatedHist = currentList.filter(item => item.id !== recordId);
-        if (codeNo) _historyCache.set(codeNo, updatedHist);
-        if (instId) _historyCache.set(instId, updatedHist);
-      } catch (cacheErr) {
-        console.warn("[Supabase Cache Sync] Failed to delete from cache:", cacheErr);
+        await tryDelete(targetEp);
+        _historyTableAvailable = true;
+        _historyTableEndpoint = targetEp;
+      } catch (e1) {
+        const err1 = String(e1 && e1.message ? e1.message : "");
+        if (err1.includes("404") || err1.includes("PGRST205") || err1.includes("schema cache")) {
+          try {
+            await tryDelete("/calibration_history");
+            _historyTableAvailable = true;
+            _historyTableEndpoint = "/calibration_history";
+          } catch (e2) {
+            _historyTableAvailable = false;
+          }
+        }
       }
-
-      // Sync updated history and latest cycle to instrument table
-      try {
-        const latestCycle = updatedHist[0] || null;
-        const updatedInst = {
-          ...inst,
-          history: updatedHist,
-          calibrationHistory: updatedHist,
-          ...(latestCycle ? {
-            calDate: latestCycle.calDate || inst.calDate,
-            dueDate: latestCycle.dueDate || inst.dueDate,
-            next_due_date: latestCycle.dueDate || inst.dueDate,
-            certNo: latestCycle.certNo || inst.certNo,
-            calibratedBy: latestCycle.calibratedBy || inst.calibratedBy,
-          } : {})
-        };
-        await upsertInstrument(updatedInst, tabType);
-      } catch (e3) {}
-
-      emitToast(`🗑️ ลบรายการประวัติการสอบเทียบเรียบร้อย`, "info");
     }
 
-    return { ok: true };
+    // 2. Clean up associated file in qap_files & _filesCache strictly for this cycle
+    try {
+      await deleteFileRecord({
+        instrumentId: instId,
+        codeNo: codeNo,
+        certNo: certNo,
+        calDate: normCalDate,
+        fileUrl: pdfUrl
+      });
+    } catch (fErr) {}
+
+    // 3. Update local memory cache and get updated list
+    let updatedHist = [];
+    try {
+      const currentList = (codeNo && _historyCache.get(codeNo)) || (instId && _historyCache.get(instId)) || (
+        Array.isArray(inst.calibrationHistory) ? inst.calibrationHistory : Array.isArray(inst.history) ? inst.history : []
+      );
+      updatedHist = currentList.filter(item => {
+        if (recordId && item.id && item.id === recordId) return false;
+        const sameCert = certNo && (item.certNo || item.cert_no) && String(item.certNo || item.cert_no).trim().toUpperCase() === certNo.toUpperCase();
+        const sameDate = normCalDate && isSameDate(item.calDate || item.cal_date, normCalDate);
+        if (sameCert && sameDate) return false;
+        if (sameCert && !calDate) return false;
+        if (sameDate && !certNo) return false;
+        return true;
+      }).sort((a, b) => new Date(normalizeDateUniform(b.calDate || b.cal_date || 0)).getTime() - new Date(normalizeDateUniform(a.calDate || a.cal_date || 0)).getTime());
+
+      if (codeNo) _historyCache.set(codeNo, updatedHist);
+      if (instId) _historyCache.set(instId, updatedHist);
+    } catch (cacheErr) {
+      console.warn("[Supabase Cache Sync] Failed to delete from cache:", cacheErr);
+    }
+
+    // 4. Sync updated history and latest cycle to instrument table
+    try {
+      const latestCycle = updatedHist[0] || null;
+      const updatedInst = {
+        ...inst,
+        history: updatedHist,
+        calibrationHistory: updatedHist,
+        calDate: latestCycle ? (latestCycle.calDate || latestCycle.cal_date || inst.calDate || "") : "",
+        dueDate: latestCycle ? (latestCycle.dueDate || latestCycle.due_date || inst.dueDate || "") : "",
+        next_due_date: latestCycle ? (latestCycle.dueDate || latestCycle.due_date || inst.dueDate || "") : "",
+        certNo: latestCycle ? (latestCycle.certNo || latestCycle.cert_no || "") : "",
+        calibratedBy: latestCycle ? (latestCycle.calibratedBy || latestCycle.calibrated_by || inst.calibratedBy || "") : "",
+        pdfUrl: latestCycle ? (latestCycle.pdfUrl || latestCycle.certFileData || latestCycle.file_url || null) : null,
+        certFileData: latestCycle ? (latestCycle.certFileData || latestCycle.pdfUrl || latestCycle.file_url || null) : null,
+        certFileName: latestCycle ? (latestCycle.certFileName || latestCycle.file_name || null) : null,
+        fileSize: latestCycle ? (latestCycle.fileSize || latestCycle.file_size || null) : null,
+      };
+      await upsertInstrument(updatedInst, tabType);
+    } catch (e3) {}
+
+    emitToast(`🗑️ ลบรายการประวัติการสอบเทียบรอบวันที่ ${calDate || "-"} เรียบร้อย`, "info");
+    return { ok: true, updatedHistory: updatedHist };
   }
 
   window.qapSupabase = {

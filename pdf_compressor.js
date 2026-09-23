@@ -421,10 +421,18 @@
     if (!file || !instrument) return;
 
     try {
-      showCompressionToast(`เริ่มบีบอัดไฟล์ ${file.name}...`, 'loading');
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(15, 1, 1, `กำลังบีบอัดไฟล์ PDF: ${file.name}...`, false);
+      } else {
+        showCompressionToast(`เริ่มบีบอัดไฟล์ ${file.name}...`, 'loading');
+      }
       
       const result = await compressPdfFile(file);
       const base64 = result.dataUrl;
+
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(45, 1, 1, `ลดขนาดไฟล์เหลือ ${formatFileSize(result.compressedSize)} (ประหยัดได้ ${result.ratio || '80%'}) • กำลังเตรียมส่งข้อมูล...`, false);
+      }
 
       const histList = (Array.isArray(instrument.history) && instrument.history.length > 0)
         ? instrument.history
@@ -466,7 +474,11 @@
       // 2. Direct Supabase Cloud Sync
       if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
         const effectiveTab = targetTab || instrument.tabType || 'calibration_all';
-        showCompressionToast(`กำลังบันทึกไฟล์ลงตาราง qap_files...`, 'loading');
+        if (window.showQapImportAnimation) {
+          window.showQapImportAnimation(75, 1, 1, `กำลังบันทึกไฟล์และประวัติลงตาราง Cloud...`, false);
+        } else {
+          showCompressionToast(`กำลังบันทึกไฟล์ลงตาราง qap_files...`, 'loading');
+        }
         
         // Save file record to qap_files table separately (decoupled from main instrument table)
         if (typeof window.qapSupabase.saveFileRecord === 'function') {
@@ -482,19 +494,37 @@
         }
 
         window.qapSupabase.upsertInstrument(updatedInstrument, effectiveTab).then((res) => {
-          if (res && res.ok) {
-            const savedPct = result.ratio || '80%';
-            showCompressionToast(`ลดขนาดลง ${savedPct} (${formatFileSize(result.originalSize)} ➔ ${formatFileSize(result.compressedSize)}) • แยกเก็บลงตาราง qap_files สำเร็จ ✅`, 'success', 5000);
+          if (window.showQapImportAnimation) {
+            window.showQapImportAnimation(100, 1, 1, `บันทึกประวัติและแนบไฟล์ PDF สำเร็จเรียบร้อย! ✨`, true);
+            setTimeout(() => { window.location.reload(); }, 2000);
           } else {
-            showCompressionToast(`บันทึกในเครื่องสำเร็จ (${formatFileSize(result.compressedSize)})`, 'success', 4000);
+            if (res && res.ok) {
+              const savedPct = result.ratio || '80%';
+              showCompressionToast(`ลดขนาดลง ${savedPct} (${formatFileSize(result.originalSize)} ➔ ${formatFileSize(result.compressedSize)}) • แยกเก็บลงตาราง qap_files สำเร็จ ✅`, 'success', 5000);
+            } else {
+              showCompressionToast(`บันทึกในเครื่องสำเร็จ (${formatFileSize(result.compressedSize)})`, 'success', 4000);
+            }
+            setTimeout(() => { window.location.reload(); }, 1500);
           }
         }).catch((err) => {
           console.warn('[Supabase Sync Error on Upload]:', err);
-          showCompressionToast(`บันทึกในเครื่องสำเร็จ (${formatFileSize(result.compressedSize)})`, 'success', 4000);
+          if (window.showQapImportAnimation) {
+            window.showQapImportAnimation(100, 1, 1, `บันทึกไฟล์สำเร็จเรียบร้อย!`, true);
+            setTimeout(() => { window.location.reload(); }, 2000);
+          } else {
+            showCompressionToast(`บันทึกสำเร็จ (${formatFileSize(result.compressedSize)})`, 'success', 4000);
+            setTimeout(() => { window.location.reload(); }, 1500);
+          }
         });
       } else {
         const savedPct = result.ratio || '80%';
-        showCompressionToast(`ลดขนาดลง ${savedPct} (${formatFileSize(result.originalSize)} ➔ ${formatFileSize(result.compressedSize)}) คมชัดสมบูรณ์ ✅`, 'success', 4500);
+        if (window.showQapImportAnimation) {
+          window.showQapImportAnimation(100, 1, 1, `ลดขนาดลง ${savedPct} บันทึกเรียบร้อย!`, true);
+          setTimeout(() => { window.location.reload(); }, 2000);
+        } else {
+          showCompressionToast(`ลดขนาดลง ${savedPct} (${formatFileSize(result.originalSize)} ➔ ${formatFileSize(result.compressedSize)}) คมชัดสมบูรณ์ ✅`, 'success', 4500);
+          setTimeout(() => { window.location.reload(); }, 1500);
+        }
       }
     } catch (err) {
       console.error('PDF upload/compression error:', err);
@@ -511,6 +541,9 @@
         }
         if (window.qapSupabase && window.qapSupabase.isConfigured()) {
           const effectiveTab = targetTab || instrument.tabType || 'calibration_all';
+          if (window.showQapImportAnimation) {
+            window.showQapImportAnimation(75, 1, 1, `กำลังบันทึกไฟล์แบบดั้งเดิม...`, false);
+          }
           if (typeof window.qapSupabase.saveFileRecord === 'function') {
             window.qapSupabase.saveFileRecord({
               instrumentId: updated.id,
@@ -522,7 +555,28 @@
               tabType: effectiveTab,
             }).catch(console.warn);
           }
-          window.qapSupabase.upsertInstrument(updated, effectiveTab).catch(() => {});
+          window.qapSupabase.upsertInstrument(updated, effectiveTab).then(() => {
+            if (window.showQapImportAnimation) {
+              window.showQapImportAnimation(100, 1, 1, `บันทึกไฟล์เสร็จสิ้น!`, true);
+              setTimeout(() => { window.location.reload(); }, 2000);
+            } else {
+              setTimeout(() => { window.location.reload(); }, 1500);
+            }
+          }).catch(() => {
+            if (window.showQapImportAnimation) {
+              window.showQapImportAnimation(100, 1, 1, `บันทึกไฟล์เสร็จสิ้น!`, true);
+              setTimeout(() => { window.location.reload(); }, 2000);
+            } else {
+              setTimeout(() => { window.location.reload(); }, 1500);
+            }
+          });
+        } else {
+          if (window.showQapImportAnimation) {
+            window.showQapImportAnimation(100, 1, 1, `บันทึกไฟล์เสร็จสิ้น!`, true);
+            setTimeout(() => { window.location.reload(); }, 2000);
+          } else {
+            setTimeout(() => { window.location.reload(); }, 1500);
+          }
         }
       };
       reader.readAsDataURL(file);
@@ -536,6 +590,12 @@
     if (!confirmDelete) return;
 
     try {
+      if (window.showQapDeleteAnimation) {
+        window.showQapDeleteAnimation(`กำลังเตรียมลบไฟล์ PDF...`, instrument.codeNo || "-", false);
+      } else {
+        showCompressionToast(`กำลังลบไฟล์ออกจากตาราง qap_files...`, 'loading');
+      }
+
       const histList = (Array.isArray(instrument.history) && instrument.history.length > 0)
         ? instrument.history
         : (Array.isArray(instrument.calibrationHistory) && instrument.calibrationHistory.length > 0)
@@ -576,20 +636,35 @@
       // 2. Direct Supabase Cloud Sync
       if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
         const effectiveTab = targetTab || instrument.tabType || 'calibration_all';
-        showCompressionToast(`กำลังลบไฟล์ออกจากตาราง qap_files...`, 'loading');
+        if (window.showQapDeleteAnimation) {
+          window.showQapDeleteAnimation(`กำลังส่งคำสั่งลบข้อมูลไปยังเซิร์ฟเวอร์...`, instrument.codeNo || "-", false);
+        }
 
         if (typeof window.qapSupabase.deleteFileRecord === 'function') {
           await window.qapSupabase.deleteFileRecord(instrument.id, instrument.codeNo, histId).catch(() => {});
         }
 
         const res = await window.qapSupabase.upsertInstrument(updatedInstrument, effectiveTab);
-        if (res && res.ok) {
-          showCompressionToast(`🗑️ ลบไฟล์ออกจากตาราง qap_files เรียบร้อยแล้ว ✅`, 'success', 4000);
+        
+        if (window.showQapDeleteAnimation) {
+          window.showQapDeleteAnimation(`ลบไฟล์ PDF สำเร็จเรียบร้อยแล้ว! 🗑️`, instrument.codeNo || "-", true);
+          setTimeout(() => { window.location.reload(); }, 2000);
         } else {
-          showCompressionToast(`🗑️ ลบไฟล์ในเครื่องสำเร็จ`, 'info', 3000);
+          if (res && res.ok) {
+            showCompressionToast(`🗑️ ลบไฟล์ออกจากตาราง qap_files เรียบร้อยแล้ว ✅`, 'success', 4000);
+          } else {
+            showCompressionToast(`🗑️ ลบไฟล์ในเครื่องสำเร็จ`, 'info', 3000);
+          }
+          setTimeout(() => { window.location.reload(); }, 1500);
         }
       } else {
-        showCompressionToast(`🗑️ ลบไฟล์ PDF เรียบร้อยแล้ว`, 'info', 3000);
+        if (window.showQapDeleteAnimation) {
+          window.showQapDeleteAnimation(`ลบไฟล์ PDF สำเร็จเรียบร้อยแล้ว! 🗑️`, instrument.codeNo || "-", true);
+          setTimeout(() => { window.location.reload(); }, 2000);
+        } else {
+          showCompressionToast(`🗑️ ลบไฟล์ PDF เรียบร้อยแล้ว`, 'info', 3000);
+          setTimeout(() => { window.location.reload(); }, 1500);
+        }
       }
     } catch (err) {
       console.error('PDF deletion error:', err);

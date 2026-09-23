@@ -4923,7 +4923,11 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
       let base64 = null;
       let compSize = file.size;
       let origSize = file.size;
-      if (window.showCompressionToast) window.showCompressionToast("กำลังประมวลผล " + file.name + "...", "loading");
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(20, 1, 1, `กำลังบีบอัดไฟล์ PDF: ${file.name}...`, false);
+      } else if (window.showCompressionToast) {
+        window.showCompressionToast("กำลังประมวลผล " + file.name + "...", "loading");
+      }
       if (typeof window.qapCompressPdf === "function") {
         const res = await window.qapCompressPdf(file);
         base64 = res.dataUrl;
@@ -4936,6 +4940,9 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
+      }
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(60, 1, 1, `ลดขนาดไฟล์เหลือ ${window.qapFormatBytes ? window.qapFormatBytes(compSize) : compSize} • แนบลงประวัติ...`, false);
       }
       const isLatestUpload = !histId || (historyList[0] && historyList[0].id === histId) || historyList.length === 0;
       if (isLatestUpload) {
@@ -4970,7 +4977,11 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
           return item;
         });
       });
-      if (window.showCompressionToast) window.showCompressionToast("แนบไฟล์ PDF สำเร็จ (" + Math.round(compSize / 1024) + " KB)", "success");
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(100, 1, 1, "แนบไฟล์ PDF สำเร็จเรียบร้อย! ✨", true);
+      } else if (window.showCompressionToast) {
+        window.showCompressionToast("แนบไฟล์ PDF สำเร็จ (" + Math.round(compSize / 1024) + " KB)", "success");
+      }
     } catch (err) {
       console.error("File upload error:", err);
       alert("เกิดข้อผิดพลาดในการอัปโหลดไฟล์: " + err.message);
@@ -4992,8 +5003,26 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
   };
 
   // Remove PDF Handler
-  const handleRemovePdf = (histId) => {
+  const handleRemovePdf = async (histId) => {
     if (!confirm("ยืนยันลบไฟล์ PDF ใบรับรองนี้หรือไม่?")) return;
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation("กำลังลบไฟล์ PDF ใบรับรอง...", f.codeNo || sampleCode || "-", false);
+    }
+
+    const targetItem = historyList.find(item => item.id === histId) || (historyList.length === 1 ? historyList[0] : null);
+    const targetCert = targetItem ? targetItem.certNo : f.certNo;
+
+    try {
+      if (window.qapSupabase && typeof window.qapSupabase.deleteFileRecord === "function") {
+        await window.qapSupabase.deleteFileRecord({
+          instrumentId: f.id,
+          codeNo: f.codeNo,
+          certNo: targetCert,
+          fileUrl: targetItem ? (targetItem.certFileData || targetItem.pdfUrl) : f.certFileData
+        });
+      }
+    } catch (e) {}
+
     const isLatestRemove = !histId || (historyList[0] && historyList[0].id === histId) || historyList.length <= 1;
     if (isLatestRemove) {
       setF(prev => ({
@@ -5016,6 +5045,9 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
       }
       return item;
     }));
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation("ลบไฟล์ PDF สำเร็จเรียบร้อยแล้ว! 🗑️", f.codeNo || sampleCode || "-", true);
+    }
   };
 
   // Add History Cycle Handler
@@ -5049,9 +5081,55 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
   };
 
   // Delete History Cycle Handler
-  const handleDeleteCycle = (histId) => {
+  const handleDeleteCycle = async (histId) => {
     if (!confirm("ยืนยันลบรอบประวัตินี้หรือไม่?")) return;
-    setHistoryList(prev => prev.filter(item => item.id !== histId));
+    const cycleToDelete = historyList.find(item => item.id === histId);
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation(`ลบรอบประวัติ (${(cycleToDelete && cycleToDelete.certNo) || "-"})`, f.codeNo || sampleCode || "-", false);
+    }
+    try {
+      if (cycleToDelete && window.qapSupabase && typeof window.qapSupabase.deleteCalibrationHistoryRecord === "function") {
+        await window.qapSupabase.deleteCalibrationHistoryRecord(f, cycleToDelete, selectedPage);
+      } else if (cycleToDelete && window.qapSupabase && typeof window.qapSupabase.deleteFileRecord === "function") {
+        await window.qapSupabase.deleteFileRecord({
+          instrumentId: f.id,
+          codeNo: f.codeNo,
+          certNo: cycleToDelete.certNo,
+          fileUrl: cycleToDelete.certFileData || cycleToDelete.pdfUrl
+        });
+      }
+    } catch (e) {}
+
+    const remaining = historyList.filter(item => item.id !== histId);
+    setHistoryList(remaining);
+
+    // If the top cycle was deleted, update form state from the new top cycle
+    if (remaining.length > 0) {
+      const newTop = remaining[0];
+      setF(prev => ({
+        ...prev,
+        calDate: newTop.calDate || prev.calDate,
+        dueDate: newTop.dueDate || prev.dueDate,
+        certNo: newTop.certNo || prev.certNo,
+        calibratedBy: newTop.calibratedBy || prev.calibratedBy,
+        certFileData: newTop.certFileData || newTop.pdfUrl || null,
+        pdfUrl: newTop.pdfUrl || newTop.certFileData || null,
+        certFileName: newTop.certFileName || null,
+        fileSize: newTop.fileSize || null
+      }));
+    } else {
+      setF(prev => ({
+        ...prev,
+        certFileData: null,
+        pdfUrl: null,
+        certFileName: null,
+        fileSize: null
+      }));
+    }
+
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation("ลบรอบประวัติสำเร็จเรียบร้อย! 🗑️", f.codeNo || sampleCode || "-", true);
+    }
   };
 
   // Handle Save
@@ -5070,50 +5148,87 @@ m.jsxDEV("td",{className:`${Be} px-3 font-mono text-slate-600 dark:text-slate-40
     }
 
     setIsProcessing(true);
+    if (window.showQapImportAnimation) {
+      window.showQapImportAnimation(30, 1, 1, `กำลังบันทึกข้อมูลเครื่องมือ: ${f.codeNo}...`, false);
+    }
 
+    const latestCycle = (Array.isArray(historyList) && historyList.length > 0) ? historyList[0] : null;
     const finalItem = {
       ...f,
       id: f.id || ("inst_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7)),
       tabType: selectedPage,
       history: historyList,
-      calibrationHistory: historyList
+      calibrationHistory: historyList,
+      calDate: latestCycle ? (latestCycle.calDate || f.calDate || "") : (f.calDate || ""),
+      dueDate: latestCycle ? (latestCycle.dueDate || f.dueDate || "") : (f.dueDate || ""),
+      next_due_date: latestCycle ? (latestCycle.dueDate || f.dueDate || "") : (f.dueDate || ""),
+      certNo: latestCycle ? (latestCycle.certNo || f.certNo || "") : (f.certNo || ""),
+      calibratedBy: latestCycle ? (latestCycle.calibratedBy || f.calibratedBy || f.labCal || "") : (f.calibratedBy || f.labCal || ""),
+      certFileData: latestCycle ? (latestCycle.certFileData || latestCycle.pdfUrl || f.certFileData || null) : (f.certFileData || null),
+      pdfUrl: latestCycle ? (latestCycle.pdfUrl || latestCycle.certFileData || f.pdfUrl || null) : (f.pdfUrl || null),
+      certFileName: latestCycle ? (latestCycle.certFileName || f.certFileName || null) : (f.certFileName || null),
+      fileSize: latestCycle ? (latestCycle.fileSize || f.fileSize || null) : (f.fileSize || null)
     };
+
+    // Update in-memory history cache
+    if (window.qapSupabase && window.qapSupabase._historyCache) {
+      const code = String(finalItem.codeNo || "").trim();
+      const iId = String(finalItem.id || "").trim();
+      if (code) window.qapSupabase._historyCache.set(code, historyList);
+      if (iId) window.qapSupabase._historyCache.set(iId, historyList);
+    }
 
     // Explicitly sync PDF files to Supabase qap_files if available
     if (window.qapSupabase && typeof window.qapSupabase.saveFileRecord === "function") {
-      if (finalItem.certFileData) {
-        window.qapSupabase.saveFileRecord({
-          instrumentId: finalItem.id,
-          codeNo: finalItem.codeNo,
-          certNo: finalItem.certNo || ("CERT-" + finalItem.codeNo),
-          fileName: finalItem.certFileName || (finalItem.codeNo + "-cert.pdf"),
-          fileSize: finalItem.fileSize || 0,
-          fileUrl: finalItem.certFileData,
-          tabType: selectedPage
-        }).catch(err => console.warn("[Supabase Sync File Error]:", err));
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(60, 1, 1, `กำลังอัปโหลดและเชื่อมโยงไฟล์ใบรับรอง...`, false);
       }
-      if (Array.isArray(historyList)) {
-        historyList.forEach(hist => {
-          if (hist.certFileData) {
-            window.qapSupabase.saveFileRecord({
-              instrumentId: finalItem.id,
-              codeNo: finalItem.codeNo,
-              certNo: hist.certNo || ("CERT-" + finalItem.codeNo),
-              fileName: hist.certFileName || (finalItem.codeNo + "-cert.pdf"),
-              fileSize: hist.fileSize || 0,
-              fileUrl: hist.certFileData,
-              tabType: selectedPage
-            }).catch(err => console.warn("[Supabase Sync File Error]:", err));
+      try {
+        if (finalItem.certFileData) {
+          await window.qapSupabase.saveFileRecord({
+            instrumentId: finalItem.id,
+            codeNo: finalItem.codeNo,
+            certNo: finalItem.certNo || ("CERT-" + finalItem.codeNo),
+            fileName: finalItem.certFileName || (finalItem.codeNo + "-cert.pdf"),
+            fileSize: finalItem.fileSize || 0,
+            fileUrl: finalItem.certFileData,
+            tabType: selectedPage
+          });
+        }
+        if (Array.isArray(historyList)) {
+          for (const hist of historyList) {
+            if (hist.certFileData) {
+              await window.qapSupabase.saveFileRecord({
+                instrumentId: finalItem.id,
+                codeNo: finalItem.codeNo,
+                certNo: hist.certNo || ("CERT-" + finalItem.codeNo),
+                fileName: hist.certFileName || (finalItem.codeNo + "-cert.pdf"),
+                fileSize: hist.fileSize || 0,
+                fileUrl: hist.certFileData,
+                tabType: selectedPage
+              });
+            }
           }
-        });
+        }
+      } catch (err) {
+        console.warn("[Supabase Sync File Error]:", err);
       }
+    }
+
+    if (window.showQapImportAnimation) {
+      window.showQapImportAnimation(85, 1, 1, `กำลังบันทึกลงฐานข้อมูล Supabase...`, false);
+    }
+
+    r(finalItem, selectedPage);
+
+    if (window.showQapImportAnimation) {
+      window.showQapImportAnimation(100, 1, 1, `บันทึกข้อมูลเครื่องมือวัดสำเร็จ! ✨`, true);
     }
 
     if (window.showCompressionToast) {
       window.showCompressionToast("✓ บันทึกข้อมูลเครื่องมือวัดสำเร็จ", "success");
     }
 
-    r(finalItem, selectedPage);
     setIsProcessing(false);
     t();
   };
@@ -6111,7 +6226,12 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       let compSize = file.size;
       let origSize = file.size;
 
-      if (window.showCompressionToast) window.showCompressionToast(`เริ่มประมวลผลไฟล์ ${file.name}...`, 'loading');
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(15, 1, 1, `กำลังบีบอัดไฟล์ PDF: ${file.name}...`, false);
+      } else if (window.showCompressionToast) {
+        window.showCompressionToast(`เริ่มประมวลผลไฟล์ ${file.name}...`, 'loading');
+      }
+      
       if (typeof window.qapCompressPdf === 'function') {
         const res = await window.qapCompressPdf(file);
         base64 = res.dataUrl;
@@ -6124,6 +6244,10 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
+      }
+
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(45, 1, 1, `ลดขนาดไฟล์เหลือ ${window.qapFormatBytes ? window.qapFormatBytes(compSize) : compSize} • กำลังเตรียมส่งข้อมูล...`, false);
       }
 
       const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
@@ -6173,8 +6297,11 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
         const targetTab = currentInst.tabType || 'calibration_all';
         const matchedItem = updatedHistory.find(it => it.id === histId) || updatedHistory[0];
+        if (window.showQapImportAnimation) {
+          window.showQapImportAnimation(75, 1, 1, `กำลังบันทึกไฟล์และประวัติลงตาราง Cloud...`, false);
+        }
         if (typeof window.qapSupabase.saveFileRecord === 'function') {
-          window.qapSupabase.saveFileRecord({
+          await window.qapSupabase.saveFileRecord({
             instrumentId: updatedInst.id,
             codeNo: updatedInst.codeNo,
             certNo: (matchedItem && matchedItem.certNo) || updatedInst.certNo,
@@ -6184,9 +6311,16 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
             tabType: targetTab
           }).catch(console.warn);
         }
-        window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
+        await window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
           console.warn('[Supabase Sync on PDF upload]:', err);
         });
+      }
+
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(100, 1, 1, `บันทึกประวัติและแนบไฟล์ PDF สำเร็จเรียบร้อย! ✨`, true);
+        setTimeout(() => { window.location.reload(); }, 2000);
+      } else {
+        setTimeout(() => { window.location.reload(); }, 1500);
       }
     } catch (err) {
       console.error('File upload error:', err);
@@ -6197,8 +6331,12 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
   };
 
   // Handle PDF Removal
-  const handleFileRemove = (histId) => {
+  const handleFileRemove = async (histId) => {
     if (!confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้หรือไม่?')) return;
+
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation(`กำลังเตรียมลบไฟล์ PDF...`, currentInst.codeNo || "-", false);
+    }
 
     const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
       ? [...currentInst.history]
@@ -6249,12 +6387,22 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     }
     if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
       const targetTab = currentInst.tabType || 'calibration_all';
-      if (typeof window.qapSupabase.deleteFileRecord === 'function') {
-        window.qapSupabase.deleteFileRecord(currentInst.id, currentInst.codeNo, histId).catch(console.warn);
+      if (window.showQapDeleteAnimation) {
+        window.showQapDeleteAnimation(`กำลังส่งคำสั่งลบข้อมูลไปยังเซิร์ฟเวอร์...`, currentInst.codeNo || "-", false);
       }
-      window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
+      if (typeof window.qapSupabase.deleteFileRecord === 'function') {
+        await window.qapSupabase.deleteFileRecord(currentInst.id, currentInst.codeNo, histId).catch(console.warn);
+      }
+      await window.qapSupabase.upsertInstrument(updatedInst, targetTab).catch((err) => {
         console.warn('[Supabase Sync on PDF removal]:', err);
       });
+    }
+
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation(`ลบไฟล์ PDF สำเร็จเรียบร้อยแล้ว! 🗑️`, currentInst.codeNo || "-", true);
+      setTimeout(() => { window.location.reload(); }, 2000);
+    } else {
+      setTimeout(() => { window.location.reload(); }, 1500);
     }
   };
 
@@ -6924,22 +7072,30 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
 
   const handleSaveNewRecord = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    if (!formDate) return;
     setIsSaving(true);
+    const resolvedCalDate = formDate || currentInst.calDate || new Date().toISOString().split("T")[0];
+    const resolvedDueDate = formDueDate || currentInst.dueDate || "";
+    if (window.showQapImportAnimation) {
+      window.showQapImportAnimation(30, 1, 1, `กำลังบันทึกประวัติการสอบเทียบ: ${currentInst.codeNo || ""}...`, false);
+    }
     try {
       const recordData = {
-        id: `hist_${Date.now()}`,
+        id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         certNo: formCertNo || `CERT-${currentInst.codeNo || ''}`,
-        calDate: formDate,
-        dueDate: formDueDate,
-        calibratedBy: formLab,
-        result: formResult,
-        accuracy: formAccuracy,
-        notes: formNotes,
-        pdfUrl: formPdfUrl,
-        certFileName: formPdfName,
-        fileSize: formPdfSize
+        calDate: resolvedCalDate,
+        dueDate: resolvedDueDate,
+        calibratedBy: formLab || currentInst.labCal || "Internal QA",
+        result: formResult || "PASS",
+        accuracy: formAccuracy || currentInst.accuracy || "",
+        notes: formNotes || "",
+        pdfUrl: formPdfUrl || null,
+        certFileName: formPdfName || null,
+        fileSize: formPdfSize || null
       };
+
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(75, 1, 1, `กำลังบันทึกลงฐานข้อมูล Supabase...`, false);
+      }
 
       if (window.qapSupabase && typeof window.qapSupabase.addCalibrationHistoryRecord === 'function') {
         await window.qapSupabase.addCalibrationHistoryRecord(currentInst, recordData, currentTab);
@@ -6952,16 +7108,24 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
       if (typeof onUpdateInstrument === 'function') {
         onUpdateInstrument({
           ...currentInst,
-          calDate: formDate,
-          dueDate: formDueDate,
-          next_due_date: formDueDate,
+          calDate: resolvedCalDate,
+          dueDate: resolvedDueDate,
+          next_due_date: resolvedDueDate,
           certNo: recordData.certNo,
-          calibratedBy: formLab,
+          calibratedBy: recordData.calibratedBy,
           history: updatedHist,
           calibrationHistory: updatedHist
         });
       }
 
+      if (window.showQapImportAnimation) {
+        window.showQapImportAnimation(100, 1, 1, `บันทึกประวัติการสอบเทียบสำเร็จ! ✨`, true);
+      }
+
+      // Reset form fields
+      setFormPdfUrl(null);
+      setFormPdfName(null);
+      setFormPdfSize(null);
       setActiveTab('table');
     } catch (err) {
       console.warn('[CalibrationHistoryModal] Save error:', err);
@@ -6977,22 +7141,54 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
   const confirmDeleteRecord = async () => {
     if (!recordToDelete) return;
     setIsDeleting(true);
+    const targetCert = recordToDelete.certNo || recordToDelete.cert_no || "";
+    const targetCalDate = recordToDelete.calDate || recordToDelete.cal_date || "";
+    const recId = recordToDelete.id;
+
+    if (window.showQapDeleteAnimation) {
+      window.showQapDeleteAnimation(`ลบประวัติการสอบเทียบ (${targetCert || "-"})`, currentInst.codeNo || "-", false);
+    }
     try {
-      const recId = recordToDelete.id;
       if (window.qapSupabase && typeof window.qapSupabase.deleteCalibrationHistoryRecord === 'function') {
-        await window.qapSupabase.deleteCalibrationHistoryRecord(currentInst, recId, currentTab);
+        await window.qapSupabase.deleteCalibrationHistoryRecord(currentInst, recordToDelete, currentTab);
+      } else if (window.qapSupabase && typeof window.qapSupabase.deleteFileRecord === 'function') {
+        await window.qapSupabase.deleteFileRecord({
+          instrumentId: currentInst.id,
+          codeNo: currentInst.codeNo,
+          certNo: targetCert,
+          fileUrl: recordToDelete.pdfUrl
+        });
       }
+
       const updated = records.filter(r => {
-        if (recId && r.id) return r.id !== recId;
-        return r.certNo !== recordToDelete.certNo || r.calDate !== recordToDelete.calDate;
+        if (recId && r.id && r.id === recId) return false;
+        if (targetCert && (r.certNo || r.cert_no) && String(r.certNo || r.cert_no).trim().toUpperCase() === targetCert.trim().toUpperCase()) return false;
+        if (targetCalDate && (r.calDate || r.cal_date) === targetCalDate && targetCert && (r.certNo || r.cert_no) === targetCert) return false;
+        return true;
       });
       setRecords(updated);
+
+      const newLatest = (updated && updated.length > 0) ? updated[0] : null;
+      const updatedInst = {
+        ...currentInst,
+        history: updated,
+        calibrationHistory: updated,
+        calDate: newLatest ? (newLatest.calDate || newLatest.cal_date || currentInst.calDate || "") : "",
+        dueDate: newLatest ? (newLatest.dueDate || newLatest.due_date || currentInst.dueDate || "") : "",
+        next_due_date: newLatest ? (newLatest.dueDate || newLatest.due_date || currentInst.dueDate || "") : "",
+        certNo: newLatest ? (newLatest.certNo || newLatest.cert_no || "") : "",
+        calibratedBy: newLatest ? (newLatest.calibratedBy || newLatest.calibrated_by || currentInst.calibratedBy || "") : "",
+        pdfUrl: newLatest ? (newLatest.pdfUrl || newLatest.certFileData || newLatest.file_url || null) : null,
+        certFileData: newLatest ? (newLatest.certFileData || newLatest.pdfUrl || newLatest.file_url || null) : null,
+        certFileName: newLatest ? (newLatest.certFileName || newLatest.file_name || null) : null,
+        fileSize: newLatest ? (newLatest.fileSize || newLatest.file_size || null) : null,
+      };
+
       if (typeof onUpdateInstrument === 'function') {
-        onUpdateInstrument({
-          ...currentInst,
-          history: updated,
-          calibrationHistory: updated
-        });
+        onUpdateInstrument(updatedInst);
+      }
+      if (window.showQapDeleteAnimation) {
+        window.showQapDeleteAnimation(`ลบประวัติการสอบเทียบสำเร็จ! 🗑️`, currentInst.codeNo || "-", true);
       }
       setRecordToDelete(null);
     } catch (err) {
@@ -9581,15 +9777,12 @@ A.useEffect(()=>{safeSaveStorage(centStorageKey,centInstruments)},[centInstrumen
       return;
     }
     const targetTab = (de.category === "CANCEL" ? "cancel" : de.category === "CENTRALIZED" ? "centralized" : de.category === "EACH SECTION" ? "each_section" : de.category === "NORMAL STANDARD" ? "normal_standard" : e);
-    if(targetTab==="centralized"||(de.category||"").trim().toUpperCase()==="CENTRALIZED"){
-      setCentInstruments(Re=>Re.map(U=>U.id===de.id?de:U));
-    }else if(targetTab==="each_section"||(de.category||"").trim().toUpperCase()==="EACH SECTION"){
-      setEachInstruments(Re=>Re.map(U=>U.id===de.id?de:U));
-    }else if(targetTab==="normal_standard"||(de.category||"").trim().toUpperCase()==="NORMAL STANDARD"){
-      setNsInstruments(Re=>Re.map(U=>U.id===de.id?de:U));
-    }else{
-      f(Re=>Re.map(U=>U.id===de.id?de:U));
-    }
+    const updateMatching = Re => Re.map(U => (U.id === de.id || (U.codeNo && de.codeNo && String(U.codeNo).trim().toUpperCase() === String(de.codeNo).trim().toUpperCase())) ? { ...U, ...de } : U);
+    f(updateMatching);
+    setCentInstruments(updateMatching);
+    setEachInstruments(updateMatching);
+    setNsInstruments(updateMatching);
+    setCancelInstruments(updateMatching);
     B(de);
     ae();
     try{
@@ -9945,69 +10138,164 @@ A.useEffect(()=>{safeSaveStorage(centStorageKey,centInstruments)},[centInstrumen
     const isEach=targetPageOrSheet==="each_section"||targetPageOrSheet==="EACH SECTION"||targetPageOrSheet==="EACH"||(importCfg&&(importCfg.sheet==="EACH"||importCfg.page==="each_section"))||(!targetPageOrSheet&&e==="each_section");
     const isNs=targetPageOrSheet==="normal_standard"||targetPageOrSheet==="NORMAL STANDARD"||(importCfg&&(importCfg.sheet==="NORMAL STANDARD"||importCfg.page==="normal_standard"))||(!targetPageOrSheet&&e==="normal_standard");
     let targetTab = "calibration_all";
+    const normalizeIncoming = (items, defaultCat, defaultStatus) => {
+      return items.map(item => {
+        let hist = Array.isArray(item.calibrationHistory) ? [...item.calibrationHistory] : (Array.isArray(item.history) ? [...item.history] : []);
+        const calD = item.calDate || item.cal_date || "";
+        const dueD = item.dueDate || item.due_date || "";
+        const certN = item.certNo || item.cert_no || "";
+        if (calD || certN) {
+          const already = hist.some(h => (certN && h.certNo && String(h.certNo).trim().toUpperCase() === String(certN).trim().toUpperCase()) || (calD && h.calDate && h.calDate === calD));
+          if (!already) {
+            hist.push({
+              id: `hist_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              certNo: certN || `CERT-${item.codeNo || "CURRENT"}`,
+              calDate: calD,
+              dueDate: dueD,
+              calibratedBy: item.calibratedBy || item.labCal || "Internal QA",
+              result: "PASS",
+              pdfUrl: item.pdfUrl || item.certFileData || null,
+              certFileName: item.certFileName || null,
+              fileSize: item.fileSize || null,
+              createdAt: new Date().toISOString()
+            });
+          }
+        }
+        hist.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+        const top = hist[0];
+        return {
+          ...item,
+          category: defaultCat || item.category,
+          status: defaultStatus || item.status || (defaultCat === "CANCEL" ? "inactive" : P0(item)),
+          history: hist,
+          calibrationHistory: hist,
+          calDate: top ? (top.calDate || item.calDate || "") : (item.calDate || ""),
+          dueDate: top ? (top.dueDate || item.dueDate || "") : (item.dueDate || ""),
+          next_due_date: top ? (top.dueDate || item.dueDate || "") : (item.dueDate || ""),
+          certNo: top ? (top.certNo || item.certNo || "") : (item.certNo || ""),
+          calibratedBy: top ? (top.calibratedBy || item.calibratedBy || item.labCal || "") : (item.calibratedBy || item.labCal || "")
+        };
+      });
+    };
+
+    const mergeWithPrev = (prevList, incoming) => {
+      if (Re === "replace") return incoming.map((item, idx) => ({ ...item, no: idx + 1 }));
+      const result = [...prevList];
+      for (const inc of incoming) {
+        const incCode = String(inc.codeNo || "").trim().toUpperCase();
+        const existingIdx = incCode ? result.findIndex(ex => String(ex.codeNo || "").trim().toUpperCase() === incCode) : -1;
+        if (existingIdx >= 0) {
+          const ex = result[existingIdx];
+          const exHist = Array.isArray(ex.calibrationHistory) ? ex.calibrationHistory : (Array.isArray(ex.history) ? ex.history : []);
+          const incHist = Array.isArray(inc.calibrationHistory) ? inc.calibrationHistory : (Array.isArray(inc.history) ? inc.history : []);
+          
+          // Index exHist by date and cert to preserve PDF attachments
+          const exMap = new Map();
+          for (const h of exHist) {
+            if (!h) continue;
+            const k = `${String(h.calDate || "").trim()}_${String(h.certNo || "").trim().toUpperCase()}`;
+            exMap.set(k, h);
+          }
+
+          const combined = [];
+          for (const h of incHist) {
+            if (!h) continue;
+            const k = `${String(h.calDate || "").trim()}_${String(h.certNo || "").trim().toUpperCase()}`;
+            const existingH = exMap.get(k);
+            if (existingH) {
+              combined.push({
+                ...existingH,
+                ...h,
+                pdfUrl: h.pdfUrl || h.certFileData || existingH.pdfUrl || existingH.certFileData || null,
+                certFileData: h.certFileData || h.pdfUrl || existingH.certFileData || existingH.pdfUrl || null,
+                certFileName: h.certFileName || existingH.certFileName || null,
+                fileSize: h.fileSize || existingH.fileSize || null,
+              });
+              exMap.delete(k);
+            } else {
+              combined.push(h);
+            }
+          }
+          // Preserve any existing cycles that weren't in incoming
+          for (const remH of exMap.values()) {
+            combined.push(remH);
+          }
+
+          // If incoming had no history array but has a calDate, ensure it's recorded
+          if (combined.length === 0 && (inc.calDate || ex.calDate)) {
+            combined.push({
+              calDate: inc.calDate || ex.calDate,
+              dueDate: inc.dueDate || ex.dueDate,
+              certNo: inc.certNo || ex.certNo || ("CERT-" + (inc.codeNo || ex.codeNo)),
+              calibratedBy: inc.calibratedBy || ex.calibratedBy || "-",
+              result: inc.status === "normal" ? "PASS" : "PASS",
+              pdfUrl: inc.pdfUrl || inc.certFileData || ex.pdfUrl || ex.certFileData || null,
+              certFileData: inc.certFileData || inc.pdfUrl || ex.certFileData || ex.pdfUrl || null,
+              certFileName: inc.certFileName || ex.certFileName || null,
+              fileSize: inc.fileSize || ex.fileSize || null,
+            });
+          }
+
+          combined.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+          const top = combined[0];
+
+          // Clean inc so empty fields don't erase valid existing data
+          const cleanInc = {};
+          for (const [k, v] of Object.entries(inc)) {
+            if (v !== undefined && v !== null && v !== "") {
+              cleanInc[k] = v;
+            }
+          }
+
+          result[existingIdx] = {
+            ...ex,
+            ...cleanInc,
+            id: ex.id || inc.id,
+            no: ex.no,
+            history: combined,
+            calibrationHistory: combined,
+            calDate: top ? (top.calDate || inc.calDate || ex.calDate) : (inc.calDate || ex.calDate),
+            dueDate: top ? (top.dueDate || inc.dueDate || ex.dueDate) : (inc.dueDate || ex.dueDate),
+            next_due_date: top ? (top.dueDate || inc.dueDate || ex.dueDate) : (inc.dueDate || ex.dueDate),
+            certNo: top ? (top.certNo || inc.certNo || ex.certNo) : (inc.certNo || ex.certNo),
+            calibratedBy: top ? (top.calibratedBy || inc.calibratedBy || ex.calibratedBy) : (inc.calibratedBy || ex.calibratedBy),
+            pdfUrl: top ? (top.pdfUrl || top.certFileData || ex.pdfUrl || ex.certFileData || inc.pdfUrl) : (ex.pdfUrl || ex.certFileData || inc.pdfUrl),
+            certFileData: top ? (top.certFileData || top.pdfUrl || ex.certFileData || ex.pdfUrl || inc.certFileData) : (ex.certFileData || ex.pdfUrl || inc.certFileData),
+            certFileName: top ? (top.certFileName || ex.certFileName || inc.certFileName) : (ex.certFileName || inc.certFileName),
+            fileSize: top ? (top.fileSize || ex.fileSize || inc.fileSize) : (ex.fileSize || inc.fileSize)
+          };
+        } else {
+          result.push({ ...inc, no: result.length + 1 });
+        }
+      }
+      return result;
+    };
+
     let finalItems = de;
     if(isCancel){
       targetTab = "cancel";
-      const fixed=de.map((item,idx)=>({...item,category:"CANCEL",status:item.status||"inactive"}));
+      const fixed = normalizeIncoming(de, "CANCEL", "inactive");
       finalItems = fixed;
-      if(Re==="replace"){
-        setCancelInstruments(fixed.map((item,idx)=>({...item,no:idx+1})));
-      }else{
-        setCancelInstruments(prev=>{
-          const start=prev.length;
-          const mapped=fixed.map((item,idx)=>({...item,no:start+idx+1}));
-          return[...prev,...mapped];
-        });
-      }
+      setCancelInstruments(prev => mergeWithPrev(prev, fixed));
     }else if(isCent){
       targetTab = "centralized";
-      const fixed=de.map((item,idx)=>({...item,category:"CENTRALIZED"}));
+      const fixed = normalizeIncoming(de, "CENTRALIZED", null);
       finalItems = fixed;
-      if(Re==="replace"){
-        setCentInstruments(fixed.map((item,idx)=>({...item,no:idx+1})));
-      }else{
-        setCentInstruments(prev=>{
-          const start=prev.length;
-          const mapped=fixed.map((item,idx)=>({...item,no:start+idx+1}));
-          return[...prev,...mapped];
-        });
-      }
+      setCentInstruments(prev => mergeWithPrev(prev, fixed));
     }else if(isEach){
       targetTab = "each_section";
-      const fixed=de.map((item,idx)=>({...item,category:"EACH SECTION"}));
+      const fixed = normalizeIncoming(de, "EACH SECTION", null);
       finalItems = fixed;
-      if(Re==="replace"){
-        setEachInstruments(fixed.map((item,idx)=>({...item,no:idx+1})));
-      }else{
-        setEachInstruments(prev=>{
-          const start=prev.length;
-          const mapped=fixed.map((item,idx)=>({...item,no:start+idx+1}));
-          return[...prev,...mapped];
-        });
-      }
+      setEachInstruments(prev => mergeWithPrev(prev, fixed));
     }else if(isNs){
       targetTab = "normal_standard";
-      const fixed=de.map((item,idx)=>({...item,category:"NORMAL STANDARD"}));
+      const fixed = normalizeIncoming(de, "NORMAL STANDARD", null);
       finalItems = fixed;
-      if(Re==="replace"){
-        setNsInstruments(fixed.map((item,idx)=>({...item,no:idx+1})));
-      }else{
-        setNsInstruments(prev=>{
-          const start=prev.length;
-          const mapped=fixed.map((item,idx)=>({...item,no:start+idx+1}));
-          return[...prev,...mapped];
-        });
-      }
+      setNsInstruments(prev => mergeWithPrev(prev, fixed));
     }else{
-      if(Re==="replace"){
-        f(de.map((item,idx)=>({...item,no:idx+1})));
-      }else{
-        f(prev=>{
-          const start=prev.length;
-          const mapped=de.map((item,idx)=>({...item,no:start+idx+1}));
-          return[...prev,...mapped];
-        });
-      }
+      const fixed = normalizeIncoming(de, "CALIBRATION ALL", null);
+      finalItems = fixed;
+      f(prev => mergeWithPrev(prev, fixed));
     }
     ae();
     try{
@@ -10018,29 +10306,89 @@ A.useEffect(()=>{safeSaveStorage(centStorageKey,centInstruments)},[centInstrumen
   },
   handleMultiImport=({databaseItems,normalStandardItems,centralizedItems,eachSectionItems,cancelItems,mode})=>{
     const isRep=mode==="replace";
+    const safeMergeTab = (prevList, incoming, defCat, defStatus) => {
+      if (isRep) return incoming.map((item, idx) => ({ ...item, no: idx + 1, category: defCat || item.category, status: defStatus || item.status || "normal" }));
+      const result = [...prevList];
+      for (const inc of incoming) {
+        const incCode = String(inc.codeNo || "").trim().toUpperCase();
+        const existingIdx = incCode ? result.findIndex(ex => String(ex.codeNo || "").trim().toUpperCase() === incCode) : -1;
+        if (existingIdx >= 0) {
+          const ex = result[existingIdx];
+          const exHist = Array.isArray(ex.calibrationHistory) ? ex.calibrationHistory : (Array.isArray(ex.history) ? ex.history : []);
+          const incHist = Array.isArray(inc.calibrationHistory) ? inc.calibrationHistory : (Array.isArray(inc.history) ? inc.history : []);
+          
+          const exMap = new Map();
+          for (const h of exHist) {
+            if (!h) continue;
+            const k = `${String(h.calDate || "").trim()}_${String(h.certNo || "").trim().toUpperCase()}`;
+            exMap.set(k, h);
+          }
+          const combined = [];
+          for (const h of incHist) {
+            if (!h) continue;
+            const k = `${String(h.calDate || "").trim()}_${String(h.certNo || "").trim().toUpperCase()}`;
+            const existingH = exMap.get(k);
+            if (existingH) {
+              combined.push({
+                ...existingH,
+                ...h,
+                pdfUrl: h.pdfUrl || h.certFileData || existingH.pdfUrl || existingH.certFileData || null,
+                certFileData: h.certFileData || h.pdfUrl || existingH.certFileData || existingH.pdfUrl || null,
+                certFileName: h.certFileName || existingH.certFileName || null,
+                fileSize: h.fileSize || existingH.fileSize || null,
+              });
+              exMap.delete(k);
+            } else {
+              combined.push(h);
+            }
+          }
+          for (const remH of exMap.values()) combined.push(remH);
+          combined.sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime());
+          const top = combined[0];
+
+          const cleanInc = {};
+          for (const [k, v] of Object.entries(inc)) {
+            if (v !== undefined && v !== null && v !== "") cleanInc[k] = v;
+          }
+
+          result[existingIdx] = {
+            ...ex,
+            ...cleanInc,
+            category: defCat || ex.category || inc.category,
+            status: defStatus || ex.status || inc.status || "normal",
+            id: ex.id || inc.id,
+            no: ex.no,
+            history: combined,
+            calibrationHistory: combined,
+            calDate: top ? (top.calDate || inc.calDate || ex.calDate) : (inc.calDate || ex.calDate),
+            dueDate: top ? (top.dueDate || inc.dueDate || ex.dueDate) : (inc.dueDate || ex.dueDate),
+            certNo: top ? (top.certNo || inc.certNo || ex.certNo) : (inc.certNo || ex.certNo),
+            pdfUrl: top ? (top.pdfUrl || top.certFileData || ex.pdfUrl || ex.certFileData || inc.pdfUrl) : (ex.pdfUrl || ex.certFileData || inc.pdfUrl),
+            certFileData: top ? (top.certFileData || top.pdfUrl || ex.certFileData || ex.pdfUrl || inc.certFileData) : (ex.certFileData || ex.pdfUrl || inc.certFileData),
+            certFileName: top ? (top.certFileName || ex.certFileName || inc.certFileName) : (ex.certFileName || inc.certFileName),
+            fileSize: top ? (top.fileSize || ex.fileSize || inc.fileSize) : (ex.fileSize || inc.fileSize)
+          };
+        } else {
+          result.push({ ...inc, category: defCat || inc.category, status: defStatus || inc.status || "normal", no: result.length + 1 });
+        }
+      }
+      return result;
+    };
+
     if(databaseItems&&databaseItems.length>0){
-      if(isRep)f(databaseItems.map((it,idx)=>({...it,no:idx+1})));
-      else f(prev=>{const s=prev.length;return[...prev,...databaseItems.map((it,idx)=>({...it,no:s+idx+1}))]});
+      f(prev => safeMergeTab(prev, databaseItems, "CALIBRATION ALL", null));
     }
     if(normalStandardItems&&normalStandardItems.length>0){
-      const fixed=normalStandardItems.map(it=>({...it,category:"NORMAL STANDARD"}));
-      if(isRep)setNsInstruments(fixed.map((it,idx)=>({...it,no:idx+1})));
-      else setNsInstruments(prev=>{const s=prev.length;return[...prev,...fixed.map((it,idx)=>({...it,no:s+idx+1}))]});
+      setNsInstruments(prev => safeMergeTab(prev, normalStandardItems, "NORMAL STANDARD", null));
     }
     if(centralizedItems&&centralizedItems.length>0){
-      const fixed=centralizedItems.map(it=>({...it,category:"CENTRALIZED"}));
-      if(isRep)setCentInstruments(fixed.map((it,idx)=>({...it,no:idx+1})));
-      else setCentInstruments(prev=>{const s=prev.length;return[...prev,...fixed.map((it,idx)=>({...it,no:s+idx+1}))]});
+      setCentInstruments(prev => safeMergeTab(prev, centralizedItems, "CENTRALIZED", null));
     }
     if(eachSectionItems&&eachSectionItems.length>0){
-      const fixed=eachSectionItems.map(it=>({...it,category:"EACH SECTION"}));
-      if(isRep)setEachInstruments(fixed.map((it,idx)=>({...it,no:idx+1})));
-      else setEachInstruments(prev=>{const s=prev.length;return[...prev,...fixed.map((it,idx)=>({...it,no:s+idx+1}))]});
+      setEachInstruments(prev => safeMergeTab(prev, eachSectionItems, "EACH SECTION", null));
     }
     if(cancelItems&&cancelItems.length>0){
-      const fixed=cancelItems.map(it=>({...it,category:"CANCEL",status:it.status||"inactive"}));
-      if(isRep)setCancelInstruments(fixed.map((it,idx)=>({...it,no:idx+1})));
-      else setCancelInstruments(prev=>{const s=prev.length;return[...prev,...fixed.map((it,idx)=>({...it,no:s+idx+1}))]});
+      setCancelInstruments(prev => safeMergeTab(prev, cancelItems, "CANCEL", "inactive"));
     }
     ae();
     try{

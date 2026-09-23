@@ -23,7 +23,15 @@
     <meta name="application-name" content="Carrier QAP Calibration Control" />
     <meta name="msapplication-TileColor" content="#0f172a" />
     <meta name="msapplication-TileImage" content="./favicon.ico" />
-    <link rel="manifest" href="./manifest.json">
+    <script>
+      // Load Web App Manifest only when served over HTTP/HTTPS to prevent CORS errors on file:// protocol
+      if (window.location.protocol.startsWith('http')) {
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = './manifest.json';
+        document.head.appendChild(manifestLink);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -420,7 +428,21 @@
       }
     </script>
     <script src="./supabaseClient.js"></script>
-    <script type="module" src="./app.js"></script>
+
+    <!-- PDF.js library for Canvas-based in-page rendering (immune to browser iframe/sandbox blocking) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    </script>
+    <!-- PDF-Lib & Pako for high-efficiency in-browser compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="./pdf_compressor.js"></script>
+    <script src="./doc_viewer.js"></script>
+
+    <script src="./app.js"></script>
     <script>
       (() => {
         const removeCertificateButtons = () => {
@@ -438,28 +460,7 @@
         removeCertificateButtons();
       })();
     </script>
-    
-    <script>
-      // Fallback for direct file:// opening where type="module" may be blocked by CORS in some browsers
-      if (window.location.protocol === "file:" && !window.__APP_LOADED__) {
-        const s = document.createElement("script");
-        s.src = "./app.js";
-        document.body.appendChild(s);
-      }
-    </script>
-  
-    <!-- PDF.js library for Canvas-based in-page rendering (immune to browser iframe/sandbox blocking) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-      if (window.pdfjsLib) {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      }
-    </script>
-    <!-- PDF-Lib & Pako for high-efficiency in-browser compression -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="./pdf_compressor.js"></script>
-    <script src="./doc_viewer.js"></script>
+
     <script>
       if (!window.qapPdfRemove) {
         window.qapPdfRemove = (histId, instrument, onUpdate, targetTab = 'calibration_all') => {
@@ -516,7 +517,7 @@
 
     <!-- 🚀 PWA Background Service Worker Registration -->
     <script>
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('./sw.js', { scope: './' })
             .then(function(reg) {
