@@ -2567,23 +2567,30 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         try {
           const res = await request(ep);
           if (Array.isArray(res) && res.length > 0) {
-            records = res.map((r, i) => ({
-              id: r.id || `hist_${i}`,
-              instrumentId: r.instrument_id || instId,
-              codeNo: r.code_no || codeNo,
-              certNo: r.cert_no || r.certNo || `CERT-${codeNo || i + 1}`,
-              calDate: r.cal_date || r.calDate || "",
-              dueDate: r.due_date || r.dueDate || r.next_due_date || "",
-              calibratedBy: r.calibrated_by || r.calibratedBy || r.labCal || "-",
-              result: (r.result || "PASS").toUpperCase(),
-              accuracy: r.accuracy || "",
-              notes: r.notes || r.remark || r.remarks || "",
-              pdfUrl: r.pdf_url || r.pdfUrl || null,
-              certFileName: r.cert_file_name || r.certFileName || null,
-              fileSize: r.file_size || r.fileSize || null,
-              createdAt: r.created_at || r.createdAt || null,
-              sourceTable: "CalibrationHistory (Cloud Supabase)",
-            }));
+            records = res.map((r, i) => {
+              const calBy = (r.calibrated_by && r.calibrated_by !== '-') ? r.calibrated_by : (r.calibratedBy && r.calibratedBy !== '-' ? r.calibratedBy : (r.labCal && r.labCal !== '-' ? r.labCal : (inst.labCal && inst.labCal !== '-' ? inst.labCal : (inst.calibratedBy && inst.calibratedBy !== '-' ? inst.calibratedBy : "NA CALTECHNOLOGIES"))));
+              const stdInst = (r.standard_instrument && r.standard_instrument !== '-') ? r.standard_instrument : (r.standardInstrument && r.standardInstrument !== '-' ? r.standardInstrument : (r.standardUsed && r.standardUsed !== '-' ? r.standardUsed : (inst.standardInstrument && inst.standardInstrument !== '-' ? inst.standardInstrument : (inst.standardUsed && inst.standardUsed !== '-' ? inst.standardUsed : (inst.labCal ? (String(inst.labCal).toUpperCase().startsWith('LAB') ? inst.labCal : 'LAB ' + inst.labCal) : "LAB NA CALtechnologies")))));
+              const remark = (r.notes && r.notes !== '-') ? r.notes : (r.remark && r.remark !== '-' ? r.remark : (r.remarks && r.remarks !== '-' ? r.remarks : (inst.notes && inst.notes !== '-' ? inst.notes : (inst.remark && inst.remark !== '-' ? inst.remark : (inst.remarks && inst.remarks !== '-' ? inst.remarks : "REFERENCE TO TS1-14-02")))));
+              return {
+                id: r.id || `hist_${i}`,
+                instrumentId: r.instrument_id || instId,
+                codeNo: r.code_no || codeNo,
+                certNo: r.cert_no || r.certNo || `CERT-${codeNo || i + 1}`,
+                calDate: r.cal_date || r.calDate || inst.calDate || "",
+                dueDate: r.due_date || r.dueDate || r.next_due_date || inst.dueDate || "",
+                calibratedBy: calBy,
+                standardInstrument: stdInst,
+                result: (r.result || "PASS").toUpperCase(),
+                accuracy: r.accuracy || inst.accuracy || "",
+                notes: remark,
+                remark: remark,
+                pdfUrl: r.pdf_url || r.pdfUrl || null,
+                certFileName: r.cert_file_name || r.certFileName || null,
+                fileSize: r.file_size || r.fileSize || null,
+                createdAt: r.created_at || r.createdAt || null,
+                sourceTable: "CalibrationHistory (Cloud Supabase)",
+              };
+            });
             _historyTableAvailable = true;
             _historyTableEndpoint = ep.split("?")[0];
             source = "CalibrationHistory (Supabase Cloud Table)";
@@ -2615,23 +2622,30 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
                 ? d.history
                 : [];
               if (rawHist.length > 0) {
-                records = rawHist.map((h, i) => ({
-                  id: h.id || `hist_${row.id}_${i}`,
-                  instrumentId: row.id,
-                  codeNo: row.code_no || codeNo,
-                  certNo: h.certNo || h.cert_no || row.cert_no || `CERT-${codeNo || i + 1}`,
-                  calDate: h.calDate || h.cal_date || row.cal_date || "",
-                  dueDate: h.dueDate || h.due_date || row.due_date || "",
-                  calibratedBy: h.calibratedBy || h.calibrated_by || h.labCal || row.calibrated_by || "-",
-                  result: (h.result || "PASS").toUpperCase(),
-                  accuracy: h.accuracy || "",
-                  notes: h.notes || h.remarks || h.remark || row.notes || "",
-                  pdfUrl: h.pdfUrl || h.certFileData || null,
-                  certFileName: h.certFileName || null,
-                  fileSize: h.fileSize || null,
-                  createdAt: h.createdAt || null,
-                  sourceTable: `${tbl} (data.calibrationHistory)`,
-                }));
+                records = rawHist.map((h, i) => {
+                  const calBy = (h.calibratedBy && h.calibratedBy !== '-') ? h.calibratedBy : (h.calibrated_by && h.calibrated_by !== '-' ? h.calibrated_by : (h.labCal && h.labCal !== '-' ? h.labCal : (row.calibrated_by && row.calibrated_by !== '-' ? row.calibrated_by : (inst.labCal && inst.labCal !== '-' ? inst.labCal : (inst.calibratedBy && inst.calibratedBy !== '-' ? inst.calibratedBy : "NA CALTECHNOLOGIES")))));
+                  const stdInst = (h.standardInstrument && h.standardInstrument !== '-') ? h.standardInstrument : (h.standard_instrument && h.standard_instrument !== '-' ? h.standard_instrument : (h.standardUsed && h.standardUsed !== '-' ? h.standardUsed : (inst.standardInstrument && inst.standardInstrument !== '-' ? inst.standardInstrument : (inst.standardUsed && inst.standardUsed !== '-' ? inst.standardUsed : (inst.labCal ? (String(inst.labCal).toUpperCase().startsWith('LAB') ? inst.labCal : 'LAB ' + inst.labCal) : "LAB NA CALtechnologies")))));
+                  const remark = (h.notes && h.notes !== '-') ? h.notes : (h.remarks && h.remarks !== '-' ? h.remarks : (h.remark && h.remark !== '-' ? h.remark : (row.notes && row.notes !== '-' ? row.notes : (inst.notes && inst.notes !== '-' ? inst.notes : (inst.remark && inst.remark !== '-' ? inst.remark : "REFERENCE TO TS1-14-02")))));
+                  return {
+                    id: h.id || `hist_${row.id}_${i}`,
+                    instrumentId: row.id,
+                    codeNo: row.code_no || codeNo,
+                    certNo: h.certNo || h.cert_no || row.cert_no || `CERT-${codeNo || i + 1}`,
+                    calDate: h.calDate || h.cal_date || row.cal_date || inst.calDate || "",
+                    dueDate: h.dueDate || h.due_date || row.due_date || inst.dueDate || "",
+                    calibratedBy: calBy,
+                    standardInstrument: stdInst,
+                    result: (h.result || "PASS").toUpperCase(),
+                    accuracy: h.accuracy || inst.accuracy || "",
+                    notes: remark,
+                    remark: remark,
+                    pdfUrl: h.pdfUrl || h.certFileData || null,
+                    certFileName: h.certFileName || null,
+                    fileSize: h.fileSize || null,
+                    createdAt: h.createdAt || null,
+                    sourceTable: `${tbl} (data.calibrationHistory)`,
+                  };
+                });
                 source = `${tbl} (Supabase Cloud Record)`;
                 break;
               }
@@ -2692,26 +2706,36 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
         ? inst.history
         : [];
       if (localHist.length > 0) {
-        records = localHist.map((h, i) => ({
-          id: h.id || `local_hist_${i}`,
-          instrumentId: instId,
-          codeNo: codeNo,
-          certNo: h.certNo || inst.certNo || `CERT-${codeNo || i + 1}`,
-          calDate: h.calDate || inst.calDate || "",
-          dueDate: h.dueDate || inst.dueDate || "",
-          calibratedBy: h.calibratedBy || h.labCal || inst.calibratedBy || inst.labCal || "-",
-          result: (h.result || "PASS").toUpperCase(),
-          accuracy: h.accuracy || inst.accuracy || "",
-          notes: h.notes || h.remarks || inst.notes || "",
-          pdfUrl: h.pdfUrl || h.certFileData || inst.pdfUrl || inst.certFileData || null,
-          certFileName: h.certFileName || inst.certFileName || null,
-          fileSize: h.fileSize || inst.fileSize || null,
-          createdAt: h.createdAt || null,
-          sourceTable: "Local Storage (Device Cache)",
-        }));
+        records = localHist.map((h, i) => {
+          const calBy = (h.calibratedBy && h.calibratedBy !== '-') ? h.calibratedBy : (h.labCal && h.labCal !== '-' ? h.labCal : (inst.labCal && inst.labCal !== '-' ? inst.labCal : (inst.calibratedBy && inst.calibratedBy !== '-' ? inst.calibratedBy : "NA CALTECHNOLOGIES")));
+          const stdInst = (h.standardInstrument && h.standardInstrument !== '-') ? h.standardInstrument : (h.standardUsed && h.standardUsed !== '-' ? h.standardUsed : (inst.standardInstrument && inst.standardInstrument !== '-' ? inst.standardInstrument : (inst.standardUsed && inst.standardUsed !== '-' ? inst.standardUsed : (inst.labCal ? (String(inst.labCal).toUpperCase().startsWith('LAB') ? inst.labCal : 'LAB ' + inst.labCal) : "LAB NA CALtechnologies"))));
+          const remark = (h.notes && h.notes !== '-') ? h.notes : (h.remarks && h.remarks !== '-' ? h.remarks : (h.remark && h.remark !== '-' ? h.remark : (inst.notes && inst.notes !== '-' ? inst.notes : (inst.remark && inst.remark !== '-' ? inst.remark : "REFERENCE TO TS1-14-02"))));
+          return {
+            id: h.id || `local_hist_${i}`,
+            instrumentId: instId,
+            codeNo: codeNo,
+            certNo: h.certNo || inst.certNo || `CERT-${codeNo || i + 1}`,
+            calDate: h.calDate || inst.calDate || "",
+            dueDate: h.dueDate || inst.dueDate || "",
+            calibratedBy: calBy,
+            standardInstrument: stdInst,
+            result: (h.result || "PASS").toUpperCase(),
+            accuracy: h.accuracy || inst.accuracy || "",
+            notes: remark,
+            remark: remark,
+            pdfUrl: h.pdfUrl || h.certFileData || inst.pdfUrl || inst.certFileData || null,
+            certFileName: h.certFileName || inst.certFileName || null,
+            fileSize: h.fileSize || inst.fileSize || null,
+            createdAt: h.createdAt || null,
+            sourceTable: "Local Storage (Device Cache)",
+          };
+        });
         source = "Local Storage (Device Cache)";
       } else if (inst.calDate || inst.dueDate || inst.certNo) {
         // If instrument has current calibration info, present it as cycle 1 baseline
+        const calBy = (inst.labCal && inst.labCal !== '-') ? inst.labCal : (inst.calibratedBy && inst.calibratedBy !== '-' ? inst.calibratedBy : "NA CALTECHNOLOGIES");
+        const stdInst = (inst.standardInstrument && inst.standardInstrument !== '-') ? inst.standardInstrument : (inst.standardUsed && inst.standardUsed !== '-' ? inst.standardUsed : (inst.labCal ? (String(inst.labCal).toUpperCase().startsWith('LAB') ? inst.labCal : 'LAB ' + inst.labCal) : "LAB NA CALtechnologies"));
+        const remark = (inst.notes && inst.notes !== '-') ? inst.notes : (inst.remark && inst.remark !== '-' ? inst.remark : (inst.remarks && inst.remarks !== '-' ? inst.remarks : "REFERENCE TO TS1-14-02"));
         records = [{
           id: `curr_${inst.id || Date.now()}`,
           instrumentId: instId,
@@ -2719,10 +2743,12 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           certNo: inst.certNo || `CERT-${codeNo || "CURRENT"}`,
           calDate: inst.calDate || "",
           dueDate: inst.dueDate || "",
-          calibratedBy: inst.labCal || inst.calibratedBy || "-",
+          calibratedBy: calBy,
+          standardInstrument: stdInst,
           result: "PASS",
           accuracy: inst.accuracy || "",
-          notes: inst.notes || inst.remark || "",
+          notes: remark,
+          remark: remark,
           pdfUrl: inst.pdfUrl || inst.certFileData || null,
           certFileName: inst.certFileName || null,
           fileSize: inst.fileSize || null,
