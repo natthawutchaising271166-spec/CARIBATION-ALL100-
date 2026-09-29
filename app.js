@@ -4595,19 +4595,17 @@ async function exportExcelWithExactFormat(items, filename = "INSTRUMENT_CALIBRAT
         { key: 'labCal', width: 22 }
       ];
 
-      // Row 1: Format code (A1) and Retention (L1-M1)
+      // Row 1: Format code (A1) and Retention (K1, L1:M1) starting at K up to M
       const row1 = worksheet.getRow(1);
-      row1.height = 20;
+      row1.height = 22;
       row1.getCell(1).value = formatCode;
       row1.getCell(1).font = { name: 'Arial', size: 10, color: { argb: 'FF000000' } };
       row1.getCell(1).alignment = { vertical: 'middle', horizontal: 'left' };
-
       const cellRetention = row1.getCell(11);
       cellRetention.value = "Retention";
       cellRetention.font = { name: 'Arial', size: 10, color: { argb: 'FF000000' } };
       cellRetention.alignment = { vertical: 'middle', horizontal: 'center' };
       cellRetention.border = solidBlackBorder;
-
       worksheet.mergeCells('L1:M1');
       const cellYear = row1.getCell(12);
       cellYear.value = retention;
@@ -4615,74 +4613,63 @@ async function exportExcelWithExactFormat(items, filename = "INSTRUMENT_CALIBRAT
       cellYear.alignment = { vertical: 'middle', horizontal: 'center' };
       row1.getCell(12).border = solidBlackBorder;
       row1.getCell(13).border = solidBlackBorder;
-
-      // Row 2: Title (A2:H2) and Company (I2:M2)
+      // Row 2: Title (A2:H2) and Company (K2:M2)
       const row2 = worksheet.getRow(2);
-      row2.height = 32;
+      row2.height = 28;
       worksheet.mergeCells('A2:H2');
       const cellTitle = row2.getCell(1);
       cellTitle.value = titleText;
       cellTitle.font = {
         name: 'Courier New',
-        size: 17,
+        size: 16,
         bold: true,
         underline: true,
         color: { argb: 'FF0000FF' }
       };
       cellTitle.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      worksheet.mergeCells('I2:M2');
-      const cellCompany = row2.getCell(9);
+      worksheet.mergeCells('K2:M2');
+      const cellCompany = row2.getCell(11);
       cellCompany.value = company;
-      cellCompany.font = { name: 'Arial', size: 10.5, bold: true, color: { argb: 'FF000000' } };
+      cellCompany.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FF000000' } };
       cellCompany.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      // Row 3: Issue date
+      // Row 3: Issue date (Label at K3, Value at L3:M3)
       const row3 = worksheet.getRow(3);
-      row3.height = 18;
-      worksheet.mergeCells('I3:J3');
-      const cellIssueLbl = row3.getCell(9);
+      row3.height = 20;
+      const cellIssueLbl = row3.getCell(11);
       cellIssueLbl.value = "Issue date  :";
       cellIssueLbl.font = { name: 'Courier New', size: 10.5, bold: true, color: { argb: 'FF0000FF' } };
       cellIssueLbl.alignment = { vertical: 'middle', horizontal: 'right' };
-
-      worksheet.mergeCells('K3:M3');
-      const cellIssueVal = row3.getCell(11);
+      worksheet.mergeCells('L3:M3');
+      const cellIssueVal = row3.getCell(12);
       cellIssueVal.value = issueDateStr;
       cellIssueVal.font = { name: 'Courier New', size: 10.5, bold: true, underline: 'single', color: { argb: 'FF0000FF' } };
       cellIssueVal.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      // Row 4: Prepared by
+      // Row 4: Prepared by (Label at K4, Value at L4:M4)
       const row4 = worksheet.getRow(4);
-      row4.height = 18;
-      worksheet.mergeCells('I4:J4');
-      const cellPrepLbl = row4.getCell(9);
+      row4.height = 20;
+      const cellPrepLbl = row4.getCell(11);
       cellPrepLbl.value = "Prepared by :";
       cellPrepLbl.font = { name: 'Courier New', size: 10.5, bold: true, color: { argb: 'FF0000FF' } };
       cellPrepLbl.alignment = { vertical: 'middle', horizontal: 'right' };
-
-      worksheet.mergeCells('K4:M4');
-      const cellPrepVal = row4.getCell(11);
+      worksheet.mergeCells('L4:M4');
+      const cellPrepVal = row4.getCell(12);
       cellPrepVal.value = preparedBy;
       cellPrepVal.font = { name: 'Courier New', size: 10.5, bold: true, underline: 'single', color: { argb: 'FF0000FF' } };
       cellPrepVal.alignment = { vertical: 'middle', horizontal: 'left' };
-
-      // Row 5: Approve by
+      // Row 5: Approve by (Label at K5, Value at L5:M5)
       const row5 = worksheet.getRow(5);
-      row5.height = 18;
-      worksheet.mergeCells('I5:J5');
-      const cellApprLbl = row5.getCell(9);
+      row5.height = 20;
+      const cellApprLbl = row5.getCell(11);
       cellApprLbl.value = "Approve by  :";
       cellApprLbl.font = { name: 'Courier New', size: 10.5, bold: true, color: { argb: 'FF0000FF' } };
       cellApprLbl.alignment = { vertical: 'middle', horizontal: 'right' };
-
-      worksheet.mergeCells('K5:M5');
-      const cellApprVal = row5.getCell(11);
+      worksheet.mergeCells('L5:M5');
+      const cellApprVal = row5.getCell(12);
       cellApprVal.value = approveBy;
       cellApprVal.font = { name: 'Courier New', size: 10.5, bold: true, underline: 'single', color: { argb: 'FF0000FF' } };
       cellApprVal.alignment = { vertical: 'middle', horizontal: 'left' };
-
       // Row 6: Empty spacer
+      
       const row6 = worksheet.getRow(6);
       row6.height = 10;
 
@@ -8342,6 +8329,28 @@ const formatControlCardDate = (dateStr) => {
 
 async function exportControlCardXlsx(inst, historyRecords = [], filename) {
   if (!inst) return;
+  let cardCfg = {
+    code: "(Formot-1)",
+    ts: "TS 1-14-02",
+    retention: "Permanent",
+    approved: "Wissawat",
+    prepared: "Prayoon S.",
+    revision: "Revision No.0  08/07/2024"
+  };
+  try {
+    const raw = localStorage.getItem("QAP_CONTROL_CARD_CONFIG_V1");
+    if (raw) Object.assign(cardCfg, JSON.parse(raw));
+    else {
+      const dbRaw = localStorage.getItem("QAP_DOC_VERSION_DB_V2");
+      if (dbRaw) {
+        const db = JSON.parse(dbRaw);
+        const f = db.find(d => d.id === 'doc-control-card' || (d.name && d.name.includes('CONTROL CARD')));
+        if (f) cardCfg = { code: f.code || "(Formot-1)", ts: f.ts || "TS 1-14-02", retention: f.retention || "Permanent", approved: f.approved || "Wissawat", prepared: f.prepared || "Prayoon S.", revision: f.rev || "Revision No.0  08/07/2024" };
+      }
+    }
+  } catch(e) {}
+
+  if (!inst) return;
   const codeNo = inst.codeNo || inst.code_no || "INSTRUMENT";
   const fn = filename || `CONTROL_CARD_${codeNo}.xlsx`;
   const solidBlackBorder = {
@@ -8400,12 +8409,12 @@ async function exportControlCardXlsx(inst, historyRecords = [], filename) {
       // Row 1: (Formot-1) TS 1-14-02 (A1) and Retention Box (G1:H1)
       const r1 = ws.getRow(1);
       r1.height = 20;
-      r1.getCell(1).value = "(Formot-1) TS 1-14-02";
+      r1.getCell(1).value = `${cardCfg.code} ${cardCfg.ts}`;
       r1.getCell(1).font = { name: 'Arial', size: 9.5, bold: true };
       r1.getCell(1).alignment = { vertical: 'middle', horizontal: 'left' };
 
       setCell(1, 7, "Retention", { font: { bold: true }, alignment: { horizontal: 'center' } });
-      setCell(1, 8, "Permanent", { font: { bold: true }, alignment: { horizontal: 'center' } });
+      setCell(1, 8, cardCfg.retention || "Permanent", { font: { bold: true }, alignment: { horizontal: 'center' } });
 
       // Row 2-3: Title & Approval Box
       const r2 = ws.getRow(2);
@@ -8421,8 +8430,8 @@ async function exportControlCardXlsx(inst, historyRecords = [], filename) {
 
       const r3 = ws.getRow(3);
       r3.height = 22;
-      setCell(3, 7, "Wissawat", { font: { bold: false }, alignment: { horizontal: 'center' } });
-      setCell(3, 8, "Prayoon S.", { font: { bold: false }, alignment: { horizontal: 'center' } });
+      setCell(3, 7, cardCfg.approved || "Wissawat", { font: { bold: false }, alignment: { horizontal: 'center' } });
+      setCell(3, 8, cardCfg.prepared || "Prayoon S.", { font: { bold: false }, alignment: { horizontal: 'center' } });
 
       // Row 4: Instrument No.: CMO-5KV-064
       const r4 = ws.getRow(4);
@@ -8566,7 +8575,7 @@ async function exportControlCardXlsx(inst, historyRecords = [], filename) {
       const revRowIdx = 10 + totalTableRows;
       const rRev = ws.getRow(revRowIdx);
       rRev.height = 20;
-      rRev.getCell(1).value = "Revision No.0  08/07/2024";
+      rRev.getCell(1).value = cardCfg.revision || "Revision No.0  08/07/2024";
       rRev.getCell(1).font = { name: 'Arial', size: 9.5, bold: true };
       rRev.getCell(1).alignment = { vertical: 'middle', horizontal: 'left' };
 
@@ -8758,7 +8767,7 @@ const generateControlCardPrintHtml = (currentInst, records = []) => {
 
         <!-- Header -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-          <div style="font-size: 11px; font-weight: bold;">(Formot-1) TS 1-14-02</div>
+          <div style="font-size: 11px; font-weight: bold;">${(typeof window !== "undefined" && window.qapControlCardConfig && `${window.qapControlCardConfig.code} ${window.qapControlCardConfig.ts}`) || "(Formot-1) TS 1-14-02"}</div>
           <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 10px;">
             <table style="border: 1px solid #000000; text-align: center; width: 180px; table-layout: fixed; border-collapse: collapse; background: #ffffff;">
               <tr>

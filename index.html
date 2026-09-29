@@ -531,5 +531,726 @@
         });
       }
     </script>
-  </body>
-</html>
+
+<!-- 📄 Document Version Control Database & Linked System (Page 2 & Page 3 Only) -->
+<style>
+  .qap-invisible-scroll {
+    overflow-y: auto !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE & Edge */
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .qap-invisible-scroll::-webkit-scrollbar {
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important; /* Chrome, Safari, Opera */
+  }
+  @keyframes qapFadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes qapSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .qap-input-field:focus {
+    outline: none !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  }
+</style>
+
+<script>
+  (() => {
+    // Exact 2 Document records matching Page 2 and Page 3
+    const defaultPage2Doc = {
+      id: 'doc-control-card',
+      pageNo: '2',
+      pageLabel: 'หน้าที่ 2: MEASURING INSTRUMENT CONTROL CARD',
+      code: '(Formot-1)',
+      name: 'MEASURING INSTRUMENT CONTROL CARD',
+      rev: 'Revision No.0  08/07/2024',
+      ts: 'TS 1-14-02',
+      retention: 'Permanent',
+      prepared: 'Prayoon S.',
+      approved: 'Wissawat',
+      company: 'CARRIER AIR CONDITIONING (THAILAND) CO., LTD',
+      issueDate: '08-Jul-2024',
+      description: 'ฟอร์มการ์ดประวัติเครื่องมือวัดรายตัว (Control Card / History Card)'
+    };
+
+    const defaultPage3Doc = {
+      id: 'doc-calibration-master',
+      pageNo: '3',
+      pageLabel: "หน้าที่ 3: Monthly calibration list 'Instrument in due 1/2026'",
+      code: 'Format-4 OM (C01-22-BM-002)',
+      name: "Monthly calibration list 'Instrument in due 1/2026'",
+      rev: 'Rev.02',
+      ts: 'OM (C01-22-BM-002)',
+      retention: '11 Year',
+      prepared: 'Thawatchai',
+      approved: 'Mr. Wissawat',
+      company: 'CARRIER AIR CONDITIONING (THAILAND) CO., LTD [Q/A] (QAA)',
+      issueDate: '29-Sep-2026',
+      description: 'ทะเบียนควบคุมและรายการสอบเทียบประจำเดือน (Monthly Calibration Master List)'
+    };
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getDocs() {
+      try {
+        const saved = localStorage.getItem('QAP_DOC_VERSION_DB_V2');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const p2 = parsed.find(d => d.id === 'doc-control-card' || d.pageNo === '2' || (d.name && d.name.includes('CONTROL CARD'))) || defaultPage2Doc;
+            const p3 = parsed.find(d => d.id === 'doc-calibration-master' || d.pageNo === '3' || (d.name && d.name.includes('Monthly'))) || defaultPage3Doc;
+            return [{ ...defaultPage2Doc, ...p2 }, { ...defaultPage3Doc, ...p3 }];
+          }
+        }
+      } catch (e) {}
+      return [defaultPage2Doc, defaultPage3Doc];
+    }
+
+    function saveDocs(docs) {
+      try {
+        localStorage.setItem('QAP_DOC_VERSION_DB_V2', JSON.stringify(docs));
+        
+        // Sync Page 2 (Control Card)
+        const p2 = docs[0] || defaultPage2Doc;
+        const cardCfg = {
+          code: p2.code || '(Formot-1)',
+          ts: p2.ts || 'TS 1-14-02',
+          retention: p2.retention || 'Permanent',
+          approved: p2.approved || 'Wissawat',
+          prepared: p2.prepared || 'Prayoon S.',
+          revision: p2.rev || 'Revision No.0  08/07/2024',
+          name: p2.name || 'MEASURING INSTRUMENT CONTROL CARD'
+        };
+        localStorage.setItem('QAP_CONTROL_CARD_CONFIG_V1', JSON.stringify(cardCfg));
+        window.qapControlCardConfig = cardCfg;
+
+        // Sync Page 3 (Master List / Monthly Calibration Due Report)
+        const p3 = docs[1] || defaultPage3Doc;
+        const masterCfg = {
+          formatCode: p3.code || 'Format-4 OM (C01-22-BM-002)',
+          revisionNo: p3.rev || 'Rev.02',
+          tsCode: p3.ts || 'OM (C01-22-BM-002)',
+          retention: p3.retention || '11 Year',
+          company: p3.company || 'CARRIER AIR CONDITIONING (THAILAND) CO., LTD [Q/A] (QAA)',
+          issueDate: p3.issueDate || '29-Sep-2026',
+          preparedBy: p3.prepared || 'Thawatchai',
+          approveBy: p3.approved || 'Mr. Wissawat',
+          title: p3.name || "Monthly calibration list ’Instrument in due 1/2026"
+        };
+        localStorage.setItem('QAP_DOCUMENT_CONFIG_V1', JSON.stringify(masterCfg));
+        window.qapDocumentConfig = masterCfg;
+      } catch (e) {
+        console.error('Error saving QAP docs:', e);
+      }
+    }
+
+    saveDocs(getDocs());
+
+    // Preview Modal Function
+    function openPreviewModal(docType, currentValues) {
+      let previewOverlay = document.getElementById('qap-doc-preview-modal-overlay');
+      if (previewOverlay) previewOverlay.remove();
+
+      previewOverlay = document.createElement('div');
+      previewOverlay.id = 'qap-doc-preview-modal-overlay';
+      previewOverlay.style.cssText = 'position: fixed; inset: 0; z-index: 100000; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; animation: qapFadeIn 0.2s ease-out;';
+
+      if (docType === 'page2') {
+        const d = currentValues[0] || defaultPage2Doc;
+        previewOverlay.innerHTML = `
+          <div style="background: #ffffff; width: 100%; max-width: 900px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; max-height: 94vh; border: 1px solid #cbd5e1; animation: qapSlideUp 0.2s ease-out;">
+            <!-- Header Bar -->
+            <div style="background: #0f172a; padding: 16px 24px; color: white; display: flex; align-items: center; justify-content: space-between; shrink-0;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">👁️</span>
+                <div>
+                  <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Live Preview: หน้าที่ 2 - MEASURING INSTRUMENT CONTROL CARD</h3>
+                  <p style="margin: 2px 0 0 0; font-size: 12px; color: #94a3b8;">ตัวอย่างแบบฟอร์มจำลองตามข้อมูลที่แก้ไขล่าสุด</p>
+                </div>
+              </div>
+              <button id="qap-close-preview-btn" style="background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 15px; cursor: pointer;">✕</button>
+            </div>
+            
+            <!-- Document Body Preview -->
+            <div class="qap-invisible-scroll" style="padding: 24px 32px; background: #f1f5f9; flex: 1; overflow-y: auto;">
+              <div style="background: white; padding: 32px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-family: Arial, sans-serif; font-size: 12px; color: #000000; min-height: 540px;">
+                
+                <!-- Top Header: Format Code / TS & Retention / Approved -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div style="font-weight: bold; font-size: 12px; color: #000;">${escapeHtml(d.code)} ${escapeHtml(d.ts)}</div>
+                  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                    <table style="border-collapse: collapse; border: 1px solid #000; width: 170px; text-align: center; font-size: 10px;">
+                      <tr>
+                        <td style="border: 1px solid #000; font-weight: bold; width: 50%; padding: 2px;">Retention</td>
+                        <td style="border: 1px solid #000; font-weight: bold; width: 50%; padding: 2px;">${escapeHtml(d.retention)}</td>
+                      </tr>
+                    </table>
+                    <table style="border-collapse: collapse; border: 1px solid #000; width: 170px; text-align: center; font-size: 10px;">
+                      <tr>
+                        <td style="border: 1px solid #000; font-weight: bold; width: 50%; padding: 2px;">Approved By</td>
+                        <td style="border: 1px solid #000; font-weight: bold; width: 50%; padding: 2px;">Perpared By</td>
+                      </tr>
+                      <tr>
+                        <td style="border: 1px solid #000; padding: 3px;">${escapeHtml(d.approved)}</td>
+                        <td style="border: 1px solid #000; padding: 3px;">${escapeHtml(d.prepared)}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Main Title -->
+                <div style="text-align: center; font-family: 'Times New Roman', serif; font-size: 18px; font-weight: bold; margin: 12px 0 16px 0; letter-spacing: 0.5px;">
+                  ${escapeHtml(d.name)}
+                </div>
+
+                <!-- Instrument Info Box -->
+                <div style="text-align: right; font-weight: bold; margin-bottom: 4px; font-size: 11px;">
+                  Instrument No.: <span style="text-decoration: underline;">DBD-030-001</span>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 11px; text-align: center; margin-bottom: 12px;">
+                  <tr>
+                    <td style="border: 1px solid #000; font-weight: bold; width: 15%; padding: 4px; background: #fafafa;">Delivery Date</td>
+                    <td style="border: 1px solid #000; width: 15%; padding: 4px;">15-Jun-2001</td>
+                    <td style="border: 1px solid #000; font-weight: bold; width: 18%; padding: 4px; background: #fafafa;">Instrument Name</td>
+                    <td style="border: 1px solid #000; width: 22%; padding: 4px; font-weight: bold;">DIGIMATIC DEPTH GAUGE</td>
+                    <td style="border: 1px solid #000; font-weight: bold; width: 12%; padding: 4px; background: #fafafa;">MODEL :</td>
+                    <td style="border: 1px solid #000; width: 18%; padding: 4px;">E-DP2J</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; font-weight: bold; padding: 4px; background: #fafafa;">Registered Date</td>
+                    <td style="border: 1px solid #000; padding: 4px;">15-Jun-2001</td>
+                    <td style="border: 1px solid #000; font-weight: bold; padding: 4px; background: #fafafa;">Serial Number</td>
+                    <td style="border: 1px solid #000; padding: 4px;">14Z19</td>
+                    <td style="border: 1px solid #000; font-weight: bold; padding: 4px; background: #fafafa;">Maker Name:</td>
+                    <td style="border: 1px solid #000; padding: 4px; font-weight: bold;">KANON</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; font-weight: bold; padding: 4px; background: #fafafa;">Calibration Period</td>
+                    <td style="border: 1px solid #000; padding: 4px;">((1 Year))</td>
+                    <td style="border: 1px solid #000; font-weight: bold; padding: 4px; background: #fafafa;">Owner Section</td>
+                    <td style="border: 1px solid #000; padding: 4px; font-weight: bold;">AEA</td>
+                    <td style="border: 1px solid #000; font-weight: bold; padding: 4px; background: #fafafa;">Number Fix Asset:</td>
+                    <td style="border: 1px solid #000; padding: 4px;">-</td>
+                  </tr>
+                </table>
+
+                <!-- Calibration History Table -->
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 10.5px; text-align: center;">
+                  <tr style="background: #fafafa; font-weight: bold;">
+                    <td style="border: 1px solid #000; width: 6%; padding: 4px;">NO.</td>
+                    <td style="border: 1px solid #000; width: 22%; padding: 4px;">Date / Month / Year of Calibration</td>
+                    <td style="border: 1px solid #000; width: 22%; padding: 4px;">Calibration By</td>
+                    <td style="border: 1px solid #000; width: 24%; padding: 4px;">Standard Instrument</td>
+                    <td style="border: 1px solid #000; width: 12%; padding: 4px;">Result</td>
+                    <td style="border: 1px solid #000; width: 14%; padding: 4px;">Remark</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 3px;">1</td>
+                    <td style="border: 1px solid #000; padding: 3px;">20-Jun-26</td>
+                    <td style="border: 1px solid #000; padding: 3px;">NA CALTECHNOLOGIES</td>
+                    <td style="border: 1px solid #000; padding: 3px;">LAB NA CALTECHNOLOGIES</td>
+                    <td style="border: 1px solid #000; padding: 3px; font-weight: bold; color: green;">PASS</td>
+                    <td style="border: 1px solid #000; padding: 3px;">REFERENCE TO TS1-14-02</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 3px;"></td>
+                    <td style="border: 1px solid #000; padding: 3px;">20-Jun-27</td>
+                    <td style="border: 1px solid #000; padding: 3px;">NA CALTECHNOLOGIES</td>
+                    <td style="border: 1px solid #000; padding: 3px;">LAB NA CALTECHNOLOGIES</td>
+                    <td style="border: 1px solid #000; padding: 3px; font-weight: bold; color: green;">PASS</td>
+                    <td style="border: 1px solid #000; padding: 3px;">REFERENCE TO TS1-14-02</td>
+                  </tr>
+                </table>
+
+                <!-- Bottom Left Revision -->
+                <div style="margin-top: 24px; font-size: 11px; font-weight: bold; text-align: left; color: #000;">
+                  ${escapeHtml(d.rev)}
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div style="background: #e2e8f0; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; shrink-0;">
+              <span style="font-size: 12px; color: #475569;">สถานะ: ตรวจสอบข้อมูลก่อนบันทึกจริง</span>
+              <button id="qap-close-preview-btn2" style="background: #0f172a; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">ปิดหน้าต่างพรีวิว (Esc)</button>
+            </div>
+          </div>
+        `;
+      } else if (docType === 'page3') {
+        const d = currentValues[1] || defaultPage3Doc;
+        previewOverlay.innerHTML = `
+          <div style="background: #ffffff; width: 100%; max-width: 1020px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; max-height: 94vh; border: 1px solid #cbd5e1; animation: qapSlideUp 0.2s ease-out;">
+            <!-- Header Bar -->
+            <div style="background: #064e3b; padding: 16px 24px; color: white; display: flex; align-items: center; justify-content: space-between; shrink-0;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">👁️</span>
+                <div>
+                  <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Live Preview: หน้าที่ 3 - ${escapeHtml(d.name)}</h3>
+                  <p style="margin: 2px 0 0 0; font-size: 12px; color: #a7f3d0;">ตัวอย่างหัวตารางและข้อมูลทะเบียน Master List ตามแบบฟอร์ม Excel</p>
+                </div>
+              </div>
+              <button id="qap-close-preview-btn" style="background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 15px; cursor: pointer;">✕</button>
+            </div>
+            
+            <!-- Document Body Preview -->
+            <div class="qap-invisible-scroll" style="padding: 24px 28px; background: #f8fafc; flex: 1; overflow-y: auto;">
+              <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-family: Consolas, monospace, sans-serif; font-size: 11px;">
+                
+                <!-- Top Meta Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div style="font-weight: bold; font-size: 12px; color: #1e293b;">${escapeHtml(d.code)}</div>
+                  <div style="text-align: right;">
+                    <div style="border: 1px solid #94a3b8; display: inline-flex; font-size: 11px;">
+                      <span style="padding: 2px 8px; border-right: 1px solid #94a3b8; background: #f1f5f9; font-weight: bold;">Retention</span>
+                      <span style="padding: 2px 8px; font-weight: bold;">${escapeHtml(d.retention)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                  <div>
+                    <h2 style="font-size: 15px; font-weight: bold; color: #2563eb; margin: 0; text-decoration: underline;">${escapeHtml(d.name)}</h2>
+                  </div>
+                  <div style="font-size: 11px; text-align: right; line-height: 1.5;">
+                    <div style="font-weight: bold; color: #0f172a;">${escapeHtml(d.company)}</div>
+                    <div>Issue date : <span style="color: #2563eb; font-weight: bold;">${escapeHtml(d.issueDate || '29-Sep-2026')}</span></div>
+                    <div>Prepared by : <span style="color: #059669; font-weight: bold;">${escapeHtml(d.prepared)}</span></div>
+                    <div>Approve by : <span style="color: #7c3aed; font-weight: bold;">${escapeHtml(d.approved)}</span></div>
+                  </div>
+                </div>
+
+                <!-- Excel Preview Table Mockup -->
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; border: 1px solid #94a3b8; font-size: 10.5px; text-align: left;">
+                    <thead>
+                      <tr style="background: #f1f5f9; font-weight: bold; color: #1e40af; border-bottom: 1px solid #94a3b8;">
+                        <th style="border: 1px solid #cbd5e1; padding: 5px; text-align: center;">No.</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Instrument Name</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Maker Name</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Model</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Code No.</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Serial No.</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Size</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Cal. Date</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Due Date</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Frequency</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Section</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Sub Section</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 5px;">Lab. Calibration</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px; text-align: center;">1</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">DIGIMATIC HEIGHT GAUGE</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">MITUTOYO</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">192-614-10</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px; font-weight: bold;">DHG-600-002</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">1210299</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">0-600 mm</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">20-Sep-25</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px; font-weight: bold; color: #dc2626;">20-Sep-26</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">(1 Year)</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">AM</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">PM-DIE</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">NA CALTECHNOLOGIES</td>
+                      </tr>
+                      <tr>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px; text-align: center;">2</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">VERNIER CALIPER</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">MITUTOYO</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">530-115</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px; font-weight: bold;">VC-300-001</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">11426420</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">0-300mm</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">20-Sep-25</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px; font-weight: bold; color: #dc2626;">20-Sep-26</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">(1 Year)</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">AM</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">PM-DIE</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 4px;">NA CALTECHNOLOGIES</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div style="background: #e2e8f0; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; shrink-0;">
+              <span style="font-size: 12px; color: #475569;">สถานะ: ตรวจสอบข้อมูลก่อนบันทึกจริง</span>
+              <button id="qap-close-preview-btn2" style="background: #064e3b; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">ปิดหน้าต่างพรีวิว (Esc)</button>
+            </div>
+          </div>
+        `;
+      }
+
+      document.body.appendChild(previewOverlay);
+      const closePreview = () => previewOverlay.remove();
+      document.getElementById('qap-close-preview-btn').onclick = closePreview;
+      document.getElementById('qap-close-preview-btn2').onclick = closePreview;
+      previewOverlay.onclick = (e) => { if (e.target === previewOverlay) closePreview(); };
+
+      const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+          closePreview();
+          window.removeEventListener('keydown', handleEsc);
+        }
+      };
+      window.addEventListener('keydown', handleEsc);
+    }
+
+    function openDocModal() {
+      let modal = document.getElementById('qap-doc-control-modal-overlay');
+      if (modal) modal.remove();
+
+      const docs = getDocs();
+
+      modal = document.createElement('div');
+      modal.id = 'qap-doc-control-modal-overlay';
+      modal.style.cssText = 'position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; animation: qapFadeIn 0.2s ease-out;';
+      
+      modal.innerHTML = `
+        <div style="background: #ffffff; width: 100%; max-width: 1080px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); overflow: hidden; display: flex; flex-direction: column; max-height: 92vh; border: 1px solid #cbd5e1; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; animation: qapSlideUp 0.2s ease-out;">
+          
+          <!-- Header Bar -->
+          <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 18px 28px; color: white; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.1); shrink-0;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 8px 16px -4px rgba(59, 130, 246, 0.5);">📑</div>
+              <div>
+                <h2 style="font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Document Version & TS Control Database</h2>
+                <p style="font-size: 13px; color: #94a3b8; margin: 2px 0 0 0;">จัดการและเชื่อมต่อข้อมูลเฉพาะ <strong style="color: #60a5fa;">หน้าที่ 2</strong> (Control Card) และ <strong style="color: #34d399;">หน้าที่ 3</strong> (Monthly Calibration List)</p>
+              </div>
+            </div>
+            <button id="qap-modal-close-btn" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">✕</button>
+          </div>
+
+          <!-- Body Content (Invisible Scrollable Container) -->
+          <div class="qap-invisible-scroll" style="padding: 22px 26px; overflow-y: auto; flex: 1; background: #f8fafc; display: flex; flex-direction: column; gap: 22px;">
+            
+            <!-- Quick Description Info Banner -->
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">ℹ️</span>
+                <div style="font-size: 13px; color: #1e40af;">
+                  <strong>ระบบเลื่อนขึ้นลงแบบล่องหน (Smooth Invisible Scroll):</strong> ทั้ง 2 การ์ดเอกสารและหน้าต่างนี้ เลื่อนขึ้นลงได้อย่างอิสระ ไม่มีแถบดำบดบังสายตา
+                </div>
+              </div>
+              <button id="qap-reset-defaults-btn" style="background: #ffffff; color: #3b82f6; border: 1px solid #93c5fd; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s;">🔄 คืนค่าเริ่มต้น (Reset)</button>
+            </div>
+
+            <!-- CARD 1: DOCUMENT 1 (PAGE 2) with Invisible Scroll -->
+            <div style="background: white; border-radius: 18px; border: 2px solid #bfdbfe; box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.08); display: flex; flex-direction: column;">
+              <!-- Card Header -->
+              <div style="background: linear-gradient(90deg, #eff6ff 0%, #f0fdf4 100%); padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="background: #2563eb; color: white; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 20px;">หน้าที่ 2</span>
+                  <span style="font-weight: 700; font-size: 15px; color: #0f172a;">MEASURING INSTRUMENT CONTROL CARD</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button class="qap-doc-preview-btn" data-doc-type="page2" title="คลิกเพื่อพรีวิวเอกสารหน้านี้แบบจำลองสดทันที" style="background: #ffffff; color: #2563eb; border: 1.5px solid #2563eb; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                    👁️ พรีวิวตัวอย่าง
+                  </button>
+                  <button class="qap-doc-link-btn" data-doc-type="card" title="คลิกเพื่อเปิดดูแบบฟอร์มการ์ดประวัติเครื่องมือวัดนี้ทันที" style="background: #2563eb; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);">
+                    🔗 เปิดดูเอกสารหน้าที่ 2
+                  </button>
+                </div>
+              </div>
+              <!-- Card Scrollable Content -->
+              <div class="qap-invisible-scroll" style="padding: 18px 20px 24px 20px; max-height: 270px; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Format Code (มุมซ้ายบน)</label>
+                    <input type="text" id="doc0-code" class="qap-input-field" value="${escapeHtml(docs[0].code)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: monospace; color: #1e293b; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">TS Code (รหัส TS)</label>
+                    <input type="text" id="doc0-ts" class="qap-input-field" value="${escapeHtml(docs[0].ts)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; color: #0d9488; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Revision & Date (มุมซ้ายล่าง)</label>
+                    <input type="text" id="doc0-rev" class="qap-input-field" value="${escapeHtml(docs[0].rev)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #2563eb; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Retention (อายุการจัดเก็บ)</label>
+                    <input type="text" id="doc0-retention" class="qap-input-field" value="${escapeHtml(docs[0].retention)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; box-sizing: border-box;">
+                  </div>
+                  <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">ชื่อแบบฟอร์มเอกสาร (Document Title)</label>
+                    <input type="text" id="doc0-name" class="qap-input-field" value="${escapeHtml(docs[0].name)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1e293b; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Prepared By (ผู้จัดทำ)</label>
+                    <input type="text" id="doc0-prepared" class="qap-input-field" value="${escapeHtml(docs[0].prepared)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #059669; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Approved By (ผู้อนุมัติ)</label>
+                    <input type="text" id="doc0-approved" class="qap-input-field" value="${escapeHtml(docs[0].approved)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #7c3aed; box-sizing: border-box;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD 2: DOCUMENT 2 (PAGE 3) with Invisible Scroll -->
+            <div style="background: white; border-radius: 18px; border: 2px solid #a7f3d0; box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.08); display: flex; flex-direction: column;">
+              <!-- Card Header -->
+              <div style="background: linear-gradient(90deg, #f0fdf4 0%, #ecfdf5 100%); padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="background: #059669; color: white; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 20px;">หน้าที่ 3</span>
+                  <span style="font-weight: 700; font-size: 15px; color: #064e3b;">Monthly calibration list 'Instrument in due 1/2026'</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button class="qap-doc-preview-btn" data-doc-type="page3" title="คลิกเพื่อพรีวิวเอกสารหน้านี้แบบจำลองสดทันที" style="background: #ffffff; color: #059669; border: 1.5px solid #059669; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                    👁️ พรีวิวตัวอย่าง
+                  </button>
+                  <button class="qap-doc-link-btn" data-doc-type="master" title="คลิกเพื่อเปิดหน้าทะเบียนและส่งออก Excel Master List ทันที" style="background: #059669; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);">
+                    🔗 เปิดดูเอกสารหน้าที่ 3 (Excel)
+                  </button>
+                </div>
+              </div>
+              <!-- Card Scrollable Content -->
+              <div class="qap-invisible-scroll" style="padding: 18px 20px 24px 20px; max-height: 270px; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                  <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Format Code (รหัสฟอร์แมต)</label>
+                    <input type="text" id="doc1-code" class="qap-input-field" value="${escapeHtml(docs[1].code)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: monospace; color: #1e293b; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">TS Code (รหัส TS)</label>
+                    <input type="text" id="doc1-ts" class="qap-input-field" value="${escapeHtml(docs[1].ts)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; color: #0d9488; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Retention (อายุการจัดเก็บ)</label>
+                    <input type="text" id="doc1-retention" class="qap-input-field" value="${escapeHtml(docs[1].retention)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; box-sizing: border-box;">
+                  </div>
+                  <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">หัวข้อรายงาน (Monthly List Title)</label>
+                    <input type="text" id="doc1-name" class="qap-input-field" value="${escapeHtml(docs[1].name)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1e293b; box-sizing: border-box;">
+                  </div>
+                  <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">ชื่อบริษัท/แผนก (Company / Dept)</label>
+                    <input type="text" id="doc1-company" class="qap-input-field" value="${escapeHtml(docs[1].company)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1e293b; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Issue Date (วันที่ออกเอกสาร)</label>
+                    <input type="text" id="doc1-issueDate" class="qap-input-field" value="${escapeHtml(docs[1].issueDate || '29-Sep-2026')}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #2563eb; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Prepared By (ผู้จัดทำ)</label>
+                    <input type="text" id="doc1-prepared" class="qap-input-field" value="${escapeHtml(docs[1].prepared)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #059669; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Approved By (ผู้อนุมัติ)</label>
+                    <input type="text" id="doc1-approved" class="qap-input-field" value="${escapeHtml(docs[1].approved)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #7c3aed; box-sizing: border-box;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Revision No.</label>
+                    <input type="text" id="doc1-rev" class="qap-input-field" value="${escapeHtml(docs[1].rev)}" style="width: 100%; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #2563eb; box-sizing: border-box;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer Bar -->
+          <div style="background: #f1f5f9; padding: 16px 28px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; shrink-0;">
+            <div id="qap-modal-status" style="font-size: 13px; font-weight: 600; color: #059669;"></div>
+            <div style="display: flex; gap: 12px;">
+              <button id="qap-modal-cancel-btn" style="background: white; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;">ยกเลิก (Esc)</button>
+              <button id="qap-modal-save-btn" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 10px 26px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35); transition: transform 0.15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">💾 บันทึกและเชื่อมโยงข้อมูลอัตโนมัติ</button>
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      const closeModal = () => modal.remove();
+      document.getElementById('qap-modal-close-btn').onclick = closeModal;
+      document.getElementById('qap-modal-cancel-btn').onclick = closeModal;
+      modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+
+      const handleModalEsc = (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+          window.removeEventListener('keydown', handleModalEsc);
+        }
+      };
+      window.addEventListener('keydown', handleModalEsc);
+
+      // Reset Defaults
+      document.getElementById('qap-reset-defaults-btn').onclick = () => {
+        if (confirm('ต้องการรีเซ็ตข้อมูลเอกสารหน้าที่ 2 และหน้าที่ 3 กลับเป็นค่ามาตรฐานตามฟอร์มหรือไม่?')) {
+          saveDocs([defaultPage2Doc, defaultPage3Doc]);
+          openDocModal();
+        }
+      };
+
+      function gatherFormInputs() {
+        const getVal = (id, fallback) => {
+          const el = document.getElementById(id);
+          return el ? el.value.trim() : fallback;
+        };
+
+        const doc0 = {
+          ...defaultPage2Doc,
+          code: getVal('doc0-code', defaultPage2Doc.code),
+          ts: getVal('doc0-ts', defaultPage2Doc.ts),
+          rev: getVal('doc0-rev', defaultPage2Doc.rev),
+          retention: getVal('doc0-retention', defaultPage2Doc.retention),
+          name: getVal('doc0-name', defaultPage2Doc.name),
+          prepared: getVal('doc0-prepared', defaultPage2Doc.prepared),
+          approved: getVal('doc0-approved', defaultPage2Doc.approved)
+        };
+
+        const doc1 = {
+          ...defaultPage3Doc,
+          code: getVal('doc1-code', defaultPage3Doc.code),
+          ts: getVal('doc1-ts', defaultPage3Doc.ts),
+          retention: getVal('doc1-retention', defaultPage3Doc.retention),
+          name: getVal('doc1-name', defaultPage3Doc.name),
+          company: getVal('doc1-company', defaultPage3Doc.company),
+          issueDate: getVal('doc1-issueDate', defaultPage3Doc.issueDate),
+          prepared: getVal('doc1-prepared', defaultPage3Doc.prepared),
+          approved: getVal('doc1-approved', defaultPage3Doc.approved),
+          rev: getVal('doc1-rev', defaultPage3Doc.rev)
+        };
+
+        return [doc0, doc1];
+      }
+
+      // Live Preview Button handlers
+      modal.querySelectorAll('.qap-doc-preview-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          const docType = e.currentTarget.getAttribute('data-doc-type');
+          const currentValues = gatherFormInputs();
+          openPreviewModal(docType, currentValues);
+        };
+      });
+
+      // Link Buttons Action
+      modal.querySelectorAll('.qap-doc-link-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          const type = e.currentTarget.getAttribute('data-doc-type');
+          const updated = gatherFormInputs();
+          saveDocs(updated);
+          closeModal();
+
+          if (type === 'card') {
+            const firstControlBtn = document.querySelector('button[title*="MEASURING INSTRUMENT CONTROL CARD"], button[title*="Control Card"], button[title*="XLSX"]');
+            if (firstControlBtn) {
+              firstControlBtn.click();
+            } else {
+              alert(`🔗 เชื่อมต่อหน้าที่ 2: [MEASURING INSTRUMENT CONTROL CARD]\nบันทึกและอัปเดตรหัส (${updated[0].code} ${updated[0].ts}) เข้าสู่แบบฟอร์มเรียบร้อยแล้ว!`);
+            }
+          } else if (type === 'master') {
+            const exportBtn = document.querySelector('button[title*="Export"], button[title*="Excel"]');
+            if (exportBtn) {
+              exportBtn.click();
+            } else {
+              alert(`🔗 เชื่อมต่อหน้าที่ 3: [${updated[1].name}]\nบันทึกและอัปเดตรหัส (${updated[1].code}) เข้าสู่ระบบเรียบร้อยแล้ว!`);
+            }
+          }
+        };
+      });
+
+      // Save Button Action
+      document.getElementById('qap-modal-save-btn').onclick = () => {
+        const updated = gatherFormInputs();
+        saveDocs(updated);
+        const statusEl = document.getElementById('qap-modal-status');
+        if (statusEl) {
+          statusEl.textContent = '✨ บันทึกสำเร็จ! ข้อมูลถูกเชื่อมโยงไปยังแบบฟอร์มหน้าที่ 2 และหน้าที่ 3 เรียบร้อยแล้ว';
+        }
+        setTimeout(() => {
+          closeModal();
+          window.location.reload();
+        }, 1200);
+      };
+    }
+
+    // STRICT SINGLE BOTTOM-MOST BUTTON ENFORCEMENT
+    function placeSingleBottomButton() {
+      const allButtons = document.querySelectorAll('#qap-sidebar-doc-btn, .qap-doc-btn-injected');
+      const sidebar = document.querySelector('aside') || document.querySelector('[class*="sidebar"]');
+
+      if (!sidebar) return;
+
+      if (!sidebar.classList.contains('flex')) {
+        sidebar.style.display = 'flex';
+        sidebar.style.flexDirection = 'column';
+      }
+
+      if (allButtons.length === 1 && sidebar.contains(allButtons[0])) {
+        const btn = allButtons[0];
+        btn.style.marginTop = 'auto';
+        btn.style.marginBottom = '16px';
+        btn.style.marginLeft = '12px';
+        btn.style.marginRight = '12px';
+        btn.style.width = 'calc(100% - 24px)';
+        if (sidebar.lastElementChild !== btn) {
+          sidebar.appendChild(btn);
+        }
+        return;
+      }
+
+      allButtons.forEach(b => b.remove());
+
+      const btn = document.createElement('button');
+      btn.id = 'qap-sidebar-doc-btn';
+      btn.className = 'qap-doc-btn-injected flex items-center gap-3 px-3.5 py-3 rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition shadow-lg cursor-pointer text-left group shrink-0';
+      btn.style.marginTop = 'auto';
+      btn.style.marginBottom = '16px';
+      btn.style.marginLeft = '12px';
+      btn.style.marginRight = '12px';
+      btn.style.width = 'calc(100% - 24px)';
+      btn.title = 'Document Version & TS Control Database';
+      btn.innerHTML = `
+        <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white shrink-0 font-bold text-lg">📑</div>
+        <div class="truncate">
+          <div class="text-[13px] font-bold tracking-tight text-white leading-tight">Document Control DB</div>
+          <div class="text-[10px] text-blue-200 mt-0.5 leading-tight">เชื่อมหน้าที่ 2 & 3 อัตโนมัติ</div>
+        </div>
+      `;
+      btn.onclick = openDocModal;
+      sidebar.appendChild(btn);
+    }
+
+    let timer = null;
+    const observer = new MutationObserver(() => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(placeSingleBottomButton, 150);
+    });
+
+    if (document.body) {
+      observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    }
+
+    placeSingleBottomButton();
+    window.openQapDocumentControlModal = openDocModal;
+  })();
+</script>
+</body></html>
