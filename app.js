@@ -846,22 +846,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     else dt.setHours(0, 0, 0, 0);
     return dt.getTime();
   };
-  const [customDaysThreshold, setCustomDaysThreshold] = g1.useState(() => {
-    try {
-      const saved = localStorage.getItem("QAP_UPCOMING_THRESHOLD");
-      if (saved && !isNaN(Number(saved)) && Number(saved) > 0) {
-        const num = Number(saved);
-        if (typeof window !== "undefined") {
-          window.qapAlertThreshold = num;
-        }
-        return num;
-      }
-    } catch {}
-    if (typeof window !== "undefined") {
-      window.qapAlertThreshold = 30;
-    }
-    return 30;
-  });
+  const [customDaysThreshold, setCustomDaysThreshold] = g1.useState(30);
   g1.useEffect(() => {
     window.qapAlertThreshold = customDaysThreshold || 30;
   }, [customDaysThreshold]);
@@ -940,7 +925,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   }, []);
 
   // 1. DATA SOURCES: CALIBRATION ALL & CANCEL
-  const safeAll = Array.isArray(allInstruments) && allInstruments.length > 0 ? allInstruments : (Array.isArray(instruments) ? instruments : []);
+  const safeAll = g1.useMemo(() => {    const primary = (Array.isArray(allInstruments) && allInstruments.length > 0) ? allInstruments : (Array.isArray(instruments) ? instruments : []);    return primary.filter(item => {      if (!item) return false;      const st = (item.status || item.currentStatus || item.category || "").toString().toLowerCase();      if (st.includes("cancel") || st.includes("inactive") || st.includes("จำหน่าย") || st.includes("ปลดระวาง")) return false;      return true;    });  }, [allInstruments, instruments]);
   const safeCancel = Array.isArray(cancelInstruments) ? cancelInstruments : [];
 
   const MONTH_SHORT_MAP = {
@@ -1066,7 +1051,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           if (toTime && dueTime > toTime) matchesRange = false;
         }
       } else {
-        matchesRange = days <= threshold;
+        matchesRange = true; // Show entire year data by default
       }
 
       if (matchesRange) {
@@ -1793,8 +1778,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           h("svg", { className: "w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
             h("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" })
           ),
-          upcomingStats.total > 0 && h("span", { className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 animate-ping" }),
-          upcomingStats.total > 0 && h("span", { className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" })
+          upcomingStats.overdueCount > 0 && h("span", { className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 animate-ping" }),          upcomingStats.overdueCount > 0 && h("span", { className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" })
         ),
         h("div", { className: "flex flex-col min-w-0" },
           h("div", { className: "flex items-center gap-2 flex-wrap" },
@@ -1819,14 +1803,39 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             },
               `📅 ใกล้ครบ (≤${customDaysThreshold || 30} วัน): ${upcomingStats.withinThreshold}`
             ),
-            upcomingStats.total === 0 && h("span", { className: "text-emerald-600 dark:text-emerald-400 font-semibold" }, "✅ ไม่มีเครื่องมือที่ใกล้ครบกำหนดในช่วงนี้")
+            upcomingStats.overdueCount === 0 && h("span", { className: "text-emerald-600 dark:text-emerald-400 font-semibold" }, "✅ ไม่มีเครื่องมือที่พ้นกำหนดในขณะนี้")
           )
         )
       ),
       h("div", { className: "flex items-center gap-2 shrink-0 ml-auto flex-wrap" },
-        // Range Date Picker & Presets Control
+        // Range Date Picker & Presets Control (Unified with Period Dropdown)
         h("div", { className: "flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700/80 text-[11px]" },
           h("span", { className: "text-slate-500 dark:text-slate-400 font-bold px-1 text-[10px] whitespace-nowrap" }, "📅 ช่วงเวลา:"),
+          h(ModernSelect, {
+            value: selectedMonth,
+            onChange: (val) => {
+              setSelectedMonth(val);
+              if (typeof onFilterMonth === "function") onFilterMonth(val);
+            },
+            options: [
+              { value: "ALL", label: "🗓️ ตลอดทั้งปี (ALL YEAR)" },
+              { value: "JAN", label: "📅 ม.ค. (มกราคม)" },
+              { value: "FEB", label: "📅 ก.พ. (กุมภาพันธ์)" },
+              { value: "MAR", label: "📅 มี.ค. (มีนาคม)" },
+              { value: "APR", label: "📅 เม.ย. (เมษายน)" },
+              { value: "MAY", label: "📅 พ.ค. (พฤษภาคม)" },
+              { value: "JUN", label: "📅 มิ.ย. (มิถุนายน)" },
+              { value: "JUL", label: "📅 ก.ค. (กรกฎาคม)" },
+              { value: "AUG", label: "📅 ส.ค. (สิงหาคม)" },
+              { value: "SEP", label: "📅 ก.ย. (กันยายน)" },
+              { value: "OCT", label: "📅 ต.ค. (ตุลาคม)" },
+              { value: "NOV", label: "📅 พ.ย. (พฤศจิกายน)" },
+              { value: "DEC", label: "📅 ธ.ค. (ธันวาคม)" }
+            ],
+            title: "ตัวกรองข้อมูลแดชบอร์ด: เลือกดูรายเดือน หรือตลอดทั้งปี",
+            size: "sm",
+            align: "left"
+          }),
           h(ModernDatePicker, {
             value: dateRangeFrom,
             onChange: (val) => setDateRangeFrom(val),
@@ -1848,24 +1857,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             onClick: () => { setDateRangeFrom(""); setDateRangeTo(""); },
             title: "ล้างตัวกรองช่วงวันที่ (แสดงทั้งหมด)",
             className: "px-1.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-900 font-bold text-[10px] cursor-pointer mr-0.5"
-          }, "✕"),
-          h(ModernSelect, {
-            value: customDaysThreshold,
-            onChange: (val) => {
-              applyThresholdDays(val);
-            },
-            options: [
-              { value: 15, label: "15 วัน" },
-              { value: 30, label: "30 วัน (ปกติ)" },
-              { value: 60, label: "60 วัน (2 เดือน)" },
-              { value: 90, label: "90 วัน (3 เดือน)" },
-              { value: 180, label: "180 วัน (6 เดือน)" },
-              { value: 365, label: "365 วัน (1 ปี)" }
-            ],
-            title: "เลือกตัวกรองระยะเวลากำหนดสอบเทียบ (อัปเดตปฏิทินอัตโนมัติ)",
-            size: "sm",
-            align: "right"
-          })
+          }, "✕")
         ),
         h("button", {
           onClick: () => setShowUpcomingModal(true),
@@ -1873,12 +1865,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           className: "relative w-10 h-10 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center cursor-pointer border border-amber-400/50 group"
         },
           h("span", { className: "text-lg leading-none group-hover:rotate-12 transition-transform" }, "🔔"),
-          upcomingStats.total > 0 && h("span", {
-            className: "absolute -top-2 -right-2 px-1.5 py-0.5 min-w-[20px] h-[20px] rounded-full bg-rose-600 text-white font-mono text-[10px] font-black flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900 leading-none select-none animate-bounce"
-          }, upcomingStats.total),
-          upcomingStats.total > 0 && h("span", {
-            className: "absolute -top-2 -right-2 min-w-[20px] h-[20px] rounded-full bg-rose-500 animate-ping opacity-75 pointer-events-none"
-          })
+          upcomingStats.overdueCount > 0 && h("span", { className: "absolute -top-2 -right-2 px-1.5 py-0.5 min-w-[20px] h-[20px] rounded-full bg-rose-600 text-white font-mono text-[10px] font-black flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900 leading-none select-none animate-bounce" }, upcomingStats.overdueCount),
+          upcomingStats.overdueCount > 0 && h("span", { className: "absolute -top-2 -right-2 min-w-[20px] h-[20px] rounded-full bg-rose-500 animate-ping opacity-75 pointer-events-none" })
         )
       )
     ),
@@ -3612,7 +3600,7 @@ centerTab === "30d" && h("div", {
               return h("div", {
                 key: idx,
                 onClick: () => goToTable(row.category),
-                title: `คลิกเพื่อดูรายการ ${row.category} (${row.count.toLocaleString()} เครื่อง | ${row.pct})`,
+                title: `คลิกเพื่อดูรายการ ${row.category} (${row.count.toLocaleString()} เครื่อง | ${row.pct} | ${row.ppm})`,
                 className: "flex-1 min-h-[26px] sm:min-h-[29px] relative flex items-center justify-between px-2.5 sm:px-3 py-0.5 sm:py-1 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-all cursor-pointer group select-none overflow-hidden"
               },
                 // Background visual proportion micro-bar (Integrated sleek horizontal progress)

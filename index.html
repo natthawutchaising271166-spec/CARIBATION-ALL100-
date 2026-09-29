@@ -420,12 +420,10 @@
     <script>
       window.__QAP_SUPABASE_URL = "https://zndrzdhimcraolpsmfec.supabase.co";
       window.__QAP_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZHJ6ZGhpbWNyYW9scHNtZmVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0Mzc4NzAsImV4cCI6MjEwNTAxMzg3MH0.Fry52efd6Ql1PEQBzduueZpFpTdqXDZhGfAyk8quvdM";
+      window.qapAlertThreshold = 30;
       try {
-        const saved = localStorage.getItem("QAP_UPCOMING_THRESHOLD");
-        window.qapAlertThreshold = (saved && !isNaN(Number(saved)) && Number(saved) > 0) ? Number(saved) : 30;
-      } catch (e) {
-        window.qapAlertThreshold = 30;
-      }
+        localStorage.setItem("QAP_UPCOMING_THRESHOLD", "30");
+      } catch (e) {}
     </script>
     <script src="./supabaseClient.js"></script>
 
