@@ -399,20 +399,7 @@
         }
       </style>
     </div>
-    <script>
-      const nativeParseInt = window.parseInt;
-      const dueDateMonthNumbers = {
-        jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-        jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12
-      };
-      window.parseInt = (value, radix) => {
-        if (radix === 10 && typeof value === "string") {
-          const month = dueDateMonthNumbers[value.trim().slice(0, 3).toLowerCase()];
-          if (month) return month;
-        }
-        return nativeParseInt(value, radix);
-      };
-    </script>
+    
     <script>
       localStorage.setItem("QAP_CONTROL_MENU_EXPANDED", "false");
     </script>
@@ -440,43 +427,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
     <script src="./pdf_compressor.js"></script>
     <script src="./doc_viewer.js"></script>
+    <script src="./qrcode.min.js"></script>
 
     <script src="./app.js"></script>
-    <script>
-      (() => {
-        const removeCertificateButtons = () => {
-          document.querySelectorAll("button").forEach((button) => {
-            const label = `${button.title || ''} ${button.textContent || ''}`;
-            if (label.includes("พิมพ์ใบรับรอง") || label.includes("สติ๊กเกอร์") || button.querySelector(".lucide-file-text")) button.remove();
-          });
-          const root = document.getElementById("root");
-          if (!root) return;
-          try {
-            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-            const textNodes = [];
-            while (walker.nextNode()) textNodes.push(walker.currentNode);
-            textNodes.forEach((node) => { if (node && node.nodeValue) node.nodeValue = node.nodeValue.replace(/Y2026/g, ""); });
-            document.querySelectorAll("[title]").forEach((element) => { if (element && element.title) element.title = element.title.replace(/Y2026/g, ""); });
-          } catch (e) {}
-        };
-        const root = document.getElementById("root");
-        if (root) {
-          try {
-            new MutationObserver(removeCertificateButtons).observe(root, { childList: true, subtree: true });
-          } catch (e) {}
-        } else {
-          document.addEventListener('DOMContentLoaded', () => {
-            const r = document.getElementById("root");
-            if (r) {
-              try {
-                new MutationObserver(removeCertificateButtons).observe(r, { childList: true, subtree: true });
-              } catch (e) {}
-            }
-          });
-        }
-        removeCertificateButtons();
-      })();
-    </script>
+        <style>
+      /* Clean CSS rule to hide print/sticker buttons without mutating React VDOM */
+      button:has(.lucide-file-text),
+      button[title*="พิมพ์ใบรับรอง"],
+      button[title*="สติ๊กเกอร์"] {
+        display: none !important;
+      }
+    </style>
 
     <script>
       if (!window.qapPdfRemove) {
