@@ -446,16 +446,34 @@
       (() => {
         const removeCertificateButtons = () => {
           document.querySelectorAll("button").forEach((button) => {
-            const label = `${button.title} ${button.textContent}`;
+            const label = `${button.title || ''} ${button.textContent || ''}`;
             if (label.includes("พิมพ์ใบรับรอง") || label.includes("สติ๊กเกอร์") || button.querySelector(".lucide-file-text")) button.remove();
           });
-          const walker = document.createTreeWalker(document.getElementById("root"), NodeFilter.SHOW_TEXT);
-          const textNodes = [];
-          while (walker.nextNode()) textNodes.push(walker.currentNode);
-          textNodes.forEach((node) => { node.nodeValue = node.nodeValue.replace(/Y2026/g, ""); });
-          document.querySelectorAll("[title]").forEach((element) => { element.title = element.title.replace(/Y2026/g, ""); });
+          const root = document.getElementById("root");
+          if (!root) return;
+          try {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            const textNodes = [];
+            while (walker.nextNode()) textNodes.push(walker.currentNode);
+            textNodes.forEach((node) => { if (node && node.nodeValue) node.nodeValue = node.nodeValue.replace(/Y2026/g, ""); });
+            document.querySelectorAll("[title]").forEach((element) => { if (element && element.title) element.title = element.title.replace(/Y2026/g, ""); });
+          } catch (e) {}
         };
-        new MutationObserver(removeCertificateButtons).observe(document.getElementById("root"), { childList: true, subtree: true });
+        const root = document.getElementById("root");
+        if (root) {
+          try {
+            new MutationObserver(removeCertificateButtons).observe(root, { childList: true, subtree: true });
+          } catch (e) {}
+        } else {
+          document.addEventListener('DOMContentLoaded', () => {
+            const r = document.getElementById("root");
+            if (r) {
+              try {
+                new MutationObserver(removeCertificateButtons).observe(r, { childList: true, subtree: true });
+              } catch (e) {}
+            }
+          });
+        }
         removeCertificateButtons();
       })();
     </script>

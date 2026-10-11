@@ -26,7 +26,7 @@ See https://react.dev/link/invalid-hook-call for tips about how to debug and fix
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- */return(function(){function e(F){if(F==null)return null;if(typeof F=="function")return F.$$typeof===H?null:F.displayName||F.name||null;if(typeof F=="string")return F;switch(F){case w:return"Fragment";case _:return"Profiler";case k:return"StrictMode";case M:return"Suspense";case R:return"SuspenseList";case P:return"Activity";case W:return"ViewTransition"}if(typeof F=="object")switch(typeof F.tag=="number"&&console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."),F.$$typeof){case E:return"Portal";case C:return F.displayName||"Context";case T:return(F._context.displayName||"Context")+".Consumer";case V:var K=F.render;return F=F.displayName,F||(F=K.displayName||K.name||"",F=F!==""?"ForwardRef("+F+")":"ForwardRef"),F;case B:return K=F.displayName||null,K!==null?K:e(F.type)||"Memo";case I:K=F._payload,F=F._init;try{return e(F(K))}catch{}}return null}function t(F){return""+F}function r(F){try{t(F);var K=!1}catch{K=!0}if(K){K=console;var X=K.error,Y=typeof Symbol=="function"&&Symbol.toStringTag&&F[Symbol.toStringTag]||F.constructor.name||"Object";return X.call(K,"The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",Y),t(F)}}function n(F){if(F===w)return"<>";if(typeof F=="object"&&F!==null&&F.$$typeof===I)return"<...>";try{var K=e(F);return K?"<"+K+">":"<...>"}catch{return"<...>"}}function l(){var F=oe.A;return F===null?null:F.getOwner()}function o(){return Error("react-stack-top-frame")}function u(F){if(ve.call(F,"key")){var K=Object.getOwnPropertyDescriptor(F,"key").get;if(K&&K.isReactWarning)return!1}return F.key!==void 0}function c(F,K){function X(){pe||(pe=!0,console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",K))}X.isReactWarning=!0,Object.defineProperty(F,"key",{get:X,configurable:!0})}function f(){var F=e(this.type);return ke[F]||(ke[F]=!0,console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release.")),F=this.props.ref,F!==void 0?F:null}function p(F,K,X,Y,be,we){var De=X.ref;return F={$$typeof:y,type:F,key:K,props:X,_owner:Y},(De!==void 0?De:null)!==null?Object.defineProperty(F,"ref",{enumerable:!1,get:f}):Object.defineProperty(F,"ref",{enumerable:!1,value:null}),F._store={},Object.defineProperty(F._store,"validated",{configurable:!1,enumerable:!1,writable:!0,value:0}),Object.defineProperty(F,"_debugInfo",{configurable:!1,enumerable:!1,writable:!0,value:null}),Object.defineProperty(F,"_debugStack",{configurable:!1,enumerable:!1,writable:!0,value:be}),Object.defineProperty(F,"_debugTask",{configurable:!1,enumerable:!1,writable:!0,value:we}),Object.freeze&&(Object.freeze(F.props),Object.freeze(F)),F}function h(F,K,X,Y,be,we){var De=K.children;if(De!==void 0)if(Y)if(he(De)){for(Y=0;Y<De.length;Y++)v(De[Y]);Object.freeze&&Object.freeze(De)}else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");else v(De);if(ve.call(K,"key")){De=e(F);var fe=Object.keys(K).filter(function(Re){return Re!=="key"});Y=0<fe.length?"{key: someKey, "+fe.join(": ..., ")+": ...}":"{key: someKey}",Ee[De+Y]||(fe=0<fe.length?"{"+fe.join(": ..., ")+": ...}":"{}",console.error(`A props object containing a "key" prop is being spread into JSX:
+ */return(function(){function e(F){if(F==null)return null;if(typeof F=="function")return F.$$typeof===H?null:F.displayName||F.name||null;if(typeof F=="string")return F;switch(F){case w:return"Fragment";case _:return"Profiler";case k:return"StrictMode";case M:return"Suspense";case R:return"SuspenseList";case P:return"Activity";case W:return"ViewTransition"}if(typeof F=="object")switch(typeof F.tag=="number"&&console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."),F.$$typeof){case E:return"Portal";case C:return F.displayName||"Context";case T:return(F._context.displayName||"Context")+".Consumer";case V:var K=F.render;return F=F.displayName,F||(F=K.displayName||K.name||"",F=F!==""?"ForwardRef("+F+")":"ForwardRef"),F;case B:return K=F.displayName||null,K!==null?K:e(F.type)||"Memo";case I:K=F._payload,F=F._init;try{return e(F(K))}catch{}}return null}function t(F){return""+F}function r(F){try{t(F);var K=!1}catch{K=!0}if(K){K=console;var X=K.error,Y=typeof Symbol=="function"&&Symbol.toStringTag&&F[Symbol.toStringTag]||F.constructor.name||"Object";return X.call(K,"The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",Y),t(F)}}function n(F){if(F===w)return"<>";if(typeof F=="object"&&F!==null&&F.$$typeof===I)return"<...>";try{var K=e(F);return K?"<"+K+">":"<...>"}catch{return"<...>"}}function l(){var F=oe.A;return F===null?null:F.getOwner()}function o(){return Error("react-stack-top-frame")}function u(F){if(ve.call(F,"key")){var K=Object.getOwnPropertyDescriptor(F,"key").get;if(K&&K.isReactWarning)return!1}return F.key!==void 0}function c(F,K){function X(){pe||(pe=!0,console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",K))}X.isReactWarning=!0,Object.defineProperty(F,"key",{get:X,configurable:!0})}function f(){var F=e(this.type);return ke[F]||(ke[F]=!0,console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release.")),F=this.props.ref,F!==void 0?F:null}function p(F,K,X,Y,be,we){var De=X.ref;return F={$$typeof:y,type:F,key:K,props:X,_owner:Y},(De!==void 0?De:null)!==null?Object.defineProperty(F,"ref",{enumerable:!1,get:f}):Object.defineProperty(F,"ref",{enumerable:!1,value:null}),F._store={},Object.defineProperty(F._store,"validated",{configurable:!1,enumerable:!1,writable:!0,value:0}),Object.defineProperty(F,"_debugInfo",{configurable:!1,enumerable:!1,writable:!0,value:null}),Object.defineProperty(F,"_debugStack",{configurable:!1,enumerable:!1,writable:!0,value:be}),Object.defineProperty(F,"_debugTask",{configurable:!1,enumerable:!1,writable:!0,value:we}),Object.freeze&&(Object.freeze(F.props),Object.freeze(F)),F}function h(F,K,X,Y,be,we){if(K==null)K={};var De=K.children;if(De!==void 0)if(Y)if(he(De)){for(Y=0;Y<De.length;Y++)v(De[Y]);Object.freeze&&Object.freeze(De)}else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");else v(De);if(ve.call(K,"key")){De=e(F);var fe=Object.keys(K).filter(function(Re){return Re!=="key"});Y=0<fe.length?"{key: someKey, "+fe.join(": ..., ")+": ...}":"{key: someKey}",Ee[De+Y]||(fe=0<fe.length?"{"+fe.join(": ..., ")+": ...}":"{}",console.error(`A props object containing a "key" prop is being spread into JSX:
   let props = %s;
   <%s {...props} />
 React keys must be passed directly to JSX without using spread:
@@ -275,7 +275,7 @@ Learn more: https://react.dev/warnings/version-mismatch`))})(),typeof Map=="func
 You might need to use a local HTTP server (instead of file://): https://react.dev/link/react-devtools-faq`:""),"font-weight:bold")}Yp.createRoot=function(a,i){if(!w(a))throw Error("Target container is not a DOM element.");HC(a);var s=!1,d="",x=vT,b=gT,D=NT;return i!=null&&(i.hydrate?console.warn("hydrate through createRoot is deprecated. Use ReactDOMClient.hydrateRoot(container, <App />) instead."):typeof i=="object"&&i!==null&&i.$$typeof===xo&&console.error(`You passed a JSX element to createRoot. You probably meant to call root.render instead. Example usage:
 
   let root = createRoot(domContainer);
-  root.render(<App />);`),i.unstable_strictMode===!0&&(s=!0),i.identifierPrefix!==void 0&&(d=i.identifierPrefix),i.onUncaughtError!==void 0&&(x=i.onUncaughtError),i.onCaughtError!==void 0&&(b=i.onCaughtError),i.onRecoverableError!==void 0&&(D=i.onRecoverableError)),i=jC(a,1,!1,null,null,s,d,null,x,b,D,$C),a[xu]=i.current,W2(a),new xE(i)},Yp.hydrateRoot=function(a,i,s){if(!w(a))throw Error("Target container is not a DOM element.");HC(a),i===void 0&&console.error("Must provide initial children as second argument to hydrateRoot. Example usage: hydrateRoot(domContainer, <App />)");var d=!1,x="",b=vT,D=gT,S=NT,O=null;return s!=null&&(s.unstable_strictMode===!0&&(d=!0),s.identifierPrefix!==void 0&&(x=s.identifierPrefix),s.onUncaughtError!==void 0&&(b=s.onUncaughtError),s.onCaughtError!==void 0&&(D=s.onCaughtError),s.onRecoverableError!==void 0&&(S=s.onRecoverableError),s.formState!==void 0&&(O=s.formState)),i=jC(a,1,!0,i,s??null,d,x,O,b,D,S,$C),i.context=IC(null),s=i.current,d=Ei(s),d=Be(d),x=iu(d),x.callback=null,lu(s,x,d),no(d,"hydrateRoot()",null),s=d,i.current.lanes=s,Wt(i,s),po(i),a[xu]=i.current,W2(a),new $b(i)},Yp.version="19.3.0",typeof __REACT_DEVTOOLS_GLOBAL_HOOK__<"u"&&typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop=="function"&&__REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error())})(),Yp}var z8;function pq(){return z8||(z8=1,tD.exports=mq()),tD.exports}var hq=pq();function ga(e){if(!e)return null;if(e instanceof Date&&!isNaN(e.getTime())){const r=new Date;r.setHours(0,0,0,0);const t=new Date(e);t.setHours(0,0,0,0);return Math.ceil((t.getTime()-r.getTime())/(1e3*60*60*24))}const s=String(e).trim();if(!s||s==="-"||s.toLowerCase()==="n/a")return null;let t=null;const mo={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11,"ม.ค.":0,"ก.พ.":1,"มี.ค.":2,"เม.ย.":3,"พ.ค.":4,"มิ.ย.":5,"ก.ค.":6,"ส.ค.":7,"ก.ย.":8,"ต.ค.":9,"พ.ย.":10,"ธ.ค.":11,"มค":0,"กพ":1,"มีค":2,"เมย":3,"พค":4,"มิย":5,"กค":6,"สค":7,"กย":8,"ตค":9,"พย":10,"ธค":11,"มกราคม":0,"กุมภาพันธ์":1,"มีนาคม":2,"เมษายน":3,"พฤษภาคม":4,"มิถุนายน":5,"กรกฎาคม":6,"สิงหาคม":7,"กันยายน":8,"ตุลาคม":9,"พฤศจิกายน":10,"ธันวาคม":11};const m1=s.match(/^(\d{1,2})[-/ ]([a-zA-Z\u0E00-\u0E7F.]+)[-/ ](\d{2,4})$/);if(m1){const d=parseInt(m1[1],10),mn=m1[2].toLowerCase().trim();let yr=parseInt(m1[3],10);yr>2400?yr-=543:yr<100&&(yr+=2e3);const moKey=mo[mn]!==void 0?mo[mn]:mo[mn.slice(0,3)];moKey!==void 0&&(t=new Date(yr,moKey,d))}if(!t){const m2=s.match(/^([a-zA-Z\u0E00-\u0E7F.]+)[-/ ](\d{2,4})$/);if(m2){const mn=m2[1].toLowerCase().trim();let yr=parseInt(m2[2],10);yr>2400?yr-=543:yr<100&&(yr+=2e3);const moKey=mo[mn]!==void 0?mo[mn]:mo[mn.slice(0,3)];moKey!==void 0&&(t=new Date(yr,moKey,1))}}if(!t){const parsed=new Date(s);isNaN(parsed.getTime())||(t=parsed)}if(!t||isNaN(t.getTime()))return null;const r=new Date;r.setHours(0,0,0,0),t.setHours(0,0,0,0);return Math.ceil((t.getTime()-r.getTime())/(1e3*60*60*24))}function computeNextDueDate(calDateStr,freqStr){if(!calDateStr)return{dueDate:"",dueYear:""};try{const parts=String(calDateStr).trim().split("-");if(parts.length!==3)return{dueDate:"",dueYear:""};const y=parseInt(parts[0],10),m=parseInt(parts[1],10)-1,d=parseInt(parts[2],10),date=new Date(y,m,d);if(isNaN(date.getTime()))return{dueDate:"",dueYear:""};const freqLower=String(freqStr||"1 ปี").toLowerCase();if(freqLower.includes("6 เดือน")||freqLower.includes("6 month")||freqLower.includes("6 m")){date.setMonth(date.getMonth()+6)}else if(freqLower.includes("3 เดือน")||freqLower.includes("3 month")||freqLower.includes("3 m")){date.setMonth(date.getMonth()+3)}else if(freqLower.includes("2 ปี")||freqLower.includes("2 year")||freqLower.includes("2 y")){date.setFullYear(date.getFullYear()+2)}else if(freqLower.includes("3 ปี")||freqLower.includes("3 year")||freqLower.includes("3 y")){date.setFullYear(date.getFullYear()+3)}else{date.setFullYear(date.getFullYear()+1)}date.setDate(date.getDate()-1);const resDue=date.toISOString().split("T")[0],resYear="Y"+date.getFullYear();return{dueDate:resDue,dueYear:resYear}}catch(err){return{dueDate:"",dueYear:""}}}if(typeof window!=="undefined"){window.computeNextDueDate=computeNextDueDate};function P0(e){if(!e)return"normal";const rawStatus=String(e.status||"").toLowerCase().trim();const rawCat=String(e.category||"").toUpperCase().trim();if(rawStatus==="inactive"||rawStatus==="cancel"||rawCat==="CANCEL"||rawStatus==="ปลดระวาง"||rawCat.includes("CANCEL")||rawStatus.includes("inactive")||rawStatus.includes("cancel")||rawStatus.includes("ปลดระวาง"))return"inactive";if(rawStatus==="in_calibration"||rawStatus==="in_cal"||rawStatus==="in_lab"||rawStatus.includes("ส่งสอบ"))return"in_calibration";const due=e.next_due_date||e.nextDueDate||e.dueDate||e.due_date||e.dueYear;if(due){const t=ga(due);if(t!==null&&t!==undefined&&!isNaN(t)){const th=(typeof window<"u"&&window.qapAlertThreshold)?window.qapAlertThreshold:30;return t<0?"overdue":t<=th?"due_soon":"normal"}}if(rawStatus==="overdue")return"overdue";if(rawStatus==="due_soon"||rawStatus==="due")return"due_soon";return"normal"}function Ek(e){switch(e){case"normal":return{label:"ปกติ (In Spec)",badgeClass:"bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-500/20",dotClass:"bg-emerald-500",bgLight:"bg-emerald-50",textColor:"text-emerald-700"};case"due_soon":return{label:"ใกล้ครบกำหนด (Due Soon)",badgeClass:"bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-500/20",dotClass:"bg-amber-500 animate-pulse",bgLight:"bg-amber-50",textColor:"text-amber-700"};case"overdue":return{label:"เกินกำหนด (Overdue)",badgeClass:"bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-500/20",dotClass:"bg-rose-500 animate-ping",bgLight:"bg-rose-50",textColor:"text-rose-700"};case"in_calibration":return{label:"ส่งสอบเทียบ (In Cal.)",badgeClass:"bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-500/20",dotClass:"bg-blue-500",bgLight:"bg-blue-50",textColor:"text-blue-700"};case"inactive":return{label:"ระงับการใช้ (Inactive)",badgeClass:"bg-slate-100 text-slate-600 border-slate-200 ring-1 ring-slate-400/20",dotClass:"bg-slate-400",bgLight:"bg-slate-50",textColor:"text-slate-600"}}}function $8(e){if(!e)return"-";try{const t=new Date(e);return isNaN(t.getTime())?e:t.toLocaleDateString("th-TH",{year:"numeric",month:"short",day:"numeric"})}catch{return e}}const xq=[],iv=[];/**
+  root.render(<App />);`),i.unstable_strictMode===!0&&(s=!0),i.identifierPrefix!==void 0&&(d=i.identifierPrefix),i.onUncaughtError!==void 0&&(x=i.onUncaughtError),i.onCaughtError!==void 0&&(b=i.onCaughtError),i.onRecoverableError!==void 0&&(D=i.onRecoverableError)),i=jC(a,1,!1,null,null,s,d,null,x,b,D,$C),a[xu]=i.current,W2(a),new xE(i)},Yp.hydrateRoot=function(a,i,s){if(!w(a))throw Error("Target container is not a DOM element.");HC(a),i===void 0&&console.error("Must provide initial children as second argument to hydrateRoot. Example usage: hydrateRoot(domContainer, <App />)");var d=!1,x="",b=vT,D=gT,S=NT,O=null;return s!=null&&(s.unstable_strictMode===!0&&(d=!0),s.identifierPrefix!==void 0&&(x=s.identifierPrefix),s.onUncaughtError!==void 0&&(b=s.onUncaughtError),s.onCaughtError!==void 0&&(D=s.onCaughtError),s.onRecoverableError!==void 0&&(S=s.onRecoverableError),s.formState!==void 0&&(O=s.formState)),i=jC(a,1,!0,i,s??null,d,x,O,b,D,S,$C),i.context=IC(null),s=i.current,d=Ei(s),d=Be(d),x=iu(d),x.callback=null,lu(s,x,d),no(d,"hydrateRoot()",null),s=d,i.current.lanes=s,Wt(i,s),po(i),a[xu]=i.current,W2(a),new $b(i)},Yp.version="19.3.0",typeof __REACT_DEVTOOLS_GLOBAL_HOOK__<"u"&&typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop=="function"&&__REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error())})(),Yp}var z8;function pq(){return z8||(z8=1,tD.exports=mq()),tD.exports}var hq=pq();function ga(e){if(!e)return null;if(e instanceof Date&&!isNaN(e.getTime())){const r=new Date;r.setHours(0,0,0,0);const t=new Date(e);t.setHours(0,0,0,0);return Math.ceil((t.getTime()-r.getTime())/(1e3*60*60*24))}const s=String(e).trim();if(!s||s==="-"||s.toLowerCase()==="n/a")return null;let t=null;const mo={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11,"ม.ค.":0,"ก.พ.":1,"มี.ค.":2,"เม.ย.":3,"พ.ค.":4,"มิ.ย.":5,"ก.ค.":6,"ส.ค.":7,"ก.ย.":8,"ต.ค.":9,"พ.ย.":10,"ธ.ค.":11,"มค":0,"กพ":1,"มีค":2,"เมย":3,"พค":4,"มิย":5,"กค":6,"สค":7,"กย":8,"ตค":9,"พย":10,"ธค":11,"มกราคม":0,"กุมภาพันธ์":1,"มีนาคม":2,"เมษายน":3,"พฤษภาคม":4,"มิถุนายน":5,"กรกฎาคม":6,"สิงหาคม":7,"กันยายน":8,"ตุลาคม":9,"พฤศจิกายน":10,"ธันวาคม":11};const m1=s.match(/^(\d{1,2})[-/ ]([a-zA-Z\u0E00-\u0E7F.]+)[-/ ](\d{2,4})$/);if(m1){const d=parseInt(m1[1],10),mn=m1[2].toLowerCase().trim();let yr=parseInt(m1[3],10);yr>2400?yr-=543:yr<100&&(yr+=2e3);const moKey=mo[mn]!==void 0?mo[mn]:mo[mn.slice(0,3)];moKey!==void 0&&(t=new Date(yr,moKey,d))}if(!t){const m2=s.match(/^([a-zA-Z\u0E00-\u0E7F.]+)[-/ ](\d{2,4})$/);if(m2){const mn=m2[1].toLowerCase().trim();let yr=parseInt(m2[2],10);yr>2400?yr-=543:yr<100&&(yr+=2e3);const moKey=mo[mn]!==void 0?mo[mn]:mo[mn.slice(0,3)];moKey!==void 0&&(t=new Date(yr,moKey,1))}}if(!t){const parsed=new Date(s);isNaN(parsed.getTime())||(t=parsed)}if(!t||isNaN(t.getTime()))return null;const r=new Date;r.setHours(0,0,0,0),t.setHours(0,0,0,0);return Math.ceil((t.getTime()-r.getTime())/(1e3*60*60*24))}function computeNextDueDate(calDateStr,freqStr){if(!calDateStr)return{dueDate:"",dueYear:""};try{const parts=String(calDateStr).trim().split("-");if(parts.length!==3)return{dueDate:"",dueYear:""};const y=parseInt(parts[0],10),m=parseInt(parts[1],10)-1,d=parseInt(parts[2],10),date=new Date(y,m,d);if(isNaN(date.getTime()))return{dueDate:"",dueYear:""};const freqLower=String(freqStr||"1 ปี").toLowerCase();if(freqLower.includes("6 เดือน")||freqLower.includes("6 month")||freqLower.includes("6 m")){date.setMonth(date.getMonth()+6)}else if(freqLower.includes("3 เดือน")||freqLower.includes("3 month")||freqLower.includes("3 m")){date.setMonth(date.getMonth()+3)}else if(freqLower.includes("2 ปี")||freqLower.includes("2 year")||freqLower.includes("2 y")){date.setFullYear(date.getFullYear()+2)}else if(freqLower.includes("3 ปี")||freqLower.includes("3 year")||freqLower.includes("3 y")){date.setFullYear(date.getFullYear()+3)}else{date.setFullYear(date.getFullYear()+1)}date.setDate(date.getDate()-1);const resDue=date.toISOString().split("T")[0],resYear="Y"+date.getFullYear();return{dueDate:resDue,dueYear:resYear}}catch(err){return{dueDate:"",dueYear:""}}}if(typeof window!=="undefined"){window.computeNextDueDate=computeNextDueDate};function P0(e){if(!e)return"normal";const rawStatus=String(e.status||"").toLowerCase().trim();const rawCat=String(e.category||"").toUpperCase().trim();if(rawStatus==="inactive"||rawStatus==="cancel"||rawCat==="CANCEL"||rawStatus==="ปลดระวาง"||rawCat.includes("CANCEL")||rawStatus.includes("inactive")||rawStatus.includes("cancel")||rawStatus.includes("ปลดระวาง"))return"inactive";if(rawStatus==="in_calibration"||rawStatus==="in_cal"||rawStatus==="in_lab"||rawStatus.includes("ส่งสอบ"))return"in_calibration";const due=e.next_due_date||e.nextDueDate||e.dueDate||e.due_date||e.dueYear;if(due){const t=ga(due);if(t!==null&&t!==undefined&&!isNaN(t)){const th=(typeof window<"u"&&window.qapAlertThreshold)?window.qapAlertThreshold:30;return t<0?"overdue":t<=th?"due_soon":"normal"}}if(rawStatus==="overdue"||rawStatus.includes("overdue")||rawStatus.includes("เกิน")||rawStatus.includes("หมดอายุ")||rawStatus.includes("เลยกำหนด")||rawStatus.includes("ดิว"))return"overdue";if(rawStatus==="due_soon"||rawStatus==="due"||rawStatus.includes("due")||rawStatus.includes("ใกล้")||rawStatus.includes("เตือน"))return"due_soon";return"normal"}function Ek(e){switch(e){case"normal":return{label:"ปกติ (In Spec)",badgeClass:"bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-500/20",dotClass:"bg-emerald-500",bgLight:"bg-emerald-50",textColor:"text-emerald-700"};case"due_soon":return{label:"ใกล้ครบกำหนด (Due Soon)",badgeClass:"bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-500/20",dotClass:"bg-amber-500 animate-pulse",bgLight:"bg-amber-50",textColor:"text-amber-700"};case"overdue":return{label:"เกินกำหนด (Overdue)",badgeClass:"bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-500/20",dotClass:"bg-rose-500 animate-ping",bgLight:"bg-rose-50",textColor:"text-rose-700"};case"in_calibration":return{label:"ส่งสอบเทียบ (In Cal.)",badgeClass:"bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-500/20",dotClass:"bg-blue-500",bgLight:"bg-blue-50",textColor:"text-blue-700"};case"inactive":return{label:"ระงับการใช้ (Inactive)",badgeClass:"bg-slate-100 text-slate-600 border-slate-200 ring-1 ring-slate-400/20",dotClass:"bg-slate-400",bgLight:"bg-slate-50",textColor:"text-slate-600"}}}function $8(e){if(!e)return"-";try{const t=new Date(e);return isNaN(t.getTime())?e:t.toLocaleDateString("th-TH",{year:"numeric",month:"short",day:"numeric"})}catch{return e}}const xq=[],iv=[];/**
  * @license lucide-react v0.546.0 - ISC
  *
  * This source code is licensed under the ISC license.
@@ -1073,7 +1073,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   const upcomingStats = g1.useMemo(() => {
     const threshold = Number(customDaysThreshold) || 30;
     const total = upcomingDeadlines.length;
-    const overdueCount = upcomingDeadlines.filter(x => x.isOverdue).length;
+    const overdueCount = (typeof stats !== "undefined" && stats && typeof stats.overdue === "number") ? stats.overdue : upcomingDeadlines.filter(x => x.isOverdue).length;
     const within7d = upcomingDeadlines.filter(x => !x.isOverdue && x.daysRemaining <= 7).length;
     const within30d = upcomingDeadlines.filter(x => !x.isOverdue && x.daysRemaining <= 30).length;
     const withinThreshold = upcomingDeadlines.filter(x => !x.isOverdue && x.daysRemaining <= threshold).length;
@@ -2017,7 +2017,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             "เตรียมส่งสอบเทียบ"
           ),
           h("span", { className: "inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-amber-200/80 dark:bg-amber-900/80 text-amber-900 dark:text-amber-200 text-[9px] font-black" },
-            `🔔 รวมติดตาม (${(stats.dueSoon + stats.overdue).toLocaleString()})`
+            `🔔 ใกล้ครบ (${stats.dueSoon.toLocaleString()})`
           )
         )
       ),
@@ -2069,7 +2069,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             "ต้องดำเนินการทันที"
           ),
           h("span", { className: "inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-rose-200/80 dark:bg-rose-900/80 text-rose-900 dark:text-rose-200 text-[9px] font-black" },
-            "🚨 ด่วน"
+            `🚨 เกินดิว (${stats.overdue.toLocaleString()})`
           )
         )
       ),
@@ -3755,7 +3755,7 @@ centerTab === "30d" && h("div", {
           const animTotal = getAnimVal(m.total);
           const animOverdue = getAnimVal(m.overdue);
           const animDueSoon = getAnimVal(m.dueSoon);
-          const totalFollowUp = (m.overdue || 0) + (m.dueSoon || 0);
+          const totalFollowUp = (m.overdue || 0);
           const animFollowUp = getAnimVal(totalFollowUp);
 
           // Calculate proportions for micro-bar
@@ -3781,14 +3781,15 @@ centerTab === "30d" && h("div", {
             // Golden Bell & Red Alert Number Badge right at Top-Right Corner of the Month Card
             (totalFollowUp > 0) && h("div", {
               className: "absolute -top-2 -right-1 z-30 flex items-center cursor-pointer select-none group/bell transition-transform hover:scale-110 active:scale-95",
-              title: `ต้องติดตาม: ${totalFollowUp} รายการ (เกินกำหนด ${m.overdue || 0}, ใกล้ครบ ${m.dueSoon || 0})`
+              onClick: (e) => {
+                e.stopPropagation();
+                handleMonthClick(m.id);
+                goToTable("OVERDUE");
+              },
+              title: `เกินดิว: ${totalFollowUp} รายการ - คลิกเพื่อดูรายการเกินดิวเดือน ${m.short}`
             },
               h("div", {
-                className: `flex items-center gap-1 pl-1.5 pr-2 py-0.5 rounded-full shadow-md border-2 border-white dark:border-slate-900 transition-all ${
-                  hasOverdue
-                    ? "bg-rose-600 text-white ring-1 ring-rose-500/40"
-                    : "bg-amber-500 text-slate-950 font-black ring-1 ring-amber-400/40"
-                }`
+                className: "flex items-center gap-1 pl-1.5 pr-2 py-0.5 rounded-full shadow-md border-2 border-white dark:border-slate-900 transition-all bg-rose-600 text-white ring-1 ring-rose-500/40"
               },
                 // Golden Bell SVG icon
                 h("svg", {
@@ -5340,11 +5341,127 @@ const K3e = ({
   const [v, g] = A.useState(false);
   const [N, y] = A.useState(-1);
   const [E, w] = A.useState(null);
+  const [isListening, setIsListening] = A.useState(false);
+  const [speechInterim, setSpeechInterim] = A.useState("");
+  const recognitionRef = A.useRef(null);
   const k = A.useRef(null);
   const _ = A.useRef(null);
   const T = A.useRef(null);
   const C = A.useMemo(() => t.trim() ? $$(e, t, n) : [], [e, t, n]);
   const V = A.useMemo(() => C.slice(0, 8), [C]);
+
+  const handleToggleVoiceSearch = () => {
+    const SpeechRecognition = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (!SpeechRecognition) {
+      try {
+        window.dispatchEvent(
+          new CustomEvent("qap-supabase-toast", {
+            detail: {
+              message: "⚠️ เบราว์เซอร์นี้ไม่รองรับ Web Speech API (แนะนำให้ใช้งานบน Google Chrome หรือ Microsoft Edge)",
+              type: "error"
+            }
+          })
+        );
+      } catch (err) {}
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (err) {}
+      }
+      setIsListening(false);
+      setSpeechInterim("");
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "th-TH";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setSpeechInterim("");
+      };
+
+      recognition.onresult = (event) => {
+        let interim = "";
+        let final = "";
+        for (let i = 0; i < event.results.length; i++) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            final += res[0].transcript;
+          } else {
+            interim += res[0].transcript;
+          }
+        }
+
+        const spoken = (final || interim).trim().replace(/[\.\,\?\!]+$/, "");
+        if (interim) {
+          setSpeechInterim(interim);
+        }
+        if (final) {
+          r(spoken);
+          g(true);
+          _?.current?.focus();
+          setIsListening(false);
+          setSpeechInterim("");
+          try {
+            window.dispatchEvent(
+              new CustomEvent("qap-supabase-toast", {
+                detail: {
+                  message: `🎙️ ค้นหาด้วยเสียง: "${spoken}"`,
+                  type: "info"
+                }
+              })
+            );
+          } catch (err) {}
+        }
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        setSpeechInterim("");
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+          try {
+            window.dispatchEvent(
+              new CustomEvent("qap-supabase-toast", {
+                detail: {
+                  message: "⚠️ ไมโครโฟนถูกปิดกั้น กรุณาอนุญาตการเข้าถึง Microphone ในการตั้งค่าเบราว์เซอร์",
+                  type: "error"
+                }
+              })
+            );
+          } catch (err) {}
+        } else if (event.error !== "no-speech") {
+          console.warn("[Voice Search] Speech recognition error:", event.error);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        setSpeechInterim("");
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.warn("[Voice Search] Failed to initialize:", err);
+      setIsListening(false);
+      setSpeechInterim("");
+    }
+  };
+
+  A.useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (err) {}
+      }
+    };
+  }, []);
 
   A.useEffect(() => {
     const I = P => {
@@ -5526,7 +5643,7 @@ const K3e = ({
             onKeyDown: M,
             placeholder: "ค้นหาทุกอย่างในตาราง (ชื่อ, รหัส, S/N, รุ่น, ยี่ห้อ, แผนก, ที่ตั้ง, วันที่, Cert, Lab, ค่าพิกัด, หมายเหตุ)...",
             title: "ค้นหาเครื่องมือวัดครอบคลุมทุกคอลัมน์ในตาราง กด Ctrl+K หรือ / เพื่อค้นหา",
-            className: "w-full text-xs pl-8 pr-20 py-2 bg-white dark:bg-[#0c1322] border border-slate-300 dark:border-slate-700/80 rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
+            className: "w-full text-xs pl-8 pr-28 py-2 bg-white dark:bg-[#0c1322] border border-slate-300 dark:border-slate-700/80 rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
           }, void 0, false, {
             fileName: "/app/applet/src/components/GlobalSearchBar.tsx",
             lineNumber: 210,
@@ -5562,7 +5679,41 @@ const K3e = ({
                 lineNumber: 237,
                 columnNumber: 13
               }, void 0),
-
+              m.jsxDEV("button", {
+                type: "button",
+                onClick: handleToggleVoiceSearch,
+                className: "p-1 rounded-md transition cursor-pointer relative " + (isListening ? "bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 ring-2 ring-rose-500/50 shadow-xs" : "text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700"),
+                title: isListening ? "กำลังรับฟังเสียง... พูดชื่อหรือรหัสเครื่องมือ (คลิกเพื่อหยุด)" : "ค้นหาด้วยเสียง Web Speech API (พูดชื่อหรือรหัสเครื่องมือ)",
+                children: isListening ? [
+                  m.jsxDEV("span", { className: "animate-ping absolute inset-0 rounded-md bg-rose-400 opacity-40 pointer-events-none" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 250, columnNumber: 17 }, void 0),
+                  m.jsxDEV("svg", {
+                    className: "w-3.5 h-3.5 text-rose-600 dark:text-rose-400 animate-pulse",
+                    viewBox: "0 0 24 24",
+                    fill: "currentColor",
+                    children: [
+                      m.jsxDEV("path", { d: "M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 251, columnNumber: 19 }, void 0),
+                      m.jsxDEV("path", { d: "M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 252, columnNumber: 19 }, void 0)
+                    ]
+                  }, void 0, true, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 250, columnNumber: 18 }, void 0)
+                ] : m.jsxDEV("svg", {
+                  className: "w-3.5 h-3.5",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  children: [
+                    m.jsxDEV("path", { d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 255, columnNumber: 19 }, void 0),
+                    m.jsxDEV("path", { d: "M19 10v2a7 7 0 0 1-14 0v-2" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 256, columnNumber: 19 }, void 0),
+                    m.jsxDEV("line", { x1: "12", x2: "12", y1: "19", y2: "22" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 257, columnNumber: 19 }, void 0)
+                  ]
+                }, void 0, true, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 254, columnNumber: 18 }, void 0)
+              }, void 0, false, {
+                fileName: "/app/applet/src/components/GlobalSearchBar.tsx",
+                lineNumber: 249,
+                columnNumber: 13
+              }, void 0)
             ]
           }, void 0, true, {
             fileName: "/app/applet/src/components/GlobalSearchBar.tsx",
@@ -5575,6 +5726,27 @@ const K3e = ({
         lineNumber: 197,
         columnNumber: 7
       }, void 0),
+      isListening && m.jsxDEV("div", {
+        className: "absolute left-0 right-0 top-full mt-1.5 z-40 flex items-center justify-between px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-medium shadow-xl border border-rose-400 animate-in fade-in slide-in-from-top-1",
+        children: [
+          m.jsxDEV("div", {
+            className: "flex items-center gap-2 truncate",
+            children: [
+              m.jsxDEV("span", { className: "w-2 h-2 rounded-full bg-white animate-ping shrink-0" }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 260, columnNumber: 15 }, void 0),
+              m.jsxDEV("span", {
+                className: "truncate",
+                children: speechInterim ? `กำลังฟัง: "${speechInterim}"...` : "🎙️ กำลังฟังเสียง... พูดชื่อหรือรหัสเครื่องมือ (เช่น ไมโครมิเตอร์, IN-001)"
+              }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 261, columnNumber: 15 }, void 0)
+            ]
+          }, void 0, true, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 259, columnNumber: 13 }, void 0),
+          m.jsxDEV("button", {
+            type: "button",
+            onClick: handleToggleVoiceSearch,
+            className: "ml-2 px-2 py-0.5 rounded-md bg-white/20 hover:bg-white/30 text-[10px] font-bold text-white shrink-0 transition cursor-pointer",
+            children: "หยุด"
+          }, void 0, false, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 263, columnNumber: 13 }, void 0)
+        ]
+      }, void 0, true, { fileName: "/app/applet/src/components/GlobalSearchBar.tsx", lineNumber: 258, columnNumber: 11 }, void 0),
       B && m.jsxDEV("div", {
         ref: T,
         className: "global-search-popup animate-in fade-in zoom-in-95 duration-150 flex flex-col divide-y divide-slate-100 dark:divide-slate-800",
@@ -6050,7 +6222,7 @@ const K3e = ({
     columnNumber: 5
   }, void 0);
 };
-Q3e=({instruments:e = [],cancelInstruments:cancelInstrumentsProp = [],onEdit:t,onDelete:r,onBulkDelete:n,onClearAll:l,onResetToDefault:o,onPrintCert:u,onViewImage:c,onViewDetail:f,onOpenImport:p,onExport:h,onOpenAddModal:v,statusFilter:g,setStatusFilter:N,onBulkUpdateStatus:y,pageTitle:customTitle,viewMode:customViewMode,onDownloadTemplate:customDownload})=>{const[E,w]=A.useState(""),[k,_]=A.useState("all"),[T,C]=A.useState(!0),[V,M]=A.useState(null),[R,B]=A.useState(()=>{try{return localStorage.getItem("calib_density")||"comfortable"}catch{return"comfortable"}}),_densityHook=(A.useEffect(()=>{const h=e=>{if(e&&e.detail)B(e.detail);else{try{B(localStorage.getItem("calib_density")||"comfortable")}catch{}}};window.addEventListener("density-change",h);return()=>window.removeEventListener("density-change",h)},[]),null),[I,P]=A.useState(!1),[W,H]=A.useState(null),[oe,ve]=A.useState(!1),[he,ae]=A.useState(!1),[blkSt,setBlkSt]=A.useState("normal"),[pe,ke]=A.useState("no"),[G,ge]=A.useState("asc"),[Ee,F]=A.useState(null),[K,X]=A.useState({}),[Y,be]=A.useState(""),we=A.useRef(null),[De,fe]=A.useState(!1),[de,Re]=A.useState(!1),U=A.useRef(null),te=A.useRef(null),[me,Ne]=A.useState(new Set),[Fe,je]=A.useState(1),[st,Yt]=A.useState(15);A.useEffect(()=>{const j=ce=>{we.current&&!we.current.contains(ce.target)&&(F(null),be("")),U.current&&!U.current.contains(ce.target)&&fe(!1),te.current&&!te.current.contains(ce.target)&&Re(!1)};return document.addEventListener("mousedown",j),()=>document.removeEventListener("mousedown",j)},[]);const scrollToPageTop=A.useCallback(()=>{try{window.scrollTo({top:0,behavior:"smooth"});const el=document.getElementById("root")||document.documentElement;if(el)el.scrollTo({top:0,behavior:"smooth"});const sc=document.querySelector(".overflow-x-auto, .table-responsive");if(sc)sc.scrollTo({top:0,behavior:"smooth"})}catch{}},[]);A.useEffect(()=>{scrollToPageTop()},[g,Fe]);const getInstrumentStatus=A.useCallback(item=>{if(!item)return"normal";const raw=String(item.status||"").toLowerCase().trim(),cat=String(item.category||"").toUpperCase().trim();if(raw==="inactive"||raw==="cancel"||cat==="CANCEL"||raw==="ปลดระวาง"||cat.includes("CANCEL")||raw.includes("inactive")||raw.includes("cancel")||raw.includes("ปลดระวาง"))return"inactive";if(raw==="in_calibration"||raw==="in_cal"||raw==="in_lab"||raw.includes("ส่งสอบ"))return"in_calibration";const due=item.next_due_date||item.nextDueDate||item.dueDate||item.due_date||item.dueYear;if(due){const t=ga(due);if(t!==null&&t!==undefined&&!isNaN(t)){const th=(typeof window<"u"&&window.qapAlertThreshold)?window.qapAlertThreshold:30;return t<0?"overdue":t<=th?"due_soon":"normal"}}if(raw==="overdue")return"overdue";if(raw==="due_soon"||raw==="due")return"due_soon";return"normal"},[]);const rawCancelList=A.useMemo(()=>{if(Array.isArray(cancelInstrumentsProp)&&cancelInstrumentsProp.length>0)return cancelInstrumentsProp;try{const d=localStorage.getItem("QAP_CANCEL_INSTRUMENTS_V1");if(d){const parsed=JSON.parse(d);if(Array.isArray(parsed)&&parsed.length>0)return parsed;}}catch{}return[];},[cancelInstrumentsProp]),isInactiveFilter=String(g).toLowerCase().trim()==="inactive"||String(g).toLowerCase().trim()==="cancel",activeSourceList=(isInactiveFilter&&customViewMode!=="cancel"&&rawCancelList.length>0)?rawCancelList:e,Et=A.useMemo(()=>{let n=0,ds=0,ov=0,inc=0,ina=0;e.forEach(j=>{const st=getInstrumentStatus(j);if(st==="in_calibration")inc++;else if(st==="inactive")ina++;else if(st==="overdue")ov++;else if(st==="due_soon")ds++;else n++});const effectiveInactive=customViewMode==="cancel"?e.length:(rawCancelList.length>0?rawCancelList.length:ina);return{all:e.length,normal:n,due_soon:ds,overdue:ov,in_calibration:inc,inactive:effectiveInactive}},[e,getInstrumentStatus,customViewMode,rawCancelList]),ua=j=>{const ce=new Set;return activeSourceList.forEach(Oe=>{const Le=Oe[j];Le!=null&&String(Le).trim()&&ce.add(String(Le).trim())}),Array.from(ce).sort()},Ke=A.useMemo(()=>E.trim()?$$(activeSourceList,E,k):[],[activeSourceList,E,k]),ut=A.useMemo(()=>new Map(Ke.map(j=>[j.instrument.id,j])),[Ke]),Tr=j=>{const jSt=getInstrumentStatus(j);g!=="all"&&jSt!==g&&N("all"),I&&jSt!=="due_soon"&&jSt!=="overdue"&&P(!1),Object.keys(K).length>0&&X({}),setTimeout(()=>{const ce=ir.findIndex(Oe=>Oe.id===j.id);if(ce!==-1){const Oe=Math.floor(ce/st)+1;je(Oe)}M(j.id),setTimeout(()=>{const Oe=document.getElementById(`row-${j.id}`);Oe&&Oe.scrollIntoView({behavior:"smooth",block:"center"})},120),setTimeout(()=>{M(null)},2500)},60)},ir=A.useMemo(()=>activeSourceList.filter(ce=>{const itemSt=getInstrumentStatus(ce);if(g!=="all"&&g!=="ALL"){const normG=String(g).toLowerCase().trim();if(normG==="due_soon"||normG==="due"){if(itemSt!=="due_soon")return!1}else if(normG==="overdue"){if(itemSt!=="overdue")return!1}else if(normG==="normal"||normG==="in_spec"){if(itemSt!=="normal")return!1}else if(normG==="in_lab"||normG==="in_calibration"||normG==="in_cal"||normG==="in cal"){if(itemSt!=="in_calibration")return!1}else if(normG==="cancel"||normG==="inactive"){if(itemSt!=="inactive")return!1}}if(I&&itemSt!=="due_soon"&&itemSt!=="overdue")return!1;for(const[Oe,Le]of Object.entries(K)){const Be=String(Le||"").trim();if(!Be||Be==="__ALL__")continue;if(String(ce[Oe]||"").trim().toLowerCase()!==Be.toLowerCase())return!1}return!(E.trim()&&!ut.has(ce.id))}).sort((ce,Oe)=>{var it,Ze;if(E.trim()&&T){const mt=((it=ut.get(ce.id))==null?void 0:it.score)||0,wt=((Ze=ut.get(Oe.id))==null?void 0:Ze.score)||0;if(mt!==wt)return wt-mt}let Le=ce[pe]??"",Be=Oe[pe]??"";if(pe==="status"){Le=getInstrumentStatus(ce);Be=getInstrumentStatus(Oe)}return pe==="no"?G==="asc"?(ce.no||0)-(Oe.no||0):(Oe.no||0)-(ce.no||0):(typeof Le=="string"&&(Le=Le.toLowerCase(),Be=String(Be).toLowerCase()),Le<Be?G==="asc"?-1:1:Le>Be?G==="asc"?1:-1:0)}),[activeSourceList,g,I,K,E,ut,T,pe,G,getInstrumentStatus]),Qr=Math.ceil(ir.length/st)||1,At=A.useMemo(()=>{const j=(Fe-1)*st;return ir.slice(j,j+st)},[ir,Fe,st]),Vr=j=>{pe===j?ge(ce=>ce==="asc"?"desc":"asc"):(ke(j),ge("asc"))},Pn=(j,ce,Oe)=>{j.stopPropagation(),navigator.clipboard.writeText(ce),H(Oe),setTimeout(()=>H(null),1800)},kt=()=>{const j=new Set(me);At.every(Oe=>j.has(Oe.id))?At.forEach(Oe=>j.delete(Oe.id)):At.forEach(Oe=>j.add(Oe.id)),Ne(j)},xt=(j,ce)=>{j.stopPropagation();const Oe=new Set(me);Oe.has(ce)?Oe.delete(ce):Oe.add(ce),Ne(Oe)},yn=()=>{const j=new Set;ir.forEach(ce=>j.add(ce.id)),Ne(j)},Kt=()=>{Ne(new Set)},Ln=()=>{me.size!==0&&y&&y(Array.from(me),"in_calibration")},Ma=(j,ce)=>{y&&y(Array.from(me),j,ce),ae(!1),Ne(new Set())},Oa=A.useMemo(()=>e.filter(j=>me.has(j.id)),[e,me]),kl=()=>{w(""),X({}),N("all"),P(!1),je(1),F(null)},$i=E!==""||g!=="all"||I||Object.keys(K).length>0,Sl=(j,ce)=>{if(Ee!==j)return null;const Le=ua(j).filter(it=>it.toLowerCase().includes(Y.toLowerCase())),Be=K[j]||"";return m.jsxDEV("div",{ref:we,onClick:it=>it.stopPropagation(),className:"absolute top-full left-0 mt-1.5 w-60 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-blue-200 dark:border-slate-700 p-3 z-50 text-slate-800 dark:text-slate-200 animate-in fade-in zoom-in-95 duration-150 text-xs font-normal select-none",children:[m.jsxDEV("div",{className:"flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700 mb-2",children:[m.jsxDEV("div",{className:"font-bold text-blue-950 dark:text-blue-300 flex items-center gap-1.5",children:[m.jsxDEV(fX,{className:"w-3.5 h-3.5 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:399,columnNumber:13},void 0),m.jsxDEV("span",{children:["กรอง: ",ce]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:400,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:398,columnNumber:11},void 0),Be&&m.jsxDEV("button",{onClick:()=>{const it={...K};delete it[j],X(it),F(null)},className:"text-[10px] text-rose-600 dark:text-rose-400 hover:underline font-semibold",children:"ล้างตัวกรอง"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:403,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:397,columnNumber:9},void 0),m.jsxDEV("div",{className:"space-y-1 mb-2.5 pb-2 border-b border-slate-100 dark:border-slate-700",children:[m.jsxDEV("button",{onClick:()=>{ke(j),ge("asc"),F(null)},className:"w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 transition text-[11px] font-medium",children:[m.jsxDEV(Y8,{className:"w-3 h-3 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:427,columnNumber:13},void 0),m.jsxDEV("span",{children:"จัดเรียง น้อยไปมาก (A → Z)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:428,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:419,columnNumber:11},void 0),m.jsxDEV("button",{onClick:()=>{ke(j),ge("desc"),F(null)},className:"w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 transition text-[11px] font-medium",children:[m.jsxDEV(G8,{className:"w-3 h-3 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:438,columnNumber:13},void 0),m.jsxDEV("span",{children:"จัดเรียง มากไปน้อย (Z → A)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:439,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:430,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:418,columnNumber:9},void 0),m.jsxDEV("div",{className:"relative mb-2",children:[m.jsxDEV(Ak,{className:"w-3 h-3 text-slate-400 absolute left-2 top-2"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:445,columnNumber:11},void 0),m.jsxDEV("input",{type:"text",placeholder:"ค้นหาในคอลัมน์นี้...",value:Y,onChange:it=>be(it.target.value),className:"w-full pl-7 pr-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:446,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:444,columnNumber:9},void 0),m.jsxDEV("div",{className:"max-h-40 overflow-y-auto space-y-0.5 scrollbar-thin",children:[m.jsxDEV("button",{onClick:()=>{const it={...K};delete it[j],X(it),F(null),be("")},className:`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] flex items-center justify-between ${Be?"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300":"bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold"}`,children:[m.jsxDEV("span",{children:"(ทั้งหมด - All)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:469,columnNumber:13},void 0),!Be&&m.jsxDEV(hl,{className:"w-3 h-3 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:470,columnNumber:32},void 0)]},"__filter_all__",!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:457,columnNumber:11},void 0),Le.map((it,_idx)=>{const Ze=Be.toLowerCase()===it.toLowerCase();return m.jsxDEV("button",{onClick:()=>{X({...K,[j]:it}),F(null),be("")},className:`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] flex items-center justify-between truncate ${Ze?"bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("span",{className:"truncate pr-2",children:it},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:487,columnNumber:17},void 0),Ze&&m.jsxDEV(hl,{className:"w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:488,columnNumber:32},void 0)]},(it?String(it):"opt")+"_"+_idx,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:476,columnNumber:15},void 0)})]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:456,columnNumber:9},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:392,columnNumber:7},void 0)},Wt=(j,ce,Oe="min-w-[110px]",Le="text-left")=>{const Be=pe===ce,it=!!K[ce],isCancelPage=!1;return m.jsxDEV("th",{className:`py-2.5 px-3 relative select-none font-bold uppercase tracking-wider text-[11px] ${isCancelPage?"text-white hover:bg-purple-800/60 border-r border-purple-400/30":"text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-750"} transition ${Oe} ${Le}`,children:m.jsxDEV("div",{className:"flex items-center justify-between gap-1",children:[m.jsxDEV("button",{type:"button",onClick:()=>Vr(ce),className:`flex items-center gap-1.5 ${isCancelPage?"text-white hover:text-purple-200 font-bold":"hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-slate-700 dark:text-slate-200"} transition text-left truncate cursor-pointer`,title:`คลิกเพื่อจัดเรียงตาม ${j}`,children:[m.jsxDEV("span",{className:"truncate",children:j},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:519,columnNumber:13},void 0),Be&&(G==="asc"?m.jsxDEV(Y8,{className:`w-3 h-3 ${isCancelPage?"text-white":"text-blue-600 dark:text-blue-400"} shrink-0`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:522,columnNumber:17},void 0):m.jsxDEV(G8,{className:`w-3 h-3 ${isCancelPage?"text-white":"text-blue-600 dark:text-blue-400"} shrink-0`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:524,columnNumber:17},void 0))]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:513,columnNumber:11},void 0),m.jsxDEV("div",{className:"relative shrink-0",children:[m.jsxDEV("button",{type:"button",onClick:Ze=>{Ze.stopPropagation(),F(Ee===ce?null:ce),be("")},className:`w-5 h-5 rounded flex items-center justify-center transition border cursor-pointer ${it?(isCancelPage?"bg-white text-purple-900 border-white shadow-2xs font-bold":"bg-blue-600 text-white border-blue-600 shadow-2xs font-bold"):(isCancelPage?"bg-purple-800/80 hover:bg-purple-700 text-white border-purple-400/50":"bg-white dark:bg-slate-700 hover:bg-slate-200/70 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400 border-slate-300/80 dark:border-slate-600")}`,title:`กรองข้อมูลคอลัมน์ ${j}`,children:m.jsxDEV(xd,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:545,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:531,columnNumber:13},void 0),Sl(ce,j)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:530,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:511,columnNumber:9},void 0)},ce||"col-header",!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:508,columnNumber:7},void 0)};return m.jsxDEV("div",{className:"h-full w-full flex flex-col bg-white dark:bg-[#0c1322] rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xl overflow-hidden min-h-0 text-slate-800 dark:text-slate-100 relative transition-colors duration-200",children:[m.jsxDEV("div",{id:"table-rainbow-top-edge",className:"h-[3.5px] w-full rainbow-line shrink-0 shadow-[0_1px_8px_rgba(59,130,246,0.35)] z-30"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:559,columnNumber:7},void 0),m.jsxDEV("div",{className:"shrink-0 px-3 sm:px-3.5 py-2 sm:py-2.5 bg-slate-50/90 dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 relative z-50 overflow-visible",children:m.jsxDEV("div",{className:"flex items-center justify-between gap-1.5 sm:gap-2 flex-nowrap w-full",children:[m.jsxDEV("div",{className:"flex items-center gap-1.5 sm:gap-2 flex-nowrap shrink-0",children:[m.jsxDEV("button",{onClick:v,className:"inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-semibold shadow-xs active:scale-95 transition shrink-0 whitespace-nowrap",title:"ขึ้นทะเบียนเครื่องมือวัดใหม่",children:[m.jsxDEV(Hv,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:575,columnNumber:15},void 0),m.jsxDEV("span",{children:"เพิ่มเครื่องมือ"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:576,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:570,columnNumber:13},void 0),m.jsxDEV("div",{className:`relative shrink-0 ${De?"z-[99999]":"z-20"}`,ref:U,children:[m.jsxDEV("button",{onClick:()=>{fe(!De),Re(!1)},className:`inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-lg border text-xs font-medium transition shadow-xs shrink-0 whitespace-nowrap ${g!=="all"||I?"bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-300 font-semibold ring-1 ring-blue-300/50":"bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750"}`,title:"เลือกกรองสถานะเครื่องมือวัด",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full shrink-0 ${g==="normal"?"bg-emerald-500":g==="due_soon"?"bg-amber-500 animate-pulse":g==="overdue"?"bg-rose-500":g==="in_calibration"?"bg-blue-500":g==="inactive"?"bg-slate-400":"bg-slate-700"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:593,columnNumber:17},void 0),m.jsxDEV("span",{className:"truncate max-w-[120px] sm:max-w-[150px] md:max-w-none whitespace-nowrap",children:["สถานะ: ",g==="all"?"ทั้งหมด":g==="normal"?"ปกติ (IN SPEC)":g==="due_soon"?"ใกล้ครบกำหนด":g==="overdue"?"เกินกำหนด":g==="in_calibration"?"ส่งสอบเทียบ":"ปลดระวาง"]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:601,columnNumber:17},void 0),m.jsxDEV("span",{className:"px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold",children:g==="all"?Et.all:Et[g]??0},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:611,columnNumber:17},void 0),m.jsxDEV(xd,{className:`w-3.5 h-3.5 text-slate-400 transition-transform ${De?"rotate-180":""}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:614,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:581,columnNumber:15},void 0),De&&m.jsxDEV("div",{className:"absolute top-full left-0 mt-1 w-52 sm:w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200/90 dark:border-slate-700/80 py-1 z-[99999] text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-slate-100 dark:divide-slate-700/60",children:[m.jsxDEV("div",{className:"px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider",children:"เลือกสถานะเครื่องมือวัด"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:620,columnNumber:19},void 0),m.jsxDEV("div",{className:"p-1 space-y-0.5",children:[m.jsxDEV("button",{onClick:()=>{N("all"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="all"?"bg-slate-900 dark:bg-blue-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="all"?"bg-white":"bg-slate-700"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:632,columnNumber:25},void 0),m.jsxDEV("span",{children:"ทั้งหมด (ALL)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:633,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:631,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="all"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.all},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:635,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:625,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("normal"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="normal"?"bg-emerald-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="normal"?"bg-white":"bg-emerald-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:650,columnNumber:25},void 0),m.jsxDEV("span",{children:"ปกติ (IN SPEC)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:651,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:649,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="normal"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.normal},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:653,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:643,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("due_soon"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="due_soon"?"bg-amber-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="due_soon"?"bg-white":"bg-amber-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:668,columnNumber:25},void 0),m.jsxDEV("span",{children:"ใกล้ครบกำหนด"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:669,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:667,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="due_soon"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.due_soon},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:671,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:661,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("overdue"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="overdue"?"bg-rose-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="overdue"?"bg-white":"bg-rose-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:686,columnNumber:25},void 0),m.jsxDEV("span",{children:"เกินกำหนด (OVERDUE)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:687,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:685,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="overdue"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.overdue},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:689,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:679,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("in_calibration"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="in_calibration"?"bg-blue-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="in_calibration"?"bg-white":"bg-blue-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:704,columnNumber:25},void 0),m.jsxDEV("span",{children:"ส่งสอบเทียบ"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:705,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:703,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="in_calibration"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.in_calibration},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:707,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:697,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("inactive"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="inactive"?"bg-slate-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="inactive"?"bg-white":"bg-slate-400"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:722,columnNumber:25},void 0),m.jsxDEV("span",{children:"ปลดระวาง (INACTIVE)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:723,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:721,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="inactive"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.inactive},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:725,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:715,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:623,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:619,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:580,columnNumber:13},void 0),m.jsxDEV("div",{className:`relative shrink-0 ${de?"z-[99999]":"z-20"}`,ref:te,children:[m.jsxDEV("button",{onClick:()=>{Re(!de),fe(!1)},className:"inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition shadow-xs shrink-0 whitespace-nowrap",title:"จัดการไฟล์ Excel และรายงาน",children:[m.jsxDEV(Gv,{className:"w-3.5 h-3.5 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:746,columnNumber:17},void 0),m.jsxDEV("span",{children:"Excel XLS"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:747,columnNumber:17},void 0),m.jsxDEV(xd,{className:`w-3.5 h-3.5 text-slate-400 transition-transform ${de?"rotate-180":""}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:748,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:738,columnNumber:15},void 0),de&&m.jsxDEV("div",{className:"absolute top-full left-0 mt-1.5 w-60 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 py-1 z-[99999] text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-slate-100 dark:divide-slate-700",children:[m.jsxDEV("div",{className:"px-3 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider",children:"จัดการข้อมูล EXCEL"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:754,columnNumber:19},void 0),m.jsxDEV("div",{className:"p-1 space-y-0.5",children:[m.jsxDEV("button",{onClick:()=>{Re(!1),p()},className:"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 transition",children:[m.jsxDEV(Gv,{className:"w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:762,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-semibold text-xs text-slate-800 dark:text-slate-100",children:"นำเข้าไฟล์ XLS (IMPORT)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:764,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-[10px] text-slate-400 dark:text-slate-400",children:"อัปโหลดไฟล์ Excel พร้อมรูปภาพ"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:765,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:763,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:758,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{Re(!1),h()},className:"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-700 dark:hover:text-emerald-300 transition",children:[m.jsxDEV(Sh,{className:"w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:773,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-semibold text-xs text-slate-800 dark:text-slate-100",children:"ส่งออกรายงาน (EXPORT)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:775,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-[10px] text-slate-400 dark:text-slate-400",children:"ดาวน์โหลดรายการทั้งหมดเป็น Excel"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:776,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:774,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:769,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{Re(!1),customDownload?customDownload():z$()},className:"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-700 dark:hover:text-indigo-300 transition",children:[m.jsxDEV($v,{className:"w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:784,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-semibold text-xs text-slate-800 dark:text-slate-100",children:"ดาวน์โหลดแม่แบบ Excel"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:786,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-[10px] text-slate-400 dark:text-slate-400",children:"เทมเพลตมาตรฐานตามหัวข้อตาราง"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:787,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:785,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:780,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:757,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:753,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:737,columnNumber:13},void 0),m.jsxDEV("button",{onClick:()=>{P(!I),je(1)},className:`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border shrink-0 whitespace-nowrap ${I?"bg-amber-500 text-white border-amber-600 shadow-xs":"bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-700"}`,title:"แสดงเฉพาะรายการด่วน (ใกล้ครบกำหนด และ เกินกำหนด)",children:[m.jsxDEV(Ah,{className:"w-3.5 h-3.5 text-amber-500"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:824,columnNumber:15},void 0),m.jsxDEV("span",{children:"ด่วน"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:825,columnNumber:15},void 0),Et.due_soon+Et.overdue>0&&m.jsxDEV("span",{className:`px-1.5 py-0.2 rounded text-[10px] font-mono ${I?"bg-white/20 text-white":"bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 font-bold"}`,children:Et.due_soon+Et.overdue},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:827,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:812,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:568,columnNumber:11},void 0),m.jsxDEV("div",{className:"flex items-center gap-1.5 sm:gap-2 flex-nowrap justify-end shrink-0 min-w-0",children:[m.jsxDEV("div",{className:"w-32 sm:w-44 md:w-56 lg:w-64 min-w-[110px] shrink-1",children:m.jsxDEV(K3e,{instruments:e,searchTerm:E,onSearchChange:j=>{w(j),je(1)},searchScope:k,onScopeChange:_,sortByRelevance:T,onToggleSortByRelevance:C,onSelectInstrument:Tr,onViewDetail:f,onPrintCert:u,onEdit:t},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:862,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:861,columnNumber:13},void 0),m.jsxDEV("button",{type:"button",onClick:kl,disabled:!$i,className:`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold transition shadow-2xs shrink-0 whitespace-nowrap ${$i?"bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:hover:bg-rose-900/70 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 ring-1 ring-rose-400/30 cursor-pointer animate-in fade-in":"bg-slate-100/70 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/40 cursor-default opacity-50"}`,title:$i?"ล้างตัวกรองทั้งหมด (แสดงรายการทั้งหมด)":"ไม่มีตัวกรองที่ใช้งานอยู่",children:[m.jsxDEV(Sk,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:882,columnNumber:15},void 0),m.jsxDEV("span",{children:"ล้างตัวกรอง"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:883,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:881,columnNumber:13},void 0),m.jsxDEV("button",{onClick:()=>ve(!0),className:"inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50/90 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 active:bg-rose-200 text-rose-700 dark:text-rose-300 text-xs font-semibold transition shadow-2xs active:scale-95 shrink-0 whitespace-nowrap",title:"ลบข้อมูลทั้งหมด / ฟังก์ชันการลบอย่างละเอียด",children:[m.jsxDEV(vd,{className:"w-3.5 h-3.5 text-rose-600 dark:text-rose-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:908,columnNumber:15},void 0),m.jsxDEV("span",{children:"ลบทั้งหมด"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:909,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:903,columnNumber:13},void 0),E.trim()?m.jsxDEV("div",{className:"inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-bold shrink-0 whitespace-nowrap shadow-2xs animate-in fade-in",children:[m.jsxDEV("span",{className:"w-2 h-2 rounded-full bg-amber-500 animate-pulse"},void 0,!1),m.jsxDEV("span",{children:[m.jsxDEV("span",{className:"font-mono text-amber-950 dark:text-amber-100 font-black",children:ir.length})," / ",m.jsxDEV("span",{className:"font-mono opacity-80",children:e.length})," รายการ"]},void 0,!0),m.jsxDEV("button",{type:"button",onClick:()=>w(""),className:"ml-1 px-1 py-0.5 rounded hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 hover:text-rose-600 transition cursor-pointer text-xs leading-none font-bold",title:"ล้างคำค้นหา",children:"✕"},void 0,!1)]},void 0,!0):m.jsxDEV("div",{className:"inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/60 text-blue-900 dark:text-blue-300 text-xs font-semibold shrink-0 font-mono whitespace-nowrap",children:[m.jsxDEV("span",{children:ir.length},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:926,columnNumber:15},void 0),m.jsxDEV("span",{className:"text-slate-400 font-normal",children:"/"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:927,columnNumber:15},void 0),m.jsxDEV("span",{children:e.length},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:928,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:925,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:859,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:566,columnNumber:9},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:565,columnNumber:7},void 0),m.jsxDEV("div",{className:"flex-1 overflow-x-auto overflow-y-auto min-h-0 bg-white dark:bg-[#0b0f19] select-text relative table-scroll-container",children:m.jsxDEV("table",{className:`w-full text-left text-xs border-collapse ${customViewMode==="all"||customViewMode==="cancel"?"min-w-[1950px]":"min-w-[1550px]"}`,children:[m.jsxDEV("thead",{className:"bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200/90 dark:border-slate-700 sticky top-0 z-20 shadow-xs",children:m.jsxDEV("tr",{children:[m.jsxDEV("th",{className:"py-2.5 px-2.5 text-center w-10 bg-slate-100 dark:bg-slate-800 border-r border-slate-200/60 dark:border-slate-700/60",children:m.jsxDEV("button",{type:"button",onClick:kt,className:"text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer",title:"เลือก/ยกเลิกทั้งหมดในหน้านี้",children:At.length>0&&At.every(j=>me.has(j.id))?m.jsxDEV(ov,{className:"w-4 h-4 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:949,columnNumber:21},void 0):m.jsxDEV(q8,{className:"w-4 h-4 text-slate-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:951,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:942,columnNumber:17},void 0)},"col-select-all",!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:941,columnNumber:15},void 0),Wt(customViewMode==="cancel"?"No":(customViewMode==="centralized"||customViewMode==="each_section"?"N":"No."),"no","w-16 text-center","text-center"),
+Q3e=({instruments:e = [],cancelInstruments:cancelInstrumentsProp = [],onEdit:t,onDelete:r,onBulkDelete:n,onClearAll:l,onResetToDefault:o,onPrintCert:u,onViewImage:c,onViewDetail:f,onOpenImport:p,onExport:h,onOpenAddModal:v,statusFilter:g,setStatusFilter:N,onBulkUpdateStatus:y,pageTitle:customTitle,viewMode:customViewMode,onDownloadTemplate:customDownload})=>{const[E,w]=A.useState(""),[k,_]=A.useState("all"),[T,C]=A.useState(!0),[V,M]=A.useState(null),[R,B]=A.useState(()=>{try{return localStorage.getItem("calib_density")||"comfortable"}catch{return"comfortable"}}),_densityHook=(A.useEffect(()=>{const h=e=>{if(e&&e.detail)B(e.detail);else{try{B(localStorage.getItem("calib_density")||"comfortable")}catch{}}};window.addEventListener("density-change",h);return()=>window.removeEventListener("density-change",h)},[]),null),[I,P]=A.useState(!1),[W,H]=A.useState(null),[oe,ve]=A.useState(!1),[he,ae]=A.useState(!1),[blkSt,setBlkSt]=A.useState("normal"),[pe,ke]=A.useState("no"),[G,ge]=A.useState("asc"),[Ee,F]=A.useState(null),[K,X]=A.useState({}),[Y,be]=A.useState(""),we=A.useRef(null),[De,fe]=A.useState(!1),[de,Re]=A.useState(!1),U=A.useRef(null),te=A.useRef(null),[me,Ne]=A.useState(new Set),[Fe,je]=A.useState(1),[st,Yt]=A.useState(15);A.useEffect(()=>{const j=ce=>{we.current&&!we.current.contains(ce.target)&&(F(null),be("")),U.current&&!U.current.contains(ce.target)&&fe(!1),te.current&&!te.current.contains(ce.target)&&Re(!1)};return document.addEventListener("mousedown",j),()=>document.removeEventListener("mousedown",j)},[]);const scrollToPageTop=A.useCallback(()=>{try{window.scrollTo({top:0,behavior:"smooth"});const el=document.getElementById("root")||document.documentElement;if(el)el.scrollTo({top:0,behavior:"smooth"});const sc=document.querySelector(".overflow-x-auto, .table-responsive");if(sc)sc.scrollTo({top:0,behavior:"smooth"})}catch{}},[]);A.useEffect(()=>{scrollToPageTop()},[g,Fe]);const getInstrumentStatus=A.useCallback(item=>{if(!item)return"normal";return P0(item);},[]);const rawCancelList=A.useMemo(()=>{if(Array.isArray(cancelInstrumentsProp)&&cancelInstrumentsProp.length>0)return cancelInstrumentsProp;try{const d=localStorage.getItem("QAP_CANCEL_INSTRUMENTS_V1");if(d){const parsed=JSON.parse(d);if(Array.isArray(parsed)&&parsed.length>0)return parsed;}}catch{}return[];},[cancelInstrumentsProp]),isInactiveFilter=String(g).toLowerCase().trim()==="inactive"||String(g).toLowerCase().trim()==="cancel",activeSourceList=(isInactiveFilter&&customViewMode!=="cancel"&&rawCancelList.length>0)?rawCancelList:e,Et=A.useMemo(()=>{let n=0,ds=0,ov=0,inc=0,ina=0;e.forEach(j=>{const st=getInstrumentStatus(j);if(st==="in_calibration")inc++;else if(st==="inactive")ina++;else if(st==="overdue")ov++;else if(st==="due_soon")ds++;else n++});const effectiveInactive=customViewMode==="cancel"?e.length:(rawCancelList.length>0?rawCancelList.length:ina);return{all:e.length,normal:n,due_soon:ds,overdue:ov,in_calibration:inc,inactive:effectiveInactive}},[e,getInstrumentStatus,customViewMode,rawCancelList]),ua=j=>{const ce=new Set;return activeSourceList.forEach(Oe=>{const Le=Oe[j];Le!=null&&String(Le).trim()&&ce.add(String(Le).trim())}),Array.from(ce).sort()},Ke=A.useMemo(()=>E.trim()?$$(activeSourceList,E,k):[],[activeSourceList,E,k]),ut=A.useMemo(()=>new Map(Ke.map(j=>[j.instrument.id,j])),[Ke]),Tr=j=>{const jSt=getInstrumentStatus(j);g!=="all"&&jSt!==g&&N("all"),I&&jSt!=="overdue"&&P(!1),Object.keys(K).length>0&&X({}),setTimeout(()=>{const ce=ir.findIndex(Oe=>Oe.id===j.id);if(ce!==-1){const Oe=Math.floor(ce/st)+1;je(Oe)}M(j.id),setTimeout(()=>{const Oe=document.getElementById(`row-${j.id}`);Oe&&Oe.scrollIntoView({behavior:"smooth",block:"center"})},120),setTimeout(()=>{M(null)},2500)},60)},ir=A.useMemo(()=>activeSourceList.filter(ce=>{const itemSt=getInstrumentStatus(ce);const isOvOnly=I||(g!=="all"&&String(g).toLowerCase().trim()==="overdue");if(isOvOnly){if(itemSt!=="overdue")return!1}else if(g!=="all"&&g!=="ALL"){const normG=String(g).toLowerCase().trim();if(normG==="due_soon"||normG==="due"){if(itemSt!=="due_soon")return!1}else if(normG==="normal"||normG==="in_spec"){if(itemSt!=="normal")return!1}else if(normG==="in_lab"||normG==="in_calibration"||normG==="in_cal"||normG==="in cal"){if(itemSt!=="in_calibration")return!1}else if(normG==="cancel"||normG==="inactive"){if(itemSt!=="inactive")return!1}}for(const[Oe,Le]of Object.entries(K)){const Be=String(Le||"").trim();if(!Be||Be==="__ALL__")continue;if(String(ce[Oe]||"").trim().toLowerCase()!==Be.toLowerCase())return!1}return!(E.trim()&&!ut.has(ce.id))}).sort((ce,Oe)=>{var it,Ze;if(E.trim()&&T){const mt=((it=ut.get(ce.id))==null?void 0:it.score)||0,wt=((Ze=ut.get(Oe.id))==null?void 0:Ze.score)||0;if(mt!==wt)return wt-mt}let Le=ce[pe]??"",Be=Oe[pe]??"";if(pe==="status"){Le=getInstrumentStatus(ce);Be=getInstrumentStatus(Oe)}return pe==="no"?G==="asc"?(ce.no||0)-(Oe.no||0):(Oe.no||0)-(ce.no||0):(typeof Le=="string"&&(Le=Le.toLowerCase(),Be=String(Be).toLowerCase()),Le<Be?G==="asc"?-1:1:Le>Be?G==="asc"?1:-1:0)}),[activeSourceList,g,I,K,E,ut,T,pe,G,getInstrumentStatus]),Qr=Math.ceil(ir.length/st)||1,At=A.useMemo(()=>{const j=(Fe-1)*st;return ir.slice(j,j+st)},[ir,Fe,st]),Vr=j=>{pe===j?ge(ce=>ce==="asc"?"desc":"asc"):(ke(j),ge("asc"))},Pn=(j,ce,Oe)=>{j.stopPropagation(),navigator.clipboard.writeText(ce),H(Oe),setTimeout(()=>H(null),1800)},kt=()=>{const j=new Set(me);At.every(Oe=>j.has(Oe.id))?At.forEach(Oe=>j.delete(Oe.id)):At.forEach(Oe=>j.add(Oe.id)),Ne(j)},xt=(j,ce)=>{j.stopPropagation();const Oe=new Set(me);Oe.has(ce)?Oe.delete(ce):Oe.add(ce),Ne(Oe)},yn=()=>{const j=new Set;ir.forEach(ce=>j.add(ce.id)),Ne(j)},Kt=()=>{Ne(new Set)},Ln=()=>{me.size!==0&&y&&y(Array.from(me),"in_calibration")},Ma=(j,ce)=>{y&&y(Array.from(me),j,ce),ae(!1),Ne(new Set())},Oa=A.useMemo(()=>e.filter(j=>me.has(j.id)),[e,me]),kl=()=>{w(""),X({}),N("all"),P(!1),je(1),F(null)},$i=E!==""||g!=="all"||I||Object.keys(K).length>0,Sl=(j,ce)=>{if(Ee!==j)return null;const Le=ua(j).filter(it=>it.toLowerCase().includes(Y.toLowerCase())),Be=K[j]||"";return m.jsxDEV("div",{ref:we,onClick:it=>it.stopPropagation(),className:"absolute top-full left-0 mt-1.5 w-60 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-blue-200 dark:border-slate-700 p-3 z-50 text-slate-800 dark:text-slate-200 animate-in fade-in zoom-in-95 duration-150 text-xs font-normal select-none",children:[m.jsxDEV("div",{className:"flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700 mb-2",children:[m.jsxDEV("div",{className:"font-bold text-blue-950 dark:text-blue-300 flex items-center gap-1.5",children:[m.jsxDEV(fX,{className:"w-3.5 h-3.5 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:399,columnNumber:13},void 0),m.jsxDEV("span",{children:["กรอง: ",ce]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:400,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:398,columnNumber:11},void 0),Be&&m.jsxDEV("button",{onClick:()=>{const it={...K};delete it[j],X(it),F(null)},className:"text-[10px] text-rose-600 dark:text-rose-400 hover:underline font-semibold",children:"ล้างตัวกรอง"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:403,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:397,columnNumber:9},void 0),m.jsxDEV("div",{className:"space-y-1 mb-2.5 pb-2 border-b border-slate-100 dark:border-slate-700",children:[m.jsxDEV("button",{onClick:()=>{ke(j),ge("asc"),F(null)},className:"w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 transition text-[11px] font-medium",children:[m.jsxDEV(Y8,{className:"w-3 h-3 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:427,columnNumber:13},void 0),m.jsxDEV("span",{children:"จัดเรียง น้อยไปมาก (A → Z)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:428,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:419,columnNumber:11},void 0),m.jsxDEV("button",{onClick:()=>{ke(j),ge("desc"),F(null)},className:"w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 transition text-[11px] font-medium",children:[m.jsxDEV(G8,{className:"w-3 h-3 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:438,columnNumber:13},void 0),m.jsxDEV("span",{children:"จัดเรียง มากไปน้อย (Z → A)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:439,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:430,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:418,columnNumber:9},void 0),m.jsxDEV("div",{className:"relative mb-2",children:[m.jsxDEV(Ak,{className:"w-3 h-3 text-slate-400 absolute left-2 top-2"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:445,columnNumber:11},void 0),m.jsxDEV("input",{type:"text",placeholder:"ค้นหาในคอลัมน์นี้...",value:Y,onChange:it=>be(it.target.value),className:"w-full pl-7 pr-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:446,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:444,columnNumber:9},void 0),m.jsxDEV("div",{className:"max-h-40 overflow-y-auto space-y-0.5 scrollbar-thin",children:[m.jsxDEV("button",{onClick:()=>{const it={...K};delete it[j],X(it),F(null),be("")},className:`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] flex items-center justify-between ${Be?"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300":"bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold"}`,children:[m.jsxDEV("span",{children:"(ทั้งหมด - All)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:469,columnNumber:13},void 0),!Be&&m.jsxDEV(hl,{className:"w-3 h-3 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:470,columnNumber:32},void 0)]},"__filter_all__",!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:457,columnNumber:11},void 0),Le.map((it,_idx)=>{const Ze=Be.toLowerCase()===it.toLowerCase();return m.jsxDEV("button",{onClick:()=>{X({...K,[j]:it}),F(null),be("")},className:`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] flex items-center justify-between truncate ${Ze?"bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("span",{className:"truncate pr-2",children:it},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:487,columnNumber:17},void 0),Ze&&m.jsxDEV(hl,{className:"w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:488,columnNumber:32},void 0)]},(it?String(it):"opt")+"_"+_idx,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:476,columnNumber:15},void 0)})]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:456,columnNumber:9},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:392,columnNumber:7},void 0)},Wt=(j,ce,Oe="min-w-[110px]",Le="text-left")=>{const Be=pe===ce,it=!!K[ce],isCancelPage=!1;return m.jsxDEV("th",{className:`py-2.5 px-3 relative select-none font-bold uppercase tracking-wider text-[11px] ${isCancelPage?"text-white hover:bg-purple-800/60 border-r border-purple-400/30":"text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-750"} transition ${Oe} ${Le}`,children:m.jsxDEV("div",{className:"flex items-center justify-between gap-1",children:[m.jsxDEV("button",{type:"button",onClick:()=>Vr(ce),className:`flex items-center gap-1.5 ${isCancelPage?"text-white hover:text-purple-200 font-bold":"hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-slate-700 dark:text-slate-200"} transition text-left truncate cursor-pointer`,title:`คลิกเพื่อจัดเรียงตาม ${j}`,children:[m.jsxDEV("span",{className:"truncate",children:j},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:519,columnNumber:13},void 0),Be&&(G==="asc"?m.jsxDEV(Y8,{className:`w-3 h-3 ${isCancelPage?"text-white":"text-blue-600 dark:text-blue-400"} shrink-0`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:522,columnNumber:17},void 0):m.jsxDEV(G8,{className:`w-3 h-3 ${isCancelPage?"text-white":"text-blue-600 dark:text-blue-400"} shrink-0`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:524,columnNumber:17},void 0))]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:513,columnNumber:11},void 0),m.jsxDEV("div",{className:"relative shrink-0",children:[m.jsxDEV("button",{type:"button",onClick:Ze=>{Ze.stopPropagation(),F(Ee===ce?null:ce),be("")},className:`w-5 h-5 rounded flex items-center justify-center transition border cursor-pointer ${it?(isCancelPage?"bg-white text-purple-900 border-white shadow-2xs font-bold":"bg-blue-600 text-white border-blue-600 shadow-2xs font-bold"):(isCancelPage?"bg-purple-800/80 hover:bg-purple-700 text-white border-purple-400/50":"bg-white dark:bg-slate-700 hover:bg-slate-200/70 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-400 border-slate-300/80 dark:border-slate-600")}`,title:`กรองข้อมูลคอลัมน์ ${j}`,children:m.jsxDEV(xd,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:545,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:531,columnNumber:13},void 0),Sl(ce,j)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:530,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:511,columnNumber:9},void 0)},ce||"col-header",!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:508,columnNumber:7},void 0)};return m.jsxDEV("div",{className:"h-full w-full flex flex-col bg-white dark:bg-[#0c1322] rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xl overflow-hidden min-h-0 text-slate-800 dark:text-slate-100 relative transition-colors duration-200",children:[m.jsxDEV("div",{id:"table-rainbow-top-edge",className:"h-[3.5px] w-full rainbow-line shrink-0 shadow-[0_1px_8px_rgba(59,130,246,0.35)] z-30"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:559,columnNumber:7},void 0),m.jsxDEV("div",{className:"shrink-0 px-3 sm:px-3.5 py-2 sm:py-2.5 bg-slate-50/90 dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 relative z-50 overflow-visible",children:m.jsxDEV("div",{className:"flex items-center justify-between gap-1.5 sm:gap-2 flex-nowrap w-full",children:[m.jsxDEV("div",{className:"flex items-center gap-1.5 sm:gap-2 flex-nowrap shrink-0",children:[m.jsxDEV("button",{onClick:v,className:"inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-semibold shadow-xs active:scale-95 transition shrink-0 whitespace-nowrap",title:"ขึ้นทะเบียนเครื่องมือวัดใหม่",children:[m.jsxDEV(Hv,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:575,columnNumber:15},void 0),m.jsxDEV("span",{children:"เพิ่มเครื่องมือ"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:576,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:570,columnNumber:13},void 0),m.jsxDEV("div",{className:`relative shrink-0 ${De?"z-[99999]":"z-20"}`,ref:U,children:[m.jsxDEV("button",{onClick:()=>{fe(!De),Re(!1)},className:`inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-lg border text-xs font-medium transition shadow-xs shrink-0 whitespace-nowrap ${g!=="all"||I?"bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-300 font-semibold ring-1 ring-blue-300/50":"bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750"}`,title:"เลือกกรองสถานะเครื่องมือวัด",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full shrink-0 ${g==="normal"?"bg-emerald-500":g==="due_soon"?"bg-amber-500 animate-pulse":g==="overdue"?"bg-rose-500":g==="in_calibration"?"bg-blue-500":g==="inactive"?"bg-slate-400":"bg-slate-700"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:593,columnNumber:17},void 0),m.jsxDEV("span",{className:"truncate max-w-[120px] sm:max-w-[150px] md:max-w-none whitespace-nowrap",children:["สถานะ: ",g==="all"?"ทั้งหมด":g==="normal"?"ปกติ (IN SPEC)":g==="due_soon"?"ใกล้ครบกำหนด":g==="overdue"?"เกินกำหนด":g==="in_calibration"?"ส่งสอบเทียบ":"ปลดระวาง"]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:601,columnNumber:17},void 0),m.jsxDEV("span",{className:"px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold",children:g==="all"?Et.all:Et[g]??0},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:611,columnNumber:17},void 0),m.jsxDEV(xd,{className:`w-3.5 h-3.5 text-slate-400 transition-transform ${De?"rotate-180":""}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:614,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:581,columnNumber:15},void 0),De&&m.jsxDEV("div",{className:"absolute top-full left-0 mt-1 w-52 sm:w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200/90 dark:border-slate-700/80 py-1 z-[99999] text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-slate-100 dark:divide-slate-700/60",children:[m.jsxDEV("div",{className:"px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider",children:"เลือกสถานะเครื่องมือวัด"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:620,columnNumber:19},void 0),m.jsxDEV("div",{className:"p-1 space-y-0.5",children:[m.jsxDEV("button",{onClick:()=>{N("all"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="all"?"bg-slate-900 dark:bg-blue-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="all"?"bg-white":"bg-slate-700"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:632,columnNumber:25},void 0),m.jsxDEV("span",{children:"ทั้งหมด (ALL)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:633,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:631,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="all"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.all},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:635,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:625,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("normal"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="normal"?"bg-emerald-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="normal"?"bg-white":"bg-emerald-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:650,columnNumber:25},void 0),m.jsxDEV("span",{children:"ปกติ (IN SPEC)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:651,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:649,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="normal"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.normal},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:653,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:643,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("due_soon"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="due_soon"?"bg-amber-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="due_soon"?"bg-white":"bg-amber-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:668,columnNumber:25},void 0),m.jsxDEV("span",{children:"ใกล้ครบกำหนด"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:669,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:667,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="due_soon"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.due_soon},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:671,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:661,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("overdue"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="overdue"?"bg-rose-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="overdue"?"bg-white":"bg-rose-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:686,columnNumber:25},void 0),m.jsxDEV("span",{children:"เกินกำหนด (OVERDUE)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:687,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:685,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="overdue"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.overdue},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:689,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:679,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("in_calibration"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="in_calibration"?"bg-blue-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="in_calibration"?"bg-white":"bg-blue-500"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:704,columnNumber:25},void 0),m.jsxDEV("span",{children:"ส่งสอบเทียบ"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:705,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:703,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="in_calibration"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.in_calibration},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:707,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:697,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{N("inactive"),fe(!1),je(1),scrollToPageTop()},className:`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition ${g==="inactive"?"bg-slate-600 text-white font-bold":"hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300"}`,children:[m.jsxDEV("div",{className:"flex items-center gap-2",children:[m.jsxDEV("span",{className:`w-2 h-2 rounded-full ${g==="inactive"?"bg-white":"bg-slate-400"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:722,columnNumber:25},void 0),m.jsxDEV("span",{children:"ปลดระวาง (INACTIVE)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:723,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:721,columnNumber:23},void 0),m.jsxDEV("span",{className:`text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold ${g==="inactive"?"bg-white/20 text-white":"bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`,children:Et.inactive},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:725,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:715,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:623,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:619,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:580,columnNumber:13},void 0),m.jsxDEV("div",{className:`relative shrink-0 ${de?"z-[99999]":"z-20"}`,ref:te,children:[m.jsxDEV("button",{onClick:()=>{Re(!de),fe(!1)},className:"inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition shadow-xs shrink-0 whitespace-nowrap",title:"จัดการไฟล์ Excel และรายงาน",children:[m.jsxDEV(Gv,{className:"w-3.5 h-3.5 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:746,columnNumber:17},void 0),m.jsxDEV("span",{children:"Excel XLS"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:747,columnNumber:17},void 0),m.jsxDEV(xd,{className:`w-3.5 h-3.5 text-slate-400 transition-transform ${de?"rotate-180":""}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:748,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:738,columnNumber:15},void 0),de&&m.jsxDEV("div",{className:"absolute top-full left-0 mt-1.5 w-60 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 py-1 z-[99999] text-xs animate-in fade-in zoom-in-95 duration-100 divide-y divide-slate-100 dark:divide-slate-700",children:[m.jsxDEV("div",{className:"px-3 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider",children:"จัดการข้อมูล EXCEL"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:754,columnNumber:19},void 0),m.jsxDEV("div",{className:"p-1 space-y-0.5",children:[m.jsxDEV("button",{onClick:()=>{Re(!1),p()},className:"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 transition",children:[m.jsxDEV(Gv,{className:"w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:762,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-semibold text-xs text-slate-800 dark:text-slate-100",children:"นำเข้าไฟล์ XLS (IMPORT)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:764,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-[10px] text-slate-400 dark:text-slate-400",children:"อัปโหลดไฟล์ Excel พร้อมรูปภาพ"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:765,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:763,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:758,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{Re(!1),h()},className:"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-700 dark:hover:text-emerald-300 transition",children:[m.jsxDEV(Sh,{className:"w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:773,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-semibold text-xs text-slate-800 dark:text-slate-100",children:"ส่งออกรายงาน (EXPORT)"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:775,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-[10px] text-slate-400 dark:text-slate-400",children:"ดาวน์โหลดรายการทั้งหมดเป็น Excel"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:776,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:774,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:769,columnNumber:21},void 0),m.jsxDEV("button",{onClick:()=>{Re(!1),customDownload?customDownload():z$()},className:"w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-700 dark:hover:text-indigo-300 transition",children:[m.jsxDEV($v,{className:"w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:784,columnNumber:23},void 0),m.jsxDEV("div",{children:[m.jsxDEV("div",{className:"font-semibold text-xs text-slate-800 dark:text-slate-100",children:"ดาวน์โหลดแม่แบบ Excel"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:786,columnNumber:25},void 0),m.jsxDEV("div",{className:"text-[10px] text-slate-400 dark:text-slate-400",children:"เทมเพลตมาตรฐานตามหัวข้อตาราง"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:787,columnNumber:25},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:785,columnNumber:23},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:780,columnNumber:21},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:757,columnNumber:19},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:753,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:737,columnNumber:13},void 0),m.jsxDEV("button",{onClick:()=>{const isOvActive=I||(g!=="all"&&String(g).toLowerCase().trim()==="overdue");if(isOvActive){P(!1);if(String(g).toLowerCase().trim()==="overdue")N("all");}else{P(!0);N("all");}je(1);},className:`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border shrink-0 whitespace-nowrap ${(I||(g!=="all"&&String(g).toLowerCase().trim()==="overdue"))?"bg-rose-600 text-white border-rose-700 shadow-xs ring-2 ring-rose-500/30 font-bold":"bg-white dark:bg-slate-800 border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-700"}`,title:"แสดงเฉพาะรายการเกินดิว (Overdue / เกินกำหนด)",children:[m.jsxDEV(Ah,{className:`w-3.5 h-3.5 ${(I||(g!=="all"&&String(g).toLowerCase().trim()==="overdue"))?"text-white":"text-rose-600 dark:text-rose-400"}`},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:824,columnNumber:15},void 0),m.jsxDEV("span",{children:"เกินดิว"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:825,columnNumber:15},void 0),Et.overdue>0&&m.jsxDEV("span",{className:`px-1.5 py-0.2 rounded text-[10px] font-mono ${(I||(g!=="all"&&String(g).toLowerCase().trim()==="overdue"))?"bg-white/20 text-white font-black":"bg-rose-100 dark:bg-rose-950/70 text-rose-800 dark:text-rose-300 font-bold"}`,children:Et.overdue},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:827,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:812,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:568,columnNumber:11},void 0),m.jsxDEV("div",{className:"flex items-center gap-1.5 sm:gap-2 flex-nowrap justify-end shrink-0 min-w-0",children:[m.jsxDEV("div",{className:"w-36 sm:w-52 md:w-64 lg:w-72 min-w-[130px] shrink-1",children:m.jsxDEV(K3e,{instruments:e,searchTerm:E,onSearchChange:j=>{w(j),je(1)},searchScope:k,onScopeChange:_,sortByRelevance:T,onToggleSortByRelevance:C,onSelectInstrument:Tr,onViewDetail:f,onPrintCert:u,onEdit:t},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:862,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:861,columnNumber:13},void 0),m.jsxDEV("button",{type:"button",onClick:kl,disabled:!$i,className:`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold transition shadow-2xs shrink-0 whitespace-nowrap ${$i?"bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:hover:bg-rose-900/70 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 ring-1 ring-rose-400/30 cursor-pointer animate-in fade-in":"bg-slate-100/70 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/40 cursor-default opacity-50"}`,title:$i?"ล้างตัวกรองทั้งหมด (แสดงรายการทั้งหมด)":"ไม่มีตัวกรองที่ใช้งานอยู่",children:[m.jsxDEV(Sk,{className:"w-3.5 h-3.5"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:882,columnNumber:15},void 0),m.jsxDEV("span",{children:"ล้างตัวกรอง"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:883,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:881,columnNumber:13},void 0),m.jsxDEV("button",{onClick:()=>ve(!0),className:"inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50/90 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 active:bg-rose-200 text-rose-700 dark:text-rose-300 text-xs font-semibold transition shadow-2xs active:scale-95 shrink-0 whitespace-nowrap",title:"ลบข้อมูลทั้งหมด / ฟังก์ชันการลบอย่างละเอียด",children:[m.jsxDEV(vd,{className:"w-3.5 h-3.5 text-rose-600 dark:text-rose-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:908,columnNumber:15},void 0),m.jsxDEV("span",{children:"ลบทั้งหมด"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:909,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:903,columnNumber:13},void 0),E.trim()?m.jsxDEV("div",{className:"inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-bold shrink-0 whitespace-nowrap shadow-2xs animate-in fade-in",children:[m.jsxDEV("span",{className:"w-2 h-2 rounded-full bg-amber-500 animate-pulse"},void 0,!1),m.jsxDEV("span",{children:[m.jsxDEV("span",{className:"font-mono text-amber-950 dark:text-amber-100 font-black",children:ir.length})," / ",m.jsxDEV("span",{className:"font-mono opacity-80",children:e.length})," รายการ"]},void 0,!0),m.jsxDEV("button",{type:"button",onClick:()=>w(""),className:"ml-1 px-1 py-0.5 rounded hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 hover:text-rose-600 transition cursor-pointer text-xs leading-none font-bold",title:"ล้างคำค้นหา",children:"✕"},void 0,!1)]},void 0,!0):m.jsxDEV("div",{className:"inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/60 text-blue-900 dark:text-blue-300 text-xs font-semibold shrink-0 font-mono whitespace-nowrap",children:[m.jsxDEV("span",{children:ir.length},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:926,columnNumber:15},void 0),m.jsxDEV("span",{className:"text-slate-400 font-normal",children:"/"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:927,columnNumber:15},void 0),m.jsxDEV("span",{children:(I||(g!=="all"&&String(g).toLowerCase().trim()==="overdue"))?Et.overdue:e.length},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:928,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:925,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:859,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:566,columnNumber:9},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:565,columnNumber:7},void 0),m.jsxDEV("div",{className:"flex-1 overflow-x-auto overflow-y-auto min-h-0 bg-white dark:bg-[#0b0f19] select-text relative table-scroll-container",children:m.jsxDEV("table",{className:`w-full text-left text-xs border-collapse ${customViewMode==="all"||customViewMode==="cancel"?"min-w-[1950px]":"min-w-[1550px]"}`,children:[m.jsxDEV("thead",{className:"bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200/90 dark:border-slate-700 sticky top-0 z-20 shadow-xs",children:m.jsxDEV("tr",{children:[m.jsxDEV("th",{className:"py-2.5 px-2.5 text-center w-10 bg-slate-100 dark:bg-slate-800 border-r border-slate-200/60 dark:border-slate-700/60",children:m.jsxDEV("button",{type:"button",onClick:kt,className:"text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer",title:"เลือก/ยกเลิกทั้งหมดในหน้านี้",children:At.length>0&&At.every(j=>me.has(j.id))?m.jsxDEV(ov,{className:"w-4 h-4 text-blue-600 dark:text-blue-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:949,columnNumber:21},void 0):m.jsxDEV(q8,{className:"w-4 h-4 text-slate-400"},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:951,columnNumber:21},void 0)},void 0,!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:942,columnNumber:17},void 0)},"col-select-all",!1,{fileName:"/app/applet/src/components/InstrumentTable.tsx",lineNumber:941,columnNumber:15},void 0),Wt(customViewMode==="cancel"?"No":(customViewMode==="centralized"||customViewMode==="each_section"?"N":"No."),"no","w-16 text-center","text-center"),
 Wt("Instrument Name","instrumentName","min-w-[220px]"),
 Wt("Maker Name","makerName","min-w-[130px]"),
 Wt("Model","model","min-w-[130px]"),
@@ -7511,6 +7683,9 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
   const [instData, setInstData] = A.useState(r);
   const [copiedCode, setCopiedCode] = A.useState(false);
   const [isProcessing, setIsProcessing] = A.useState(false);
+  // Redesigned 2-tab view: 'info_attach' (หน้าข้อมูล และการนำไฟล์เข้ามาแนบ) vs 'latest_report' (รายงานการส่งล่าสุด และรอบต่อไป)
+  const [activeTab, setActiveTab] = A.useState('info_attach');
+  const [controlCardData, setControlCardData] = A.useState(null);
 
   // Keep instData in sync when prop r changes
   A.useEffect(() => {
@@ -7518,8 +7693,15 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
   }, [r]);
 
   if (!e || !instData) return null;
-
   const currentInst = instData;
+
+  const cleanCert = (certNo) => {
+    if (!certNo) return '-';
+    let s = String(certNo).trim();
+    if (!s || s === '-') return '-';
+    if (/^cert[-_:\s]*/i.test(s)) s = s.replace(/^cert[-_:\s]*/i, '').trim();
+    return s || '-';
+  };
 
   const formatBytes = (bytes) => {
     if (!bytes || bytes === 0) return '';
@@ -7543,22 +7725,17 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     if (!str) return null;
     const s = String(str).trim();
     if (!s) return null;
-
     const monthMap = {
       jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
       'ม.ค.': 0, 'ก.พ.': 1, 'มี.ค.': 2, 'เม.ย.': 3, 'พ.ค.': 4, 'มิ.ย.': 5, 'ก.ค.': 6, 'ส.ค.': 7, 'ก.ย.': 8, 'ต.ค.': 9, 'พ.ย.': 10, 'ธ.ค.': 11,
       'มกราคม': 0, 'กุมภาพันธ์': 1, 'มีนาคม': 2, 'เมษายน': 3, 'พฤษภาคม': 4, 'มิถุนายน': 5, 'กรกฎาคม': 6, 'สิงหาคม': 7, 'กันยายน': 8, 'ตุลาคม': 9, 'พฤศจิกายน': 10, 'ธันวาคม': 11
     };
-
-    // 1. ISO YYYY-MM-DD
     const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
     if (isoMatch) {
       let year = parseInt(isoMatch[1], 10);
       if (year > 2400) year -= 543;
       return new Date(year, parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10));
     }
-
-    // 2. DD-MMM-YY or DD-MMM-YYYY (e.g. 20-Jun-26, 20-Jun-2027)
     const dmyMatch = s.match(/^(\d{1,2})[-/\s]([A-Za-zก-๙.]+)[-/\s](\d{2,4})$/);
     if (dmyMatch) {
       const day = parseInt(dmyMatch[1], 10);
@@ -7575,8 +7752,6 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       if (year > 2400) year -= 543;
       return new Date(year, month, day);
     }
-
-    // 3. DD/MM/YYYY or DD/MM/YY
     const slashMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})$/);
     if (slashMatch) {
       const day = parseInt(slashMatch[1], 10);
@@ -7586,8 +7761,6 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       if (year > 2400) year -= 543;
       return new Date(year, month, day);
     }
-
-    // 4. MMM-YY or MMM-YYYY
     const myMatch = s.match(/^([A-Za-zก-๙.]+)[-/\s](\d{2,4})$/);
     if (myMatch) {
       const mStr = myMatch[1].toLowerCase().replace(/\./g, '');
@@ -7603,12 +7776,10 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       if (year > 2400) year -= 543;
       return new Date(year, month, 1);
     }
-
     const d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // Calculate days remaining with proper date parsing
   const calculateDays = (dueDateStr) => {
     if (!dueDateStr) return null;
     const target = parseSmartDate(dueDateStr);
@@ -7618,32 +7789,25 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     target.setHours(0, 0, 0, 0);
     return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
-
   const daysRemaining = calculateDays(currentInst.dueDate);
 
-  // Calibration progress
   const getProgress = () => {
     const startD = parseSmartDate(currentInst.calDate);
     const endD = parseSmartDate(currentInst.dueDate);
     if (!startD || !endD) return { percent: 100, color: 'bg-blue-600' };
-
     const start = startD.getTime();
     const end = endD.getTime();
     const now = Date.now();
-
     if (end <= start) return { percent: 100, color: 'bg-blue-600' };
     const total = end - start;
     const elapsed = Math.max(0, Math.min(total, now - start));
     const percent = Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
-
     if (now > end) return { percent: 100, color: 'bg-rose-500' };
     if (daysRemaining !== null && daysRemaining <= 30) return { percent: percent, color: 'bg-amber-500' };
     return { percent: percent, color: 'bg-emerald-500' };
   };
-
   const progress = getProgress();
 
-  // Status badge helper (matches table badge exactly)
   const getStatusInfo = (rawStatus) => {
     const s = String(rawStatus || '').toLowerCase();
     if (s === 'inactive' || s === 'cancel') {
@@ -7680,26 +7844,23 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       dot: 'bg-emerald-500'
     };
   };
-
   const statusInfo = getStatusInfo(currentInst.status);
 
   // Handle PDF Upload with in-browser compression
   const handleFileUpload = async (e, histId) => {
     const file = e && e.target && e.target.files && e.target.files[0];
     if (!file) return;
-
     setIsProcessing(true);
     try {
       let base64 = null;
       let compSize = file.size;
       let origSize = file.size;
-
       if (window.showQapImportAnimation) {
-        window.showQapImportAnimation(15, 1, 1, `กำลังบีบอัดไฟล์ PDF: ${file.name}...`, false);
+        window.showQapImportAnimation(15, 1, 1, 'กำลังบีบอัดไฟล์ PDF: ' + file.name + '...', false);
       } else if (window.showCompressionToast) {
-        window.showCompressionToast(`เริ่มประมวลผลไฟล์ ${file.name}...`, 'loading');
+        window.showCompressionToast('เริ่มประมวลผลไฟล์ ' + file.name + '...', 'loading');
       }
-      
+
       if (typeof window.qapCompressPdf === 'function') {
         const res = await window.qapCompressPdf(file);
         base64 = res.dataUrl;
@@ -7713,24 +7874,21 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
           reader.readAsDataURL(file);
         });
       }
-
       if (window.showQapImportAnimation) {
-        window.showQapImportAnimation(45, 1, 1, `ลดขนาดไฟล์เหลือ ${window.qapFormatBytes ? window.qapFormatBytes(compSize) : compSize} • กำลังเตรียมส่งข้อมูล...`, false);
+        window.showQapImportAnimation(45, 1, 1, 'ลดขนาดไฟล์เหลือ ' + (window.qapFormatBytes ? window.qapFormatBytes(compSize) : compSize) + ' • กำลังเตรียมส่งข้อมูล...', false);
       }
-
       const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
         ? [...currentInst.history]
         : Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0
         ? [...currentInst.calibrationHistory]
         : [{
             id: histId || 'hist-curr',
-            certNo: cleanCertNo(currentInst.certNo || currentInst.codeNo || '1'),
+            certNo: cleanCert(currentInst.certNo || currentInst.codeNo || '1'),
             calDate: currentInst.calDate || new Date().toISOString().split('T')[0],
             dueDate: currentInst.dueDate || '',
             calibratedBy: (currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : (currentInst.calibratedBy && currentInst.calibratedBy !== '-' ? currentInst.calibratedBy : 'NA CALTECHNOLOGIES'),
             result: 'PASS'
           }];
-
       const isLatestUpload = !histId || (existingHistory[0] && existingHistory[0].id === histId) || existingHistory.length <= 1;
       const updatedHistory = existingHistory.map(item => {
         if (item.id === histId || (!histId && existingHistory.length === 1)) {
@@ -7745,7 +7903,6 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         }
         return item;
       });
-
       const updatedInst = {
         ...currentInst,
         history: updatedHistory,
@@ -7757,7 +7914,6 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
           fileSize: compSize
         } : {})
       };
-
       setInstData(updatedInst);
       if (typeof u === 'function') {
         u(updatedInst);
@@ -7766,7 +7922,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         const targetTab = currentInst.tabType || 'calibration_all';
         const matchedItem = updatedHistory.find(it => it.id === histId) || updatedHistory[0];
         if (window.showQapImportAnimation) {
-          window.showQapImportAnimation(75, 1, 1, `กำลังบันทึกไฟล์และประวัติลงตาราง Cloud...`, false);
+          window.showQapImportAnimation(75, 1, 1, 'กำลังบันทึกไฟล์และประวัติลงตาราง Cloud...', false);
         }
         if (typeof window.qapSupabase.saveFileRecord === 'function') {
           await window.qapSupabase.saveFileRecord({
@@ -7783,9 +7939,8 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
           console.warn('[Supabase Sync on PDF upload]:', err);
         });
       }
-
       if (window.showQapImportAnimation) {
-        window.showQapImportAnimation(100, 1, 1, `บันทึกประวัติและแนบไฟล์ PDF สำเร็จเรียบร้อย! ✨`, true);
+        window.showQapImportAnimation(100, 1, 1, 'บันทึกประวัติและแนบไฟล์ PDF สำเร็จเรียบร้อย! ✨', true);
         setTimeout(() => { window.location.reload(); }, 2000);
       } else {
         setTimeout(() => { window.location.reload(); }, 1500);
@@ -7801,22 +7956,19 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
   // Handle PDF Removal
   const handleFileRemove = async (histId) => {
     if (!confirm('ยืนยันลบไฟล์ PDF ใบรับรองนี้หรือไม่?')) return;
-
     if (window.showQapDeleteAnimation) {
-      window.showQapDeleteAnimation(`กำลังเตรียมลบไฟล์ PDF...`, currentInst.codeNo || "-", false);
+      window.showQapDeleteAnimation('กำลังเตรียมลบไฟล์ PDF...', currentInst.codeNo || "-", false);
     }
-
     const existingHistory = Array.isArray(currentInst.history) && currentInst.history.length > 0
       ? [...currentInst.history]
       : Array.isArray(currentInst.calibrationHistory) && currentInst.calibrationHistory.length > 0
       ? [...currentInst.calibrationHistory]
       : [{
           id: histId || 'hist-curr',
-          certNo: cleanCertNo(currentInst.certNo || currentInst.codeNo || '1'),
+          certNo: cleanCert(currentInst.certNo || currentInst.codeNo || '1'),
           calDate: currentInst.calDate || '',
           dueDate: currentInst.dueDate || ''
         }];
-
     const isLatestRemove = !histId || (existingHistory[0] && existingHistory[0].id === histId) || existingHistory.length <= 1;
     const updatedHistory = existingHistory.map(item => {
       if (item.id === histId || (!histId && existingHistory.length === 1)) {
@@ -7836,7 +7988,6 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
       }
       return item;
     });
-
     const updatedInst = {
       ...currentInst,
       history: updatedHistory,
@@ -7848,7 +7999,6 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         fileSize: null
       } : {})
     };
-
     setInstData(updatedInst);
     if (typeof u === 'function') {
       u(updatedInst);
@@ -7856,7 +8006,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     if (window.qapSupabase && window.qapSupabase.isConfigured && window.qapSupabase.isConfigured()) {
       const targetTab = currentInst.tabType || 'calibration_all';
       if (window.showQapDeleteAnimation) {
-        window.showQapDeleteAnimation(`กำลังส่งคำสั่งลบข้อมูลไปยังเซิร์ฟเวอร์...`, currentInst.codeNo || "-", false);
+        window.showQapDeleteAnimation('กำลังส่งคำสั่งลบข้อมูลไปยังเซิร์ฟเวอร์...', currentInst.codeNo || "-", false);
       }
       if (typeof window.qapSupabase.deleteFileRecord === 'function') {
         await window.qapSupabase.deleteFileRecord(currentInst.id, currentInst.codeNo, histId).catch(console.warn);
@@ -7865,9 +8015,8 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
         console.warn('[Supabase Sync on PDF removal]:', err);
       });
     }
-
     if (window.showQapDeleteAnimation) {
-      window.showQapDeleteAnimation(`ลบไฟล์ PDF สำเร็จเรียบร้อยแล้ว! 🗑️`, currentInst.codeNo || "-", true);
+      window.showQapDeleteAnimation('ลบไฟล์ PDF สำเร็จเรียบร้อยแล้ว! 🗑️', currentInst.codeNo || "-", true);
       setTimeout(() => { window.location.reload(); }, 2000);
     } else {
       setTimeout(() => { window.location.reload(); }, 1500);
@@ -7885,7 +8034,7 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     }
     const viewerItem = {
       ...it,
-      certNo: cleanCertNo(it.certNo || (isLatest ? currentInst.certNo : null) || currentInst.codeNo || '1'),
+      certNo: cleanCert(it.certNo || (isLatest ? currentInst.certNo : null) || currentInst.codeNo || '1'),
       calDate: it.calDate || (isLatest ? currentInst.calDate : null) || new Date().toISOString().split("T")[0],
       dueDate: it.dueDate || (isLatest ? currentInst.dueDate : null) || "-",
       result: it.result || (isLatest ? currentInst.status : null) || "PASS",
@@ -7910,16 +8059,23 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     ? [...currentInst.calibrationHistory].sort((a, b) => new Date(b.calDate || 0).getTime() - new Date(a.calDate || 0).getTime())
     : [{
         id: 'curr-' + (currentInst.id || '1'),
-        certNo: cleanCertNo(currentInst.certNo || currentInst.codeNo || '-'),
+        certNo: cleanCert(currentInst.certNo || currentInst.codeNo || '-'),
         calDate: currentInst.calDate || '',
         dueDate: currentInst.dueDate || '',
         calibratedBy: (currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : (currentInst.calibratedBy && currentInst.calibratedBy !== '-' ? currentInst.calibratedBy : 'NA CALTECHNOLOGIES'),
+        standardInstrument: (currentInst.standardInstrument && currentInst.standardInstrument !== '-') ? currentInst.standardInstrument : (currentInst.standardUsed && currentInst.standardUsed !== '-' ? currentInst.standardUsed : (currentInst.labCal ? (String(currentInst.labCal).toUpperCase().startsWith('LAB') ? currentInst.labCal : 'LAB ' + currentInst.labCal) : "LAB NA CALtechnologies")),
         result: 'PASS',
         notes: currentInst.notes || currentInst.remarks || '',
         pdfUrl: currentInst.pdfUrl || currentInst.certFileData || null,
         certFileName: currentInst.certFileName || null,
         fileSize: currentInst.fileSize || null
       }];
+
+  // Latest attached file identification
+  const latestFileUrl = currentInst.pdfUrl || currentInst.certFileData || (historyList[0] && (historyList[0].pdfUrl || historyList[0].certFileData));
+  const latestFileName = currentInst.certFileName || (historyList[0] && historyList[0].certFileName) || 'certificate.pdf';
+  const latestFileSize = currentInst.fileSize || (historyList[0] && historyList[0].fileSize);
+  const latestIsImage = Boolean(latestFileUrl && (String(latestFileUrl).startsWith("data:image/") || /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(String(latestFileName || latestFileUrl))));
 
   return h('div', {
     className: 'fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto',
@@ -7928,22 +8084,22 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
     h('div', {
       className: 'relative w-full max-w-4xl max-h-[96vh] flex flex-col bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 my-auto'
     },
-      // 1. Header Bar (Compact & Responsive)
+      // 1. Header Bar (Clean, Unified Top Bar)
       h('div', {
-        className: 'flex items-center justify-between px-3.5 sm:px-4 py-2 sm:py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shrink-0 gap-2'
+        className: 'flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shrink-0 gap-2'
       },
-        h('div', { className: 'flex items-center gap-2 min-w-0' },
+        h('div', { className: 'flex items-center gap-2.5 min-w-0' },
           h('div', {
-            className: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm sm:text-base shrink-0 shadow-2xs'
+            className: 'w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm sm:text-base shrink-0 shadow-2xs'
           }, '🔬'),
           h('div', { className: 'min-w-0' },
-            h('div', { className: 'flex items-center gap-1.5 flex-wrap' },
-              h('h2', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate' }, 'รายละเอียดเครื่องมือวัด'),
+            h('div', { className: 'flex items-center gap-2 flex-wrap' },
+              h('h2', { className: 'text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate' }, 'รายละเอียดเครื่องมือวัด'),
               h('span', {
-                className: 'text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-600 text-white shadow-2xs'
+                className: 'text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-blue-600 text-white shadow-2xs'
               }, currentInst.codeNo || '-')
             ),
-            h('p', { className: 'text-[10px] text-slate-500 dark:text-slate-400 truncate hidden sm:block' }, 'ข้อมูลจำเพาะ รหัสควบคุม และประวัติการสอบเทียบ')
+            h('p', { className: 'text-[11px] text-slate-500 dark:text-slate-400 truncate hidden sm:block' }, currentInst.instrumentName || '-')
           )
         ),
         h('div', { className: 'flex items-center gap-1.5 shrink-0' },
@@ -7954,318 +8110,457 @@ let nextTarget=reqPage||(reqSheet==="CENTRALIZED"?"centralized":reqSheet==="EACH
                 window.qapOpenHistoryModal(currentInst);
               }
             },
-            className: 'px-2.5 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-slate-950 text-[11px] font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
+            className: 'px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
           }, '📜 ประวัติย้อนหลัง'),
           n && h('button', {
             type: 'button',
             onClick: () => { t(); n(currentInst); },
-            className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
+            className: 'px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer'
           }, '✏️ แก้ไข'),
-          
           h('button', {
             type: 'button',
             onClick: t,
-            className: 'w-7 h-7 rounded-md flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer text-sm font-bold'
+            className: 'w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer text-base font-bold ml-1'
           }, '✕')
         )
       ),
 
-      // 2. Scrollable Body (Fluid, Adaptive, Compact Spacing)
-      h('div', { className: 'flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scrollbar-thin bg-slate-50 dark:bg-slate-900' },
-        
-        // Compact Hero Card
-        h('div', {
-          className: 'p-3 sm:p-3.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2.5'
+      // 2. Primary 2-Page Tab Navigation (Redesigned per user request: แค่ 2 หน้า)
+      h('div', {
+        className: 'flex items-center border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 sm:px-5 shrink-0 gap-2 select-none overflow-x-auto scrollbar-none'
+      },
+        h('button', {
+          type: 'button',
+          onClick: () => setActiveTab('info_attach'),
+          className: 'flex items-center gap-2 py-2.5 px-3 sm:px-4 border-b-2 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ' +
+            (activeTab === 'info_attach'
+              ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-950/20'
+              : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/40')
         },
-          // Badge Tags & Status Pill
-          h('div', { className: 'flex flex-wrap items-center justify-between gap-1.5' },
-            h('div', { className: 'flex flex-wrap items-center gap-1.5' },
-              currentInst.category && h('span', {
-                className: 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200 border border-blue-300 dark:border-blue-700'
-              }, currentInst.category),
-              currentInst.controlInstrument && h('span', {
-                className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700'
-              }, 'CONTROL: ' + currentInst.controlInstrument),
-              currentInst.ctcControl && h('span', {
-                className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200 border border-purple-300 dark:border-purple-700'
-              }, 'CTC: ' + currentInst.ctcControl),
-              (currentInst.labCal || currentInst.calibratedBy) && h('span', {
-                className: 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1 max-w-[200px] truncate',
-                title: currentInst.labCal || currentInst.calibratedBy
-              }, '🏛️ LAB: ' + (currentInst.labCal || currentInst.calibratedBy))
-            ),
-            h('div', { className: 'flex items-center gap-1.5' },
+          h('span', { className: 'text-sm' }, '📋'),
+          h('span', null, 'หน้าข้อมูล และการนำไฟล์เข้ามาแนบ'),
+          latestFileUrl && h('span', {
+            className: 'px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+          }, '✓ แนบแล้ว')
+        ),
+        h('button', {
+          type: 'button',
+          onClick: () => setActiveTab('latest_report'),
+          className: 'flex items-center gap-2 py-2.5 px-3 sm:px-4 border-b-2 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ' +
+            (activeTab === 'latest_report'
+              ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-950/20'
+              : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/40')
+        },
+          h('span', { className: 'text-sm' }, '📊'),
+          h('span', null, 'รายงานการส่งล่าสุด และรอบต่อไป'),
+          daysRemaining !== null && h('span', {
+            className: 'px-1.5 py-0.2 rounded-full text-[10px] font-bold ' +
+              (daysRemaining < 0
+                ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                : daysRemaining <= 30
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300')
+          }, daysRemaining < 0 ? 'Overdue' : daysRemaining + ' วัน')
+        )
+      ),
+
+      // 3. Tab Content Area
+      h('div', { className: 'flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 scrollbar-thin bg-slate-50 dark:bg-slate-900/90' },
+
+        // =========================================================================
+        // PAGE 1: หน้าข้อมูล และการนำไฟล์เข้ามาแนบ
+        // =========================================================================
+        activeTab === 'info_attach' && h('div', { className: 'space-y-5 animate-in fade-in duration-200' },
+          // A. Hero Instrument Identity Card
+          h('div', {
+            className: 'p-3.5 sm:p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3'
+          },
+            h('div', { className: 'flex flex-wrap items-center justify-between gap-2' },
+              h('div', { className: 'flex flex-wrap items-center gap-1.5' },
+                currentInst.category && h('span', {
+                  className: 'px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200 border border-blue-300 dark:border-blue-700'
+                }, currentInst.category),
+                currentInst.controlInstrument && h('span', {
+                  className: 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700'
+                }, 'CONTROL: ' + currentInst.controlInstrument),
+                currentInst.ctcControl && h('span', {
+                  className: 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200 border border-purple-300 dark:border-purple-700'
+                }, 'CTC: ' + currentInst.ctcControl)
+              ),
               h('span', {
-                className: 'inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ' + statusInfo.bg
+                className: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold ' + statusInfo.bg
               },
-                h('span', { className: 'w-1.5 h-1.5 rounded-full shrink-0 ' + statusInfo.dot }),
+                h('span', { className: 'w-2 h-2 rounded-full shrink-0 ' + statusInfo.dot }),
                 statusInfo.label
               )
+            ),
+            h('div', { className: 'flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-t border-slate-100 dark:border-slate-800/80 pt-2.5' },
+              h('div', { className: 'min-w-0' },
+                h('div', { className: 'flex items-center gap-2' },
+                  h('span', { className: 'text-lg sm:text-xl font-black font-mono tracking-tight text-blue-700 dark:text-blue-400' }, currentInst.codeNo || '-'),
+                  h('button', {
+                    type: 'button',
+                    onClick: () => copyText(currentInst.codeNo),
+                    className: 'text-[11px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition flex items-center gap-1 cursor-pointer shrink-0'
+                  }, copiedCode ? '✓ คัดลอกแล้ว' : '📋 คัดลอก')
+                ),
+                h('h3', { className: 'text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1' }, currentInst.instrumentName || '-')
+              )
             )
           ),
 
-          // Code No & Instrument Name Banner
-          h('div', { className: 'flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-t border-slate-100 dark:border-slate-800/80 pt-2' },
-            h('div', { className: 'min-w-0' },
-              h('div', { className: 'flex items-center gap-2' },
-                h('span', { className: 'text-base sm:text-lg font-black font-mono tracking-tight text-blue-700 dark:text-blue-400 truncate' }, currentInst.codeNo || '-'),
-                h('button', {
-                  type: 'button',
-                  onClick: () => copyText(currentInst.codeNo),
-                  className: 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition flex items-center gap-1 cursor-pointer shrink-0'
-                }, copiedCode ? '✓ คัดลอก' : '📋 คัดลอก')
+          // B. Specifications & Department Controls (2-column Information Panels)
+          h("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5" },
+            // Panel 1: ข้อมูลจำเพาะ & สเปค
+            h("div", {
+              className: "p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3.5"
+            },
+              h("div", { className: "flex items-center gap-2 pb-2.5 border-b-2 border-blue-500 font-bold text-xs uppercase tracking-wider text-blue-700 dark:text-blue-400" },
+                h("span", { className: "text-sm" }, "🏷️"),
+                h("span", null, "ข้อมูลจำเพาะ & สเปค (SPECIFICATIONS)")
               ),
-              h('h3', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate' }, currentInst.instrumentName || '-')
+              h("div", { className: "divide-y divide-slate-100 dark:divide-slate-800/70 text-xs flex-1" },
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "ยี่ห้อ (MAKER):"),
+                  h("span", { className: "font-bold text-slate-900 dark:text-white text-right" }, currentInst.makerName || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "รุ่น (MODEL):"),
+                  h("span", { className: "font-bold text-slate-900 dark:text-white text-right" }, currentInst.model || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "หมายเลขเครื่อง (SERIAL NO.):"),
+                  h("span", { className: "font-mono font-bold text-slate-900 dark:text-white text-right" }, currentInst.serialNo || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "ขนาดย่านวัด (RANGE / SIZE):"),
+                  h("span", { className: "font-bold text-blue-700 dark:text-blue-300 px-2.5 py-1 bg-blue-50 dark:bg-blue-950/80 rounded-md border border-blue-200 dark:border-blue-800 inline-block text-right leading-none" }, currentInst.size || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "หมวดหมู่ (CATEGORY):"),
+                  h("span", { className: "font-semibold text-slate-900 dark:text-white text-right" }, currentInst.category || "-")
+                )
+              )
+            ),
+            // Panel 2: การควบคุม แผนก และการขึ้นทะเบียน
+            h("div", {
+              className: "p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3.5"
+            },
+              h("div", { className: "flex items-center gap-2 pb-2.5 border-b-2 border-indigo-500 font-bold text-xs uppercase tracking-wider text-indigo-700 dark:text-indigo-400" },
+                h("span", { className: "text-sm" }, "⚙️"),
+                h("span", null, "การควบคุม & แผนก (CONTROL & SECTION)")
+              ),
+              h("div", { className: "divide-y divide-slate-100 dark:divide-slate-800/70 text-xs flex-1" },
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "แผนก (SECTION):"),
+                  h("span", { className: "font-bold text-slate-900 dark:text-white text-right" }, currentInst.section || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "จุดใช้งาน (LINE / LOCATION):"),
+                  h("span", { className: "font-bold text-slate-900 dark:text-white text-right" }, currentInst.subSection || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "วันที่ขึ้นทะเบียน (REGISTER DATE):"),
+                  h("span", { className: "font-mono text-slate-900 dark:text-white text-right" }, currentInst.registerDate || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "การควบคุม (CONTROL INSTRUMENT):"),
+                  h("span", { className: "font-bold text-slate-900 dark:text-white text-right" }, currentInst.controlInstrument || "-")
+                ),
+                h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "กลุ่มควบคุม (CTC CONTROL):"),
+                  h("span", { className: "font-bold text-purple-700 dark:text-purple-400 text-right" }, currentInst.ctcControl || "-")
+                ),
+                (currentInst.assetNo || currentInst.fixAsset) ? h("div", { className: "flex items-center justify-between gap-3 py-2.5 min-h-[42px]" },
+                  h("span", { className: "text-slate-500 dark:text-slate-400 font-medium" }, "รหัสทรัพย์สิน (FIX ASSET NO.):"),
+                  h("span", { className: "font-mono font-semibold text-slate-900 dark:text-white text-right" }, currentInst.assetNo || currentInst.fixAsset)
+                ) : null
+              )
+            )
+          ),
+          // C. การนำไฟล์เข้ามาแนบ (Dedicated File Attachment Zone)
+          h("div", {
+            className: "p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-4"
+          },
+            h("div", { className: "flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800" },
+              h("div", { className: "flex items-center gap-2" },
+                h("span", { className: "text-lg" }, "📁"),
+                h("h4", { className: "text-xs sm:text-sm font-bold text-slate-900 dark:text-white" }, "การนำไฟล์เข้ามาแนบ (File Attachment Zone)"),
+                latestFileUrl && h("span", {
+                  className: "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
+                }, "มีไฟล์แนบในระบบ")
+              ),
+              h("span", { className: "text-[11px] text-slate-500 dark:text-slate-400 font-medium" },
+                "รองรับ PDF / สแกนใบรับรอง / รูปภาพ"
+              )
+            ),
+            // Drop / Upload Action Box
+            h("label", {
+              className: "group flex flex-col items-center justify-center p-5 sm:p-6 rounded-xl border-2 border-dashed border-blue-400/80 hover:border-blue-500 dark:border-blue-700 dark:hover:border-blue-600 bg-blue-50/40 hover:bg-blue-50/80 dark:bg-blue-950/20 dark:hover:bg-blue-950/40 transition-all cursor-pointer text-center " +
+                (isProcessing ? "opacity-60 pointer-events-none" : "")
+            },
+              h("span", { className: "text-3xl mb-1.5 group-hover:scale-110 transition-transform" }, isProcessing ? "⏳" : "📎"),
+              h("span", { className: "text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-300" },
+                isProcessing ? "กำลังบีบอัดและอัปโหลดไฟล์ไปยัง Supabase Cloud..." : "คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่เพื่อแนบไฟล์ใหม่"
+              ),
+              h("span", { className: "text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-md" },
+                "ระบบบีบอัดไฟล์ความเร็วสูงอัตโนมัติ ลดขนาดไฟล์ลงเหลือ < 300KB คมชัด 100% พร้อมบันทึกลง Cloud ทันที"
+              ),
+              h("input", {
+                type: "file",
+                accept: "application/pdf,image/*",
+                className: "hidden",
+                onChange: (evt) => handleFileUpload(evt, historyList[0] && historyList[0].id)
+              })
+            ),
+            // Attached File List Card
+            latestFileUrl ? h("div", {
+              className: "p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 text-xs shadow-xs"
+            },
+              h("div", { className: "flex items-center gap-3.5 min-w-0" },
+                latestIsImage ? h("div", {
+                  className: "w-12 h-12 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 flex items-center justify-center cursor-pointer shadow-xs",
+                  onClick: () => handleViewPdf(historyList[0] || currentInst)
+                }, h("img", { src: latestFileUrl, alt: "Preview", className: "w-full h-full object-cover" }))
+                : h("div", { className: "w-12 h-12 rounded-lg bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-400 flex items-center justify-center text-2xl shrink-0 font-bold border border-rose-200 dark:border-rose-800 shadow-xs" }, "📄"),
+                h("div", { className: "min-w-0" },
+                  h("p", { className: "font-bold text-slate-900 dark:text-white truncate text-xs sm:text-sm" }, latestFileName),
+                  h("div", { className: "flex flex-wrap items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-1" },
+                    latestFileSize && h("span", { className: "font-mono text-emerald-600 dark:text-emerald-400 font-semibold px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800" }, formatBytes(latestFileSize)),
+                    h("span", { className: "text-slate-600 dark:text-slate-300 font-medium" }, "• ใบเซอร์รอบล่าสุด: " + cleanCert(currentInst.certNo || currentInst.codeNo))
+                  )
+                )
+              ),
+              h("div", { className: "flex items-center gap-2 shrink-0 flex-wrap pt-1 sm:pt-0" },
+                h("button", {
+                  type: "button",
+                  onClick: () => handleViewPdf(historyList[0] || currentInst),
+                  className: "px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95"
+                }, latestIsImage ? "🔍 ขยายดูรูปภาพ" : "👁️ เปิดดูไฟล์ PDF"),
+                h("button", {
+                  type: "button",
+                  onClick: () => setControlCardData({ inst: currentInst, records: historyList }),
+                  className: "px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95"
+                }, "📊 ฟอร์ม XLSX"),
+                h("button", {
+                  type: "button",
+                  onClick: () => handleFileRemove(historyList[0] && historyList[0].id),
+                  className: "px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:hover:bg-rose-900 dark:text-rose-300 font-bold text-xs flex items-center gap-1.5 transition border border-rose-200 dark:border-rose-800 cursor-pointer active:scale-95"
+                }, "🗑️ ลบไฟล์")
+              )
+            ) : h("div", {
+              className: "p-4 rounded-xl bg-slate-50 dark:bg-slate-900 text-center text-xs text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+            }, "ยังไม่มีไฟล์แนบในระบบ สามารถกดที่กล่องด้านบนเพื่ออัปโหลดไฟล์เข้ามาแนบได้ทันที")
+          ),
+          // D. Remarks Row (If present)
+          (currentInst.notes || currentInst.remarks) && h('div', {
+            className: 'p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 text-xs shadow-xs space-y-1'
+          },
+            h('span', { className: 'font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1' }, '📝 หมายเหตุ:'),
+            h('p', { className: 'text-slate-800 dark:text-slate-200 whitespace-pre-wrap pl-4' }, currentInst.notes || currentInst.remarks)
+          )
+        ),
+
+        // =========================================================================
+        // PAGE 2: รายงานการส่งล่าสุด และรอบต่อไป
+        // =========================================================================
+        activeTab === 'latest_report' && h('div', { className: 'space-y-4 animate-in fade-in duration-200' },
+          // A. รายงานการส่งล่าสุด (Latest Calibration Report Card)
+          h('div', {
+            className: 'p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3'
+          },
+            h('div', { className: 'flex items-center justify-between pb-2 border-b border-blue-600 gap-2' },
+              h('div', { className: 'flex items-center gap-2' },
+                h('span', { className: 'text-lg' }, '📋'),
+                h('h4', { className: 'text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider' }, 'รายงานการส่งสอบเทียบล่าสุด (Latest Calibration Report)'),
+                h('span', {
+                  className: 'px-2 py-0.5 rounded text-[10px] font-bold border ' +
+                    ((currentInst.status || 'PASS').toUpperCase() === 'FAIL'
+                      ? 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/80 dark:text-rose-200 dark:border-rose-700'
+                      : 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-700')
+                }, (currentInst.status || 'PASS').toUpperCase())
+              ),
+              latestFileUrl && h('button', {
+                type: 'button',
+                onClick: () => handleViewPdf(historyList[0] || currentInst),
+                className: 'px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs'
+              }, '📄 ดูใบเซอร์ PDF')
+            ),
+
+            // Latest Report Key Metrics Grid
+            h('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs' },
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'วันที่ส่งสอบเทียบล่าสุด:'),
+                h('span', { className: 'font-mono font-bold text-emerald-700 dark:text-emerald-400 text-sm' }, currentInst.calDate || '-')
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'เลขที่ใบรับรอง (CERT NO.):'),
+                h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white text-sm' }, cleanCert(currentInst.certNo || currentInst.codeNo || '-'))
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'สถาบันสอบเทียบ (LAB CAL / BY):'),
+                h('span', { className: 'font-bold text-amber-700 dark:text-amber-400 text-xs truncate block', title: currentInst.labCal || currentInst.calibratedBy },
+                  (currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : (currentInst.calibratedBy || 'NA CALTECHNOLOGIES')
+                )
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'เครื่องมือวัดมาตรฐานที่ใช้:'),
+                h('span', { className: 'font-medium text-slate-800 dark:text-slate-200 text-xs truncate block' },
+                  currentInst.standardInstrument || currentInst.standardUsed || 'LAB NA CALtechnologies'
+                )
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'ผลการตรวจและค่าความแม่นยำ:'),
+                h('span', { className: 'font-bold text-emerald-600 dark:text-emerald-400 text-xs' },
+                  (currentInst.accuracy ? ('Accuracy: ' + currentInst.accuracy + ' • ') : '') + 'PASS'
+                )
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'หมายเหตุการส่ง / REFERENCE:'),
+                h('span', { className: 'text-slate-700 dark:text-slate-300 text-xs truncate block' },
+                  currentInst.notes || currentInst.remarks || 'REFERENCE TO TS1-14-02'
+                )
+              )
             )
           ),
 
-          // Calibration Timeline & Progress Gauge
-          (currentInst.calDate || currentInst.dueDate) && h('div', {
-            className: 'p-2 rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5'
+          // B. รอบต่อไปและกำหนดการส่งสอบเทียบ (Next Cycle & Due Schedule Card)
+          h('div', {
+            className: 'p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3'
           },
-            h('div', { className: 'flex flex-wrap items-center justify-between text-[11px] text-slate-700 dark:text-slate-300 gap-1.5' },
-              h('span', { className: 'font-semibold flex items-center gap-1' },
-                '📅 รอบสอบเทียบ: ',
-                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, currentInst.calDate || '-'),
-                ' ถึง ',
-                h('strong', { className: 'text-slate-900 dark:text-white font-mono text-[10px] px-1 py-0.2 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700' }, currentInst.dueDate || '-')
+            h('div', { className: 'flex items-center justify-between pb-2 border-b border-indigo-600 gap-2' },
+              h('div', { className: 'flex items-center gap-2' },
+                h('span', { className: 'text-lg' }, '⏳'),
+                h('h4', { className: 'text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider' }, 'รอบต่อไปและกำหนดการส่งสอบเทียบ (Next Calibration Cycle)')
               ),
               h('span', {
-                className: 'font-bold text-[11px] px-2.5 py-0.5 rounded border shadow-2xs ' + (daysRemaining !== null && daysRemaining < 0 ? 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/90 dark:text-rose-200 dark:border-rose-700' : daysRemaining !== null && daysRemaining <= 30 ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/90 dark:text-amber-200 dark:border-amber-700' : 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700')
+                className: 'font-bold text-xs px-3 py-1 rounded-full border shadow-2xs ' +
+                  (daysRemaining !== null && daysRemaining < 0
+                    ? 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/90 dark:text-rose-200 dark:border-rose-700'
+                    : daysRemaining !== null && daysRemaining <= 30
+                    ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/90 dark:text-amber-200 dark:border-amber-700'
+                    : 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700')
               },
-                daysRemaining === null ? '' : daysRemaining < 0 ? ('⚠️ เกินกำหนด ' + Math.abs(daysRemaining) + ' วัน') : daysRemaining === 0 ? '⚠️ ครบกำหนดวันนี้' : ('⏳ คงเหลือ ' + daysRemaining + ' วัน')
+                daysRemaining === null ? '-' : daysRemaining < 0 ? ('⚠️ เกินกำหนด ' + Math.abs(daysRemaining) + ' วัน') : daysRemaining === 0 ? '⚠️ ครบกำหนดวันนี้' : ('⏳ คงเหลือ ' + daysRemaining + ' วัน')
               )
             ),
-            h('div', { className: 'w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-300/60 dark:border-slate-700/60' },
-              h('div', {
-                className: 'h-full rounded-full transition-all duration-500 ' + progress.color,
-                style: { width: Math.max(4, Math.min(100, progress.percent)) + '%' }
-              })
-            )
-          )
-        ),
 
-        // 3 Responsive Information Panels (Fluid Grid)
-        h('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5' },
-          
-          // Panel 1: ข้อมูลจำเพาะ & สเปค
+            // Next Cycle Details
+            h('div', { className: 'grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs' },
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'ความถี่ / รอบสอบเทียบ:'),
+                h('span', { className: 'font-bold text-blue-700 dark:text-blue-400 text-sm' }, currentInst.frequency || '1 ปี')
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'วันครบกำหนดรอบต่อไป:'),
+                h('span', { className: 'font-mono font-bold text-rose-600 dark:text-rose-400 text-sm' }, currentInst.dueDate || '-')
+              ),
+              h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1' },
+                h('span', { className: 'text-slate-500 dark:text-slate-400 block text-[11px]' }, 'ปีที่ครบกำหนดรอบต่อไป:'),
+                h('span', { className: 'font-bold text-slate-900 dark:text-white text-sm' }, currentInst.dueYear || '-')
+              )
+            ),
+
+            // Progress Timeline Gauge
+            h('div', { className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2' },
+              h('div', { className: 'flex justify-between items-center text-[11px] font-semibold text-slate-600 dark:text-slate-400' },
+                h('span', null, 'เริ่มรอบ: ' + (currentInst.calDate || '-')),
+                h('span', null, 'ความคืบหน้ารอบปัจจุบัน: ' + progress.percent + '%'),
+                h('span', null, 'ครบกำหนด: ' + (currentInst.dueDate || '-'))
+              ),
+              h('div', { className: 'w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden' },
+                h('div', {
+                  className: 'h-full rounded-full transition-all duration-500 ' + progress.color,
+                  style: { width: Math.max(4, Math.min(100, progress.percent)) + '%' }
+                })
+              )
+            )
+          ),
+
+          // C. ประวัติรอบการส่งย้อนหลัง (Historical Cycles Table)
           h('div', {
-            className: 'p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2'
+            className: 'p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3'
           },
-            h('div', { className: 'flex items-center gap-1.5 pb-1 border-b border-blue-600 font-bold text-[11px] uppercase tracking-wider text-blue-700 dark:text-blue-400' },
-              '🏷️ ข้อมูลจำเพาะ & สเปค'
+            h('div', { className: 'flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800' },
+              h('div', { className: 'flex items-center gap-2' },
+                h('span', { className: 'text-lg' }, '📜'),
+                h('h4', { className: 'text-xs sm:text-sm font-bold text-slate-900 dark:text-white' }, 'ประวัติรอบการส่งสอบเทียบทั้งหมด'),
+                h('span', { className: 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white' }, historyList.length + ' รอบ')
+              ),
+              h('button', {
+                type: 'button',
+                onClick: () => {
+                  if (typeof window.qapOpenHistoryModal === 'function') {
+                    window.qapOpenHistoryModal(currentInst);
+                  }
+                },
+                className: 'px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center gap-1 transition shadow-2xs cursor-pointer active:scale-95'
+              }, '🔍 ดูประวัติฉบับเต็ม (Audit Log)')
             ),
-            h('div', { className: 'space-y-1 text-[11px]' },
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ยี่ห้อ (MAKER):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.makerName || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'รุ่น (MODEL):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.model || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'หมายเลขเครื่อง:'),
-                h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.serialNo || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ขนาดย่านวัด:'),
-                h('span', { className: 'font-bold text-blue-700 dark:text-blue-400 text-right px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/80 rounded border border-blue-200 dark:border-blue-800 text-[10px] truncate' }, currentInst.size || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'หมวดหมู่:'),
-                h('span', { className: 'font-semibold text-slate-900 dark:text-white truncate text-right' }, currentInst.category || '-')
-              )
-            )
-          ),
-
-          // Panel 2: การควบคุมและแผนก
-          h('div', {
-            className: 'p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2'
-          },
-            h('div', { className: 'flex items-center gap-1.5 pb-1 border-b border-indigo-600 font-bold text-[11px] uppercase tracking-wider text-indigo-700 dark:text-indigo-400' },
-              '⚙️ การควบคุม & แผนก'
-            ),
-            h('div', { className: 'space-y-1 text-[11px]' },
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'แผนก (SECTION):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.section || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'จุดใช้งาน (LINE):'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.subSection || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ขึ้นทะเบียน:'),
-                h('span', { className: 'font-mono text-slate-900 dark:text-white truncate text-right' }, currentInst.registerDate || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'CONTROL INST.:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.controlInstrument || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'CTC CONTROL:'),
-                h('span', { className: 'font-bold text-purple-700 dark:text-purple-400 truncate text-right' }, currentInst.ctcControl || '-')
-              )
-            )
-          ),
-
-          // Panel 3: แผนการสอบเทียบและ LAB
-          h('div', {
-            className: 'p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2 sm:col-span-2 lg:col-span-1'
-          },
-            h('div', { className: 'flex items-center gap-1.5 pb-1 border-b border-emerald-600 font-bold text-[11px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400' },
-              '⏱️ แผนการสอบเทียบ & LAB'
-            ),
-            h('div', { className: 'space-y-1 text-[11px]' },
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'รอบสอบเทียบ:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.frequency || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'วันสอบเทียบ:'),
-                h('span', { className: 'font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate text-right' }, currentInst.calDate || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'วันครบกำหนด:'),
-                h('span', { className: 'font-mono font-bold text-rose-600 dark:text-rose-400 truncate text-right' }, currentInst.dueDate || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ปีที่ครบกำหนด:'),
-                h('span', { className: 'font-bold text-slate-900 dark:text-white truncate text-right' }, currentInst.dueYear || '-')
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0' }, 'ผู้สอบเทียบ:'),
-                h('span', { className: 'font-bold text-amber-700 dark:text-amber-400 text-right', title: (currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : (currentInst.calibratedBy && currentInst.calibratedBy !== '-' ? currentInst.calibratedBy : 'NA CALTECHNOLOGIES') }, (currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : (currentInst.calibratedBy && currentInst.calibratedBy !== '-' ? currentInst.calibratedBy : 'NA CALTECHNOLOGIES'))
-              ),
-              h('div', { className: 'flex items-center justify-between gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-800/80' },
-                h('span', { className: 'text-slate-500 dark:text-slate-400 shrink-0 font-medium' }, 'สถานะ (STATUS):'),
-                h('span', { className: 'inline-flex items-center gap-1.5 font-bold text-[10px] px-3 py-0.5 rounded-full whitespace-nowrap ' + statusInfo.bg },
-                  h('span', { className: 'w-1.5 h-1.5 rounded-full shrink-0 ' + statusInfo.dot }),
-                  statusInfo.label
-                )
-              )
-            )
-          )
-        ),
-
-        // Remarks / Notes Row (If Available)
-        (currentInst.notes || currentInst.remarks) && h('div', {
-          className: 'p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-[11px] shadow-2xs space-y-0.5'
-        },
-          h('span', { className: 'font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1' },
-            '📝 หมายเหตุเพิ่มเติม:'
-          ),
-          h('p', { className: 'text-slate-800 dark:text-slate-200 whitespace-pre-wrap pl-4 font-normal' }, currentInst.notes || currentInst.remarks)
-        ),
-
-        // Calibration History & Certificates Section
-        h('div', { className: 'space-y-2 pt-1' },
-          h('div', { className: 'flex items-center justify-between' },
-            h('h4', { className: 'text-[11px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5' },
-              '📜 ประวัติการสอบเทียบ & ใบรับรอง',
-              h('span', { className: 'px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-blue-600 text-white' },
-                historyList.length + ' ฉบับ'
-              )
-            ),
-            h('button', {
-              type: 'button',
-              onClick: () => {
-                if (typeof window.qapOpenHistoryModal === 'function') {
-                  window.qapOpenHistoryModal(currentInst);
-                }
-              },
-              className: 'px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition shadow-2xs cursor-pointer active:scale-95'
-            }, '🔍 หน้าต่างประวัติฉบับเต็ม (Supabase Live Audit)')
-          ),
-
-          h('div', { className: 'space-y-2' },
-            historyList.map((item, idx) => {
-              const isLatest = idx === 0;
-              const itemPdf = item.pdfUrl || item.certFileData || (isLatest ? (currentInst.pdfUrl || currentInst.certFileData) : null);
-              const itemFileSize = item.fileSize || (isLatest ? currentInst.fileSize : null);
-              const hasPdf = !!itemPdf;
-
-              return h('div', {
-                key: item.id || idx,
-                className: 'p-2.5 sm:p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]'
-              },
-                h('div', { className: 'space-y-1 min-w-0' },
-                  h('div', { className: 'flex flex-wrap items-center gap-1.5' },
-                    h('span', { className: 'font-bold text-slate-900 dark:text-white font-mono text-xs' }, cleanCertNo(item.certNo || currentInst.codeNo || '1')),
-                    itemFileSize && h('span', {
-                      className: 'px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
-                    }, '⚡ ' + formatBytes(itemFileSize)),
-                    h('span', {
-                      className: 'px-2 py-0.2 rounded text-[10px] font-bold border ' + ((item.result || 'PASS').toUpperCase() === 'PASS' ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-700' : 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700')
-                    }, item.result || 'PASS'),
-                    (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy) && h('span', {
-                      className: 'text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]',
-                      title: item.calibratedBy || currentInst.labCal || currentInst.calibratedBy
-                    }, '• โดย: ' + (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy))
+            h('div', { className: 'space-y-2' },
+              historyList.map((item, idx) => {
+                const isLatest = idx === 0;
+                const itemPdf = item.pdfUrl || item.certFileData || (isLatest ? (currentInst.pdfUrl || currentInst.certFileData) : null);
+                const hasPdf = !!itemPdf;
+                return h('div', {
+                  key: item.id || idx,
+                  className: 'p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs'
+                },
+                  h('div', { className: 'space-y-1 min-w-0' },
+                    h('div', { className: 'flex flex-wrap items-center gap-2' },
+                      h('span', { className: 'px-1.5 py-0.2 rounded font-bold text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200' }, '#' + (historyList.length - idx)),
+                      h('span', { className: 'font-mono font-bold text-slate-900 dark:text-white' }, cleanCert(item.certNo || currentInst.codeNo)),
+                      h('span', {
+                        className: 'px-1.5 py-0.2 rounded text-[10px] font-bold ' +
+                          ((item.result || 'PASS').toUpperCase() === 'PASS' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300')
+                      }, item.result || 'PASS'),
+                      (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy) && h('span', {
+                        className: 'text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]'
+                      }, '• โดย: ' + (item.calibratedBy || currentInst.labCal || currentInst.calibratedBy))
+                    ),
+                    h('div', { className: 'text-[11px] text-slate-600 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-0.5' },
+                      h('span', null, '📅 วันสอบเทียบ: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.calDate || currentInst.calDate || '-')),
+                      h('span', null, '⏳ วันครบกำหนด: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.dueDate || currentInst.dueDate || '-')),
+                      item.notes && h('span', { className: 'text-slate-700 dark:text-slate-300 truncate max-w-[200px]' }, '💬 ' + item.notes)
+                    )
                   ),
-                  h('div', { className: 'text-[10px] text-slate-600 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-0.5' },
-                    h('span', null, '📅 วันสอบเทียบ: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.calDate || currentInst.calDate || '-')),
-                    h('span', null, '⏳ วันครบกำหนด: ', h('strong', { className: 'text-slate-900 dark:text-white font-mono' }, item.dueDate || currentInst.dueDate || '-')),
-                    item.notes && h('span', { className: 'text-slate-700 dark:text-slate-300 truncate max-w-[200px]', title: item.notes }, '💬 ' + item.notes)
-                  )
-                ),
-
-                // Actions: View PDF / Delete PDF / Upload PDF
-                h('div', { className: 'flex items-center gap-1.5 shrink-0 self-start sm:self-center' },
-                  hasPdf ? h('div', { className: 'flex items-center gap-1.5' },
-                    h('button', {
+                  h('div', { className: 'flex items-center gap-1.5 shrink-0' },
+                    hasPdf ? h('button', {
                       type: 'button',
                       onClick: () => handleViewPdf(item),
-                      className: 'px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95'
-                    }, '📄 ดูใบเซอร์ PDF'),
-                    h('button', {
-                      type: 'button',
-                      onClick: () => {
-                        setControlCardData({ inst: currentInst, records: historyList });
-                      },
-                      className: 'px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95',
-                      title: 'เปิดดูและดาวน์โหลดแบบฟอร์ม MEASURING INSTRUMENT CONTROL CARD (XLSX)'
-                    }, '📊 ฟอร์ม XLSX'),
-                    h('button', {
-                      type: 'button',
-                      onClick: () => handleFileRemove(item.id),
-                      className: 'p-1.5 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950 dark:hover:text-rose-400 transition cursor-pointer border border-slate-200 dark:border-slate-700 text-xs',
-                      title: 'ลบไฟล์ PDF ใบรับรองนี้'
-                    }, '🗑️')
-                  ) : h('label', {
-                    className: 'px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs ' + (isProcessing ? 'opacity-60 pointer-events-none' : '')
-                  },
-                    isProcessing ? '⏳ กำลังประมวลผล...' : '📎 แนบไฟล์ PDF',
-                    h('input', {
-                      type: 'file',
-                      accept: 'application/pdf,image/*',
-                      className: 'hidden',
-                      onChange: (evt) => handleFileUpload(evt, item.id)
-                    })
+                      className: 'px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer'
+                    }, '📄 ใบเซอร์ PDF') : h('span', { className: 'text-[11px] text-slate-400' }, 'ไม่มีไฟล์')
                   )
-                )
-              );
-            })
+                );
+              })
+            )
           )
         )
       ),
 
-      // 3. Footer Bar (Compact)
+      // 4. Footer Bar
       h('div', {
-        className: 'flex items-center justify-between px-3.5 sm:px-4 py-2 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shrink-0'
+        className: 'flex items-center justify-between px-3.5 sm:px-5 py-2.5 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 shrink-0'
       },
-        h('div', { className: 'text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[200px]' },
-          'ID: ', currentInst.id || '-'
+        h('div', { className: 'text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[200px]' },
+          'CODE: ', currentInst.codeNo || '-'
         ),
         h('div', { className: 'flex items-center gap-2' },
           h('button', {
             type: 'button',
             onClick: t,
-            className: 'px-4 py-1 rounded-md bg-slate-900 hover:bg-black text-white dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-xs font-bold transition cursor-pointer active:scale-95'
+            className: 'px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-xs font-bold transition cursor-pointer active:scale-95'
           }, 'ปิด (Close)')
         )
-      )
+      ),
+
+      // Control Card Modal if opened
+      controlCardData && typeof ControlCardModal !== 'undefined' && h(ControlCardModal, {
+        isOpen: Boolean(controlCardData),
+        onClose: () => setControlCardData(null),
+        instrument: controlCardData.inst,
+        records: controlCardData.records
+      })
     )
   );
 };
@@ -10216,7 +10511,7 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
   );
 };
 
-const nSe=({instrument:e,onClose:t,onConfirm:r,onMoveToCancel:onCancelAndDispose})=>(A.useEffect(()=>{if(!e)return;const n=l=>{l.key==="Escape"&&t(),l.key==="Enter"&&r()};return document.addEventListener("keydown",n),()=>document.removeEventListener("keydown",n)},[e,t,r]),e?m.jsxDEV("div",{className:"fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/65 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200",role:"presentation",onMouseDown:n=>{n.target===n.currentTarget&&t()},children:m.jsxDEV("div",{role:"dialog","aria-modal":"true","aria-labelledby":"delete-dialog-title",className:"w-full max-w-md overflow-hidden rounded-2xl border border-rose-200/80 bg-white shadow-2xl shadow-slate-950/25 dark:border-rose-900/70 dark:bg-slate-900 dark:shadow-black/50 animate-in zoom-in-95 duration-200",onMouseDown:n=>n.stopPropagation(),children:[m.jsxDEV("div",{className:"relative overflow-hidden bg-gradient-to-br from-rose-600 via-red-600 to-rose-700 px-5 py-5 text-white",children:[m.jsxDEV("div",{className:"absolute -right-10 -top-10 h-32 w-32 rounded-full border-[18px] border-white/10"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:46,columnNumber:11},void 0),m.jsxDEV("div",{className:"relative flex items-start justify-between gap-4",children:[m.jsxDEV("div",{className:"flex items-center gap-3",children:[m.jsxDEV("div",{className:"flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25",children:m.jsxDEV(gd,{className:"h-6 w-6"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:50,columnNumber:17},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:49,columnNumber:15},void 0),m.jsxDEV("div",{children:[m.jsxDEV("p",{className:"text-[10px] font-bold uppercase tracking-[0.18em] text-rose-100",children:"Delete confirmation"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:53,columnNumber:17},void 0),m.jsxDEV("h2",{id:"delete-dialog-title",className:"mt-0.5 text-lg font-bold",children:"ยืนยันการลบข้อมูล"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:54,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:52,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:48,columnNumber:13},void 0),m.jsxDEV("button",{type:"button",onClick:t,className:"rounded-lg p-1.5 text-white/80 transition hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70","aria-label":"ปิดหน้าต่างยืนยันการลบ",children:m.jsxDEV(Xl,{className:"h-5 w-5"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:63,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:57,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:47,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:45,columnNumber:9},void 0),m.jsxDEV("div",{className:"space-y-4 px-5 py-5 text-slate-700 dark:text-slate-200",children:[m.jsxDEV("p",{className:"text-sm leading-6",children:"คุณกำลังจะลบเครื่องมือวัดรายการนี้ออกจากทะเบียน การลบจะไม่สามารถย้อนกลับได้"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:69,columnNumber:11},void 0),m.jsxDEV("div",{className:"rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-3 dark:border-rose-900/70 dark:bg-rose-950/35",children:[m.jsxDEV("p",{className:"truncate text-sm font-bold text-slate-900 dark:text-white",children:e.instrumentName},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:71,columnNumber:13},void 0),m.jsxDEV("p",{className:"mt-1 font-mono text-xs font-semibold text-rose-700 dark:text-rose-300",children:e.codeNo},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:72,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:70,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:68,columnNumber:9},void 0),m.jsxDEV("div",{className:"flex flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end dark:border-slate-800 dark:bg-slate-950/60",children:[m.jsxDEV("button",{type:"button",onClick:t,className:"rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700",children:"ปิด"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:77,columnNumber:11},void 0),onCancelAndDispose&&m.jsxDEV("button",{type:"button",onClick:()=>onCancelAndDispose(e),className:"inline-flex items-center justify-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 active:scale-[0.98]",children:[m.jsxDEV("span",null,"📦"),"ยกเลิก/จำหน่าย (ย้ายไปหน้ายกเลิก)"]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:81,columnNumber:11},void 0),m.jsxDEV("button",{type:"button",onClick:r,className:"inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-600/20 transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-400 active:scale-[0.98]",children:[m.jsxDEV(vd,{className:"h-4 w-4"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:89,columnNumber:13},void 0),"ลบถาวร"]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:84,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:76,columnNumber:9},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:38,columnNumber:7},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:31,columnNumber:5},void 0):null);
+const nSe=({instrument:e,onClose:t,onConfirm:r,onMoveToCancel:onCancelAndDispose})=>(A.useEffect(()=>{if(!e)return;const n=l=>{l.key==="Escape"&&t(),l.key==="Enter"&&r()};return document.addEventListener("keydown",n),()=>document.removeEventListener("keydown",n)},[e,t,r]),e?m.jsxDEV("div",{className:"fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/65 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200",role:"presentation",onMouseDown:n=>{n.target===n.currentTarget&&t()},children:m.jsxDEV("div",{role:"dialog","aria-modal":"true","aria-labelledby":"delete-dialog-title",className:"w-full max-w-md overflow-hidden rounded-2xl border border-rose-200/80 bg-white shadow-2xl shadow-slate-950/25 dark:border-rose-900/70 dark:bg-slate-900 dark:shadow-black/50 animate-in zoom-in-95 duration-200",onMouseDown:n=>n.stopPropagation(),children:[m.jsxDEV("div",{className:"relative overflow-hidden bg-gradient-to-br from-rose-600 via-red-600 to-rose-700 px-5 py-5 text-white",children:[m.jsxDEV("div",{className:"absolute -right-10 -top-10 h-32 w-32 rounded-full border-[18px] border-white/10"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:46,columnNumber:11},void 0),m.jsxDEV("div",{className:"relative flex items-start justify-between gap-4",children:[m.jsxDEV("div",{className:"flex items-center gap-3",children:[m.jsxDEV("div",{className:"flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25",children:m.jsxDEV(gd,{className:"h-6 w-6"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:50,columnNumber:17},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:49,columnNumber:15},void 0),m.jsxDEV("div",{children:[m.jsxDEV("p",{className:"text-[10px] font-bold uppercase tracking-[0.18em] text-rose-100",children:"Delete confirmation"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:53,columnNumber:17},void 0),m.jsxDEV("h2",{id:"delete-dialog-title",className:"mt-0.5 text-lg font-bold",children:"ยืนยันการลบข้อมูล"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:54,columnNumber:17},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:52,columnNumber:15},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:48,columnNumber:13},void 0),m.jsxDEV("button",{type:"button",onClick:t,className:"rounded-lg p-1.5 text-white/80 transition hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70","aria-label":"ปิดหน้าต่างยืนยันการลบ",children:m.jsxDEV(Xl,{className:"h-5 w-5"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:63,columnNumber:15},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:57,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:47,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:45,columnNumber:9},void 0),m.jsxDEV("div",{className:"space-y-4 px-5 py-5 text-slate-700 dark:text-slate-200",children:[m.jsxDEV("p",{className:"text-sm leading-6",children:"คุณกำลังจะลบเครื่องมือวัดรายการนี้ออกจากทะเบียน การลบจะไม่สามารถย้อนกลับได้"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:69,columnNumber:11},void 0),m.jsxDEV("div",{className:"rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-3 dark:border-rose-900/70 dark:bg-rose-950/35",children:[m.jsxDEV("p",{className:"truncate text-sm font-bold text-slate-900 dark:text-white",children:e.instrumentName},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:71,columnNumber:13},void 0),m.jsxDEV("p",{className:"mt-1 font-mono text-xs font-semibold text-rose-700 dark:text-rose-300",children:e.codeNo},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:72,columnNumber:13},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:70,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:68,columnNumber:9},void 0),m.jsxDEV("div",{className:"flex flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end dark:border-slate-800 dark:bg-slate-950/60",children:[m.jsxDEV("button",{type:"button",onClick:t,className:"rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700",children:"ปิด"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:77,columnNumber:11},void 0),onCancelAndDispose&&m.jsxDEV("button",{type:"button",onClick:()=>onCancelAndDispose(e),className:"inline-flex items-center justify-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 active:scale-[0.98]",children:[m.jsxDEV("span",{children:"📦"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:81,columnNumber:20},void 0),"ยกเลิก/จำหน่าย (ย้ายไปหน้ายกเลิก)"]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:81,columnNumber:11},void 0),m.jsxDEV("button",{type:"button",onClick:r,className:"inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-600/20 transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-400 active:scale-[0.98]",children:[m.jsxDEV(vd,{className:"h-4 w-4"},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:89,columnNumber:13},void 0),"ลบถาวร"]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:84,columnNumber:11},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:76,columnNumber:9},void 0)]},void 0,!0,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:38,columnNumber:7},void 0)},void 0,!1,{fileName:"/app/applet/src/components/ConfirmDeleteModal.tsx",lineNumber:31,columnNumber:5},void 0):null);
 
 const isQapSampleItem = (item) => {
   if (!item) return true;

@@ -15,5 +15,9 @@
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.3.289",
     "vite": "^5.4.14"
+  },
+  "devDependencies": {
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5"
   }
 }

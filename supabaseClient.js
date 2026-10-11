@@ -2238,6 +2238,7 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
       }
 
       saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
+      const hasPdf = Boolean(inst.pdfUrl || inst.certFileData || (rawHist && rawHist.some(h => h && (h.pdfUrl || h.certFileData))));
       const pdfNote = hasPdf ? " (บันทึกไฟล์ลงตาราง qap_files แยกต่างหาก)" : "";
       const actionMsg = isCancel ? "ย้ายไปตาราง qap_cancel และลบออกจากตารางใช้งานปกติในฐานข้อมูล" : `ซิงก์บันทึกลงตาราง ${targetTable}`;
       emitToast(`☁️ ${actionMsg}: ${inst.codeNo || inst.instrumentName || ""}${pdfNote}`, "success");
