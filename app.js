@@ -9196,6 +9196,84 @@ const cleanCertNo = (certNo) => {
 // MEASURING INSTRUMENT CONTROL CARD (Formot-1 TS 1-14-02)
 // 100% Exact Replica of User's Form Layout & Two-Row Cycle
 // ==========================================================
+const formatControlCardYear = (val) => {
+  if (!val || val === '-') return '';
+  const s = String(val).trim();
+  if (!s || s === '-') return '';
+  const sClean = s.replace(/^[Yy]\s*/, '');
+  if (/^\d{4}$/.test(sClean)) return sClean;
+  if (/^\d{2}$/.test(sClean)) return `20${sClean}`;
+  const dmyMatch = s.match(/^(\d{1,2})[-/\s]([A-Za-z]+)[-/\s](\d{2,4})$/);
+  if (dmyMatch) {
+    const yr = dmyMatch[3];
+    return yr.length === 2 ? `20${yr}` : yr;
+  }
+  const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (isoMatch) return isoMatch[1];
+  const slashMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})$/);
+  if (slashMatch) {
+    const yr = slashMatch[3];
+    return yr.length === 2 ? `20${yr}` : yr;
+  }
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime())) return String(dt.getFullYear());
+  return sClean;
+};
+
+const getRecordSortTimestamp = (rec, inst) => {
+  if (!rec) return 0;
+  const raw = rec.calDate || rec.date || rec.calibratedDate || rec.dueDate || (inst && (inst.calDate || inst.dueDate)) || '';
+  if (!raw) return 0;
+  const s = String(raw).trim();
+  const dmyMatch = s.match(/^(\d{1,2})[-/\s]([A-Za-z]+)[-/\s](\d{2,4})$/);
+  if (dmyMatch) {
+    const d = parseInt(dmyMatch[1], 10);
+    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const m = months.indexOf(dmyMatch[2].toLowerCase().slice(0, 3));
+    let yr = parseInt(dmyMatch[3], 10);
+    if (yr < 100) yr += 2000;
+    return new Date(yr, m >= 0 ? m : 0, d).getTime();
+  }
+  const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (isoMatch) {
+    return new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10)).getTime();
+  }
+  const slashMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})$/);
+  if (slashMatch) {
+    const d = parseInt(slashMatch[1], 10);
+    const m = parseInt(slashMatch[2], 10) - 1;
+    let yr = parseInt(slashMatch[3], 10);
+    if (yr < 100) yr += 2000;
+    return new Date(yr, m, d).getTime();
+  }
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime())) return dt.getTime();
+  const yrMatch = s.match(/(\d{2,4})/);
+  if (yrMatch) {
+    let yr = parseInt(yrMatch[1], 10);
+    if (yr < 100) yr += 2000;
+    return new Date(yr, 0, 1).getTime();
+  }
+  return 0;
+};
+
+const getLatestControlCardDate = (calDate, dueDate) => {
+  const d1 = formatControlCardDate(calDate);
+  const d2 = formatControlCardDate(dueDate);
+  if (!d1 && !d2) return '';
+  if (!d1) return d2;
+  if (!d2) return d1;
+  const yr1 = (String(calDate).match(/(\d{2,4})$/) || [])[1];
+  const yr2 = (String(dueDate).match(/(\d{2,4})$/) || [])[1];
+  if (yr1 && yr2) {
+    const y1 = parseInt(yr1.length === 2 ? `20${yr1}` : yr1, 10);
+    const y2 = parseInt(yr2.length === 2 ? `20${yr2}` : yr2, 10);
+    if (y2 >= y1) return d2;
+    return d1;
+  }
+  return d2 || d1;
+};
+
 const formatControlCardDate = (dateStr) => {
   if (!dateStr || dateStr === '-') return '';
   const s = String(dateStr).trim();
@@ -9420,30 +9498,24 @@ async function exportControlCardXlsx(inst, historyRecords = [], filename) {
             }
           ];
 
+      const sortedHistoryList = [...historyList].sort((a, b) => {
+        const tA = getRecordSortTimestamp(a, inst);
+        const tB = getRecordSortTimestamp(b, inst);
+        return tA - tB;
+      });
       const rowPairs = [];
-      historyList.forEach((rec, idx) => {
-        const calD = formatControlCardDate(rec.calDate || inst.calDate);
-        const dueD = formatControlCardDate(rec.dueDate || inst.dueDate);
+      sortedHistoryList.forEach((rec, idx) => {
+        const latestD = getLatestControlCardDate(rec.calDate || inst.calDate, rec.dueDate || inst.dueDate);
         const calBy = ((rec.calibratedBy && rec.calibratedBy !== '-') ? rec.calibratedBy : ((rec.labCal && rec.labCal !== '-') ? rec.labCal : ((inst.labCal && inst.labCal !== '-') ? inst.labCal : ((inst.calibratedBy && inst.calibratedBy !== '-') ? inst.calibratedBy : "NA CALTECHNOLOGIES")))).toUpperCase();
         const rawStd = (rec.standardInstrument && rec.standardInstrument !== '-') ? rec.standardInstrument : ((rec.standardUsed && rec.standardUsed !== '-') ? rec.standardUsed : ((inst.standardInstrument && inst.standardInstrument !== '-') ? inst.standardInstrument : ((inst.standardUsed && inst.standardUsed !== '-') ? inst.standardUsed : ((rec.labCal && rec.labCal !== '-') ? rec.labCal : ((inst.labCal && inst.labCal !== '-') ? inst.labCal : "NA CALTECHNOLOGIES")))));
         const stdInst = String(rawStd).toUpperCase().startsWith('LAB') ? String(rawStd).toUpperCase() : 'LAB ' + String(rawStd).toUpperCase();
         const res = (rec.result || "PASS").toUpperCase();
         const rem = (rec.notes && rec.notes !== '-') ? rec.notes : ((rec.remark && rec.remark !== '-') ? rec.remark : ((inst.notes && inst.notes !== '-') ? inst.notes : ((inst.remark && inst.remark !== '-') ? inst.remark : "REFERENCE TO TS1-14-02")));
 
-        // Row 1: Calibrated Date
+        // Top Row: Latest Calibration Date only
         rowPairs.push({
           no: idx + 1,
-          date: calD,
-          calBy: calBy,
-          stdInst: stdInst,
-          result: res,
-          remark: rem
-        });
-
-        // Row 2: Next Calibration Due Date
-        rowPairs.push({
-          no: "",
-          date: dueD,
+          date: latestD,
           calBy: calBy,
           stdInst: stdInst,
           result: res,
@@ -9518,30 +9590,24 @@ const generateControlCardPrintHtml = (currentInst, records = []) => {
         }
       ];
 
+  const sortedHistoryList = [...historyList].sort((a, b) => {
+    const tA = getRecordSortTimestamp(a, currentInst);
+    const tB = getRecordSortTimestamp(b, currentInst);
+    return tA - tB;
+  });
   const rowPairs = [];
-  historyList.forEach((rec, idx) => {
-    const calD = formatControlCardDate(rec.calDate || currentInst.calDate);
-    const dueD = formatControlCardDate(rec.dueDate || currentInst.dueDate);
+  sortedHistoryList.forEach((rec, idx) => {
+    const latestD = getLatestControlCardDate(rec.calDate || currentInst.calDate, rec.dueDate || currentInst.dueDate);
     const calBy = ((rec.calibratedBy && rec.calibratedBy !== '-') ? rec.calibratedBy : ((rec.labCal && rec.labCal !== '-') ? rec.labCal : ((currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : ((currentInst.calibratedBy && currentInst.calibratedBy !== '-') ? currentInst.calibratedBy : "NA CALTECHNOLOGIES")))).toUpperCase();
     const rawStd = (rec.standardInstrument && rec.standardInstrument !== '-') ? rec.standardInstrument : ((rec.standardUsed && rec.standardUsed !== '-') ? rec.standardUsed : ((currentInst.standardInstrument && currentInst.standardInstrument !== '-') ? currentInst.standardInstrument : ((currentInst.standardUsed && currentInst.standardUsed !== '-') ? currentInst.standardUsed : ((rec.labCal && rec.labCal !== '-') ? rec.labCal : ((currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : "NA CALTECHNOLOGIES")))));
     const stdInst = String(rawStd).toUpperCase().startsWith('LAB') ? String(rawStd).toUpperCase() : 'LAB ' + String(rawStd).toUpperCase();
     const res = (rec.result || "PASS").toUpperCase();
     const rem = (rec.notes && rec.notes !== '-') ? rec.notes : ((rec.remark && rec.remark !== '-') ? rec.remark : ((currentInst.notes && currentInst.notes !== '-') ? currentInst.notes : ((currentInst.remark && currentInst.remark !== '-') ? currentInst.remark : "REFERENCE TO TS1-14-02")));
 
-    // Row 1: Calibrated Date
+    // Top Row: Latest Calibration Date only
     rowPairs.push({
       no: idx + 1,
-      date: calD,
-      calBy: calBy,
-      stdInst: stdInst,
-      result: res,
-      remark: rem
-    });
-
-    // Row 2: Next Calibration Due Date
-    rowPairs.push({
-      no: "",
-      date: dueD,
+      date: latestD,
       calBy: calBy,
       stdInst: stdInst,
       result: res,
@@ -10143,31 +10209,25 @@ const ControlCardModal = ({ isOpen, onClose, instrument, records = [] }) => {
         }
       ];
 
-  // Build row pairs: Row 1 = calDate (with NO.), Row 2 = dueDate (with blank NO.)
+  // Build row pairs: Chronological order from lowest year to latest year
+  const sortedHistoryList = [...historyList].sort((a, b) => {
+    const tA = getRecordSortTimestamp(a, currentInst);
+    const tB = getRecordSortTimestamp(b, currentInst);
+    return tA - tB;
+  });
   const rowPairs = [];
-  historyList.forEach((rec, idx) => {
-    const calD = formatControlCardDate(rec.calDate || currentInst.calDate);
-    const dueD = formatControlCardDate(rec.dueDate || currentInst.dueDate);
+  sortedHistoryList.forEach((rec, idx) => {
+    const latestD = getLatestControlCardDate(rec.calDate || currentInst.calDate, rec.dueDate || currentInst.dueDate);
     const calBy = ((rec.calibratedBy && rec.calibratedBy !== '-') ? rec.calibratedBy : ((rec.labCal && rec.labCal !== '-') ? rec.labCal : ((currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : ((currentInst.calibratedBy && currentInst.calibratedBy !== '-') ? currentInst.calibratedBy : "NA CALTECHNOLOGIES")))).toUpperCase();
     const rawStd = (rec.standardInstrument && rec.standardInstrument !== '-') ? rec.standardInstrument : ((rec.standardUsed && rec.standardUsed !== '-') ? rec.standardUsed : ((currentInst.standardInstrument && currentInst.standardInstrument !== '-') ? currentInst.standardInstrument : ((currentInst.standardUsed && currentInst.standardUsed !== '-') ? currentInst.standardUsed : ((rec.labCal && rec.labCal !== '-') ? rec.labCal : ((currentInst.labCal && currentInst.labCal !== '-') ? currentInst.labCal : "NA CALTECHNOLOGIES")))));
     const stdInst = String(rawStd).toUpperCase().startsWith('LAB') ? String(rawStd).toUpperCase() : 'LAB ' + String(rawStd).toUpperCase();
     const res = (rec.result || "PASS").toUpperCase();
     const rem = (rec.notes && rec.notes !== '-') ? rec.notes : ((rec.remark && rec.remark !== '-') ? rec.remark : ((currentInst.notes && currentInst.notes !== '-') ? currentInst.notes : ((currentInst.remark && currentInst.remark !== '-') ? currentInst.remark : "REFERENCE TO TS1-14-02")));
 
-    // Row 1: Calibrated Date
+    // Top Row: Latest Calibration Date only
     rowPairs.push({
       no: idx + 1,
-      date: calD,
-      calBy: calBy,
-      stdInst: stdInst,
-      result: res,
-      remark: rem
-    });
-
-    // Row 2: Next Calibration Due Date
-    rowPairs.push({
-      no: "",
-      date: dueD,
+      date: latestD,
       calBy: calBy,
       stdInst: stdInst,
       result: res,
