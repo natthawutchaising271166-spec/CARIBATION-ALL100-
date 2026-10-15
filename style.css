@@ -988,4 +988,133 @@ html.dark .search-shortcut-card:hover {
   100% { left: 200%; }
 }
 
+/* =========================================================================
+   REDESIGNED SMART DATE FILTER POPOVER (ALWAYS ON TOP & CRISP RESPONSIVE)
+   ========================================================================= */
+.qap-smart-filter-popover {
+  position: fixed;
+  z-index: 99999999 !important;
+  border-radius: 1.25rem;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(37, 99, 235, 0.15);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+html.dark .qap-smart-filter-popover {
+  background: #0d1527;
+  color: #f8fafc;
+  border-color: #1e293b;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(96, 165, 250, 0.25);
+}
+
+.qap-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.qap-filter-chip-inactive {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #e2e8f0;
+}
+
+.qap-filter-chip-inactive:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+html.dark .qap-filter-chip-inactive {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+html.dark .qap-filter-chip-inactive:hover {
+  background: #27354f;
+  color: #f8fafc;
+}
+
+.qap-filter-chip-active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  border-color: #60a5fa;
+}
+
+.qap-month-card {
+  padding: 0.45rem 0.25rem;
+  border-radius: 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.qap-month-card-inactive {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.qap-month-card-inactive:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+html.dark .qap-month-card-inactive {
+  background: #162032;
+  color: #94a3b8;
+  border-color: #1e293b;
+}
+
+html.dark .qap-month-card-inactive:hover {
+  background: #1e2b45;
+  color: #93c5fd;
+  border-color: #3b82f6;
+}
+
+.qap-month-card-current {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
+  color: #b45309 !important;
+}
+
+html.dark .qap-month-card-current {
+  background: #231d10 !important;
+  color: #fbbf24 !important;
+  border-color: #d97706 !important;
+}
+
+.qap-month-card-active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+  font-weight: 800;
+}
+
+
 
