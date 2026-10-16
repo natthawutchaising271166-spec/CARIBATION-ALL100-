@@ -2397,6 +2397,45 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     }
   }
 
+  async function removeFromPage(ids, tabType) {
+    if (!isConfigured() || !config.autoSync || !Array.isArray(ids) || ids.length === 0) {
+      return { ok: false, skipped: true };
+    }
+
+    const targetTable = getTableForPage(tabType);
+    if (targetTable === PAGE_TABLES.calibration_all) {
+      return { ok: false, error: "Cannot remove imported records from the master table through this operation" };
+    }
+
+    const idStrings = ids
+      .map((item) => (typeof item === "object" ? String(item.id || "") : String(item)))
+      .map((id) => id.trim())
+      .filter(Boolean);
+
+    if (idStrings.length === 0) return { ok: true, count: 0 };
+
+    try {
+      for (let i = 0; i < idStrings.length; i += 40) {
+        const chunk = idStrings.slice(i, i + 40);
+        const idList = chunk.map((id) => encodeURIComponent(id)).join(",");
+        await request(`/${targetTable}?id=in.(${idList})`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" },
+        });
+      }
+
+      saveConfig({ lastSync: new Date().toISOString(), status: "connected" });
+      return { ok: true, count: idStrings.length };
+    } catch (err) {
+      console.warn(`[Supabase Sync] Failed to remove records from ${targetTable}:`, err);
+      return { ok: false, error: err.message };
+    }
+  }
+
+  async function removeFromCancel(items) {
+    return removeFromPage(items, "cancel");
+  }
+
   // 6.2 Upsert multiple instruments (Batch Upsert)
   async function upsertInstruments(items, tabType = "calibration_all") {
     if (!isConfigured() || !config.autoSync || !Array.isArray(items) || items.length === 0) {
@@ -2427,10 +2466,10 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
           const idList = chunk.map((id) => encodeURIComponent(id)).join(",");
           if (!idList) continue;
           for (const tbl of [PAGE_TABLES.calibration_all, PAGE_TABLES.normal_standard, PAGE_TABLES.centralized, PAGE_TABLES.each_section]) {
-            request(`/${tbl}?id=in.(${idList})`, {
+            await request(`/${tbl}?id=in.(${idList})`, {
               method: "DELETE",
               headers: { Prefer: "return=minimal" },
-            }).catch(() => {});
+            });
           }
         }
       } else if (targetTable !== PAGE_TABLES.calibration_all) {
@@ -2442,7 +2481,7 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
               Prefer: "resolution=merge-duplicates,return=minimal",
             },
             body: JSON.stringify(chunk),
-          }).catch(() => {});
+          });
         }
       }
 
@@ -3076,6 +3115,8 @@ SELECT 'CalibrationHistory (ประวัติ)', count(*) FROM public."Calib
     upsertInstrument,
     deleteInstrument,
     deleteInstruments,
+    removeFromPage,
+    removeFromCancel,
     deleteAllInstruments,
     upsertInstruments,
     pushSingleTable,

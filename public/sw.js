@@ -1,15 +1,16 @@
 /**
  * Carrier QAP Calibration Control - Enhanced Progressive Web App Service Worker
- * Version: 10.0.0
+ * Version: 11.0.0
  */
 
-const CACHE_NAME = 'qap-calibration-pwa-v10';
+const CACHE_NAME = 'qap-calibration-pwa-v11';
 
 const PRECACHE_ASSETS = [
   './index.html',
   './favicon.ico',
   './app.js',
   './supabaseClient.js',
+  './data_backup.js',
   './style.css',
   './manifest.json',
   './icons/apple-touch-icon.png',

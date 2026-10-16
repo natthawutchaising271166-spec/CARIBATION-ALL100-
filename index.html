@@ -430,6 +430,7 @@
     <script src="./qrcode.min.js"></script>
 
     <script src="./app.js"></script>
+    <script src="./data_backup.js"></script>
         <style>
       /* Clean CSS rule to hide print/sticker buttons without mutating React VDOM */
       button:has(.lucide-file-text),
@@ -593,7 +594,9 @@
             return [{ ...defaultPage2Doc, ...p2 }, { ...defaultPage3Doc, ...p3 }];
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to read QAP document configuration; using defaults.', e);
+      }
       return [defaultPage2Doc, defaultPage3Doc];
     }
 
@@ -630,8 +633,10 @@
         };
         localStorage.setItem('QAP_DOCUMENT_CONFIG_V1', JSON.stringify(masterCfg));
         window.qapDocumentConfig = masterCfg;
+        return true;
       } catch (e) {
         console.error('Error saving QAP docs:', e);
+        return false;
       }
     }
 
@@ -880,7 +885,10 @@
       }
 
       document.body.appendChild(previewOverlay);
-      const closePreview = () => previewOverlay.remove();
+      const closePreview = () => {
+        previewOverlay.remove();
+        window.removeEventListener('keydown', handleEsc);
+      };
       document.getElementById('qap-close-preview-btn').onclick = closePreview;
       document.getElementById('qap-close-preview-btn2').onclick = closePreview;
       previewOverlay.onclick = (e) => { if (e.target === previewOverlay) closePreview(); };
@@ -888,7 +896,6 @@
       const handleEsc = (e) => {
         if (e.key === 'Escape') {
           closePreview();
-          window.removeEventListener('keydown', handleEsc);
         }
       };
       window.addEventListener('keydown', handleEsc);
@@ -1061,7 +1068,10 @@
 
       document.body.appendChild(modal);
 
-      const closeModal = () => modal.remove();
+      const closeModal = () => {
+        modal.remove();
+        window.removeEventListener('keydown', handleModalEsc);
+      };
       document.getElementById('qap-modal-close-btn').onclick = closeModal;
       document.getElementById('qap-modal-cancel-btn').onclick = closeModal;
       modal.onclick = (e) => { if (e.target === modal) closeModal(); };
@@ -1069,7 +1079,6 @@
       const handleModalEsc = (e) => {
         if (e.key === 'Escape') {
           closeModal();
-          window.removeEventListener('keydown', handleModalEsc);
         }
       };
       window.addEventListener('keydown', handleModalEsc);
@@ -1077,7 +1086,11 @@
       // Reset Defaults
       document.getElementById('qap-reset-defaults-btn').onclick = () => {
         if (confirm('ต้องการรีเซ็ตข้อมูลเอกสารหน้าที่ 2 และหน้าที่ 3 กลับเป็นค่ามาตรฐานตามฟอร์มหรือไม่?')) {
-          saveDocs([defaultPage2Doc, defaultPage3Doc]);
+          if (!saveDocs([defaultPage2Doc, defaultPage3Doc])) {
+            alert('ไม่สามารถบันทึกค่าเริ่มต้นได้ โปรดลองอีกครั้ง');
+            return;
+          }
+          closeModal();
           openDocModal();
         }
       };
@@ -1129,7 +1142,10 @@
         btn.onclick = (e) => {
           const type = e.currentTarget.getAttribute('data-doc-type');
           const updated = gatherFormInputs();
-          saveDocs(updated);
+          if (!saveDocs(updated)) {
+            alert('ไม่สามารถบันทึกข้อมูลเอกสารได้ โปรดลองอีกครั้ง');
+            return;
+          }
           closeModal();
 
           if (type === 'card') {
@@ -1153,10 +1169,17 @@
       // Save Button Action
       document.getElementById('qap-modal-save-btn').onclick = () => {
         const updated = gatherFormInputs();
-        saveDocs(updated);
         const statusEl = document.getElementById('qap-modal-status');
+        if (!saveDocs(updated)) {
+          if (statusEl) {
+            statusEl.textContent = '❌ บันทึกไม่สำเร็จ โปรดตรวจสอบพื้นที่จัดเก็บแล้วลองอีกครั้ง';
+            statusEl.style.color = '#dc2626';
+          }
+          return;
+        }
         if (statusEl) {
           statusEl.textContent = '✨ บันทึกสำเร็จ! ข้อมูลถูกเชื่อมโยงไปยังแบบฟอร์มหน้าที่ 2 และหน้าที่ 3 เรียบร้อยแล้ว';
+          statusEl.style.color = '#059669';
         }
         setTimeout(() => {
           closeModal();

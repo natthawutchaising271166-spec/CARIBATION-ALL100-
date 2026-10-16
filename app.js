@@ -276,6 +276,8 @@ You might need to use a local HTTP server (instead of file://): https://react.de
 
   let root = createRoot(domContainer);
   root.render(<App />);`),i.unstable_strictMode===!0&&(s=!0),i.identifierPrefix!==void 0&&(d=i.identifierPrefix),i.onUncaughtError!==void 0&&(x=i.onUncaughtError),i.onCaughtError!==void 0&&(b=i.onCaughtError),i.onRecoverableError!==void 0&&(D=i.onRecoverableError)),i=jC(a,1,!1,null,null,s,d,null,x,b,D,$C),a[xu]=i.current,W2(a),new xE(i)},Yp.hydrateRoot=function(a,i,s){if(!w(a))throw Error("Target container is not a DOM element.");HC(a),i===void 0&&console.error("Must provide initial children as second argument to hydrateRoot. Example usage: hydrateRoot(domContainer, <App />)");var d=!1,x="",b=vT,D=gT,S=NT,O=null;return s!=null&&(s.unstable_strictMode===!0&&(d=!0),s.identifierPrefix!==void 0&&(x=s.identifierPrefix),s.onUncaughtError!==void 0&&(b=s.onUncaughtError),s.onCaughtError!==void 0&&(D=s.onCaughtError),s.onRecoverableError!==void 0&&(S=s.onRecoverableError),s.formState!==void 0&&(O=s.formState)),i=jC(a,1,!0,i,s??null,d,x,O,b,D,S,$C),i.context=IC(null),s=i.current,d=Ei(s),d=Be(d),x=iu(d),x.callback=null,lu(s,x,d),no(d,"hydrateRoot()",null),s=d,i.current.lanes=s,Wt(i,s),po(i),a[xu]=i.current,W2(a),new $b(i)},Yp.version="19.3.0",typeof __REACT_DEVTOOLS_GLOBAL_HOOK__<"u"&&typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop=="function"&&__REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error())})(),Yp}var z8;function pq(){return z8||(z8=1,tD.exports=mq()),tD.exports}var hq=pq();function ga(e){if(!e)return null;if(e instanceof Date&&!isNaN(e.getTime())){const r=new Date;r.setHours(0,0,0,0);const t=new Date(e);t.setHours(0,0,0,0);return Math.ceil((t.getTime()-r.getTime())/(1e3*60*60*24))}const s=String(e).trim();if(!s||s==="-"||s.toLowerCase()==="n/a")return null;let t=null;const mo={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11,"ม.ค.":0,"ก.พ.":1,"มี.ค.":2,"เม.ย.":3,"พ.ค.":4,"มิ.ย.":5,"ก.ค.":6,"ส.ค.":7,"ก.ย.":8,"ต.ค.":9,"พ.ย.":10,"ธ.ค.":11,"มค":0,"กพ":1,"มีค":2,"เมย":3,"พค":4,"มิย":5,"กค":6,"สค":7,"กย":8,"ตค":9,"พย":10,"ธค":11,"มกราคม":0,"กุมภาพันธ์":1,"มีนาคม":2,"เมษายน":3,"พฤษภาคม":4,"มิถุนายน":5,"กรกฎาคม":6,"สิงหาคม":7,"กันยายน":8,"ตุลาคม":9,"พฤศจิกายน":10,"ธันวาคม":11};const m1=s.match(/^(\d{1,2})[-/ ]([a-zA-Z\u0E00-\u0E7F.]+)[-/ ](\d{2,4})$/);if(m1){const d=parseInt(m1[1],10),mn=m1[2].toLowerCase().trim();let yr=parseInt(m1[3],10);yr>2400?yr-=543:yr<100&&(yr+=2e3);const moKey=mo[mn]!==void 0?mo[mn]:mo[mn.slice(0,3)];moKey!==void 0&&(t=new Date(yr,moKey,d))}if(!t){const m2=s.match(/^([a-zA-Z\u0E00-\u0E7F.]+)[-/ ](\d{2,4})$/);if(m2){const mn=m2[1].toLowerCase().trim();let yr=parseInt(m2[2],10);yr>2400?yr-=543:yr<100&&(yr+=2e3);const moKey=mo[mn]!==void 0?mo[mn]:mo[mn.slice(0,3)];moKey!==void 0&&(t=new Date(yr,moKey,1))}}if(!t){const parsed=new Date(s);isNaN(parsed.getTime())||(t=parsed)}if(!t||isNaN(t.getTime()))return null;const r=new Date;r.setHours(0,0,0,0),t.setHours(0,0,0,0);return Math.ceil((t.getTime()-r.getTime())/(1e3*60*60*24))}function computeNextDueDate(calDateStr,freqStr){if(!calDateStr)return{dueDate:"",dueYear:""};try{const parts=String(calDateStr).trim().split("-");if(parts.length!==3)return{dueDate:"",dueYear:""};const y=parseInt(parts[0],10),m=parseInt(parts[1],10)-1,d=parseInt(parts[2],10),date=new Date(y,m,d);if(isNaN(date.getTime()))return{dueDate:"",dueYear:""};const freqLower=String(freqStr||"1 ปี").toLowerCase();if(freqLower.includes("6 เดือน")||freqLower.includes("6 month")||freqLower.includes("6 m")){date.setMonth(date.getMonth()+6)}else if(freqLower.includes("3 เดือน")||freqLower.includes("3 month")||freqLower.includes("3 m")){date.setMonth(date.getMonth()+3)}else if(freqLower.includes("2 ปี")||freqLower.includes("2 year")||freqLower.includes("2 y")){date.setFullYear(date.getFullYear()+2)}else if(freqLower.includes("3 ปี")||freqLower.includes("3 year")||freqLower.includes("3 y")){date.setFullYear(date.getFullYear()+3)}else{date.setFullYear(date.getFullYear()+1)}date.setDate(date.getDate()-1);const resDue=date.toISOString().split("T")[0],resYear="Y"+date.getFullYear();return{dueDate:resDue,dueYear:resYear}}catch(err){return{dueDate:"",dueYear:""}}}if(typeof window!=="undefined"){window.computeNextDueDate=computeNextDueDate};function P0(e){if(!e)return"normal";const rawStatus=String(e.status||"").toLowerCase().trim();const rawCat=String(e.category||"").toUpperCase().trim();if(rawStatus==="inactive"||rawStatus==="cancel"||rawCat==="CANCEL"||rawStatus==="ปลดระวาง"||rawCat.includes("CANCEL")||rawStatus.includes("inactive")||rawStatus.includes("cancel")||rawStatus.includes("ปลดระวาง"))return"inactive";if(rawStatus==="in_calibration"||rawStatus==="in_cal"||rawStatus==="in_lab"||rawStatus.includes("ส่งสอบ"))return"in_calibration";const due=e.next_due_date||e.nextDueDate||e.dueDate||e.due_date||e.dueYear;if(due){const t=ga(due);if(t!==null&&t!==undefined&&!isNaN(t)){const th=(typeof window<"u"&&window.qapAlertThreshold)?window.qapAlertThreshold:30;return t<0?"overdue":t<=th?"due_soon":"normal"}}if(rawStatus==="overdue"||rawStatus.includes("overdue")||rawStatus.includes("เกิน")||rawStatus.includes("หมดอายุ")||rawStatus.includes("เลยกำหนด")||rawStatus.includes("ดิว"))return"overdue";if(rawStatus==="due_soon"||rawStatus==="due"||rawStatus.includes("due")||rawStatus.includes("ใกล้")||rawStatus.includes("เตือน"))return"due_soon";return"normal"}
+if (typeof window !== "undefined") { window.qapComputeInstrumentStatus = P0; }
+
 function qapParseDateToTimestamp(val, isEndOfDay = false) {
   if (!val) return null;
   const str = String(val).trim();
@@ -355,10 +357,7 @@ window.qapParseDateToTimestamp = qapParseDateToTimestamp;
 function matchesSmartDateFilter(dateVal, filter, item) {
   if (!filter || filter.preset === "ALL") return true;
   if (filter.preset === "OVERDUE") {
-    if (item && typeof P0 === "function") {
-      const st = P0(item);
-      if (st === "overdue") return true;
-    }
+    if (item && typeof P0 === "function") return P0(item) === "overdue";
     const ts = qapParseDateToTimestamp(dateVal, true);
     if (!ts) return false;
     const now = new Date();
@@ -1184,12 +1183,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     if (dashboardActiveInstruments.length > 0) {
       dashboardActiveInstruments.forEach(inst => {
         const effectiveStatus = P0(inst);
-        const st = (inst.status || inst.currentStatus || inst.calStatus || effectiveStatus || "").toString().toLowerCase().trim();
-        if (st === "in_calibration" || st === "in_cal" || st === "in_lab" || st.includes("lab") || st.includes("ส่งสอบ") || st.includes("แล็บ") || st.includes("ซ่อม") || st.includes("in cal") || st.includes("in-cal") || st.includes("calib") || st.includes("สอบเทียบ")) {
+        if (effectiveStatus === "in_calibration") {
           inLab++;
-        } else if (effectiveStatus === "overdue" || st === "overdue" || st.includes("overdue") || st.includes("เกิน") || st.includes("หมดอายุ")) {
+        } else if (effectiveStatus === "overdue") {
           overdue++;
-        } else if (effectiveStatus === "due_soon" || st === "due_soon" || st.includes("due") || st.includes("ใกล้") || st.includes("soon") || st.includes("เตือน")) {
+        } else if (effectiveStatus === "due_soon") {
           dueSoon++;
         } else {
           inSpec++;
@@ -1261,12 +1259,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       }
 
       if (matchesRange) {
+        const status = P0(inst);
         list.push({
           ...inst,
           rawDueDate: rawDue,
           daysRemaining: days,
-          isOverdue: days < 0,
-          isDueSoon: days >= 0 && days <= threshold,
+          isOverdue: status === "overdue",
+          isDueSoon: status === "due_soon",
           isCritical: days <= 7,
           formattedDueDate: $8(rawDue) || rawDue,
         });
@@ -1553,12 +1552,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         counts[idx]++;
         hasDateMatches = true;
         const effectiveStatus = P0(inst);
-        const st = (inst.status || inst.currentStatus || inst.calStatus || effectiveStatus || "").toString().toLowerCase().trim();
-        if (st === "in_calibration" || st === "in_cal" || st === "in_lab" || st.includes("lab") || st.includes("ส่งสอบ") || st.includes("แล็บ") || st.includes("ซ่อม") || st.includes("in cal") || st.includes("in-cal") || st.includes("calib") || st.includes("สอบเทียบ")) {
+        if (effectiveStatus === "in_calibration") {
           inLabCounts[idx]++;
-        } else if (effectiveStatus === "overdue" || st === "overdue" || st.includes("overdue") || st.includes("เกิน") || st.includes("หมดอายุ")) {
+        } else if (effectiveStatus === "overdue") {
           overdueCounts[idx]++;
-        } else if (effectiveStatus === "due_soon" || st === "due_soon" || st.includes("due") || st.includes("ใกล้") || st.includes("soon") || st.includes("เตือน")) {
+        } else if (effectiveStatus === "due_soon") {
           dueSoonCounts[idx]++;
         }
       });
@@ -1645,12 +1643,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         }
         deptMap[name].count++;
         const effectiveStatus = P0(inst);
-        const st = (inst.status || inst.currentStatus || inst.calStatus || effectiveStatus || "").toString().toLowerCase().trim();
-        if (st === "in_calibration" || st === "in_cal" || st === "in_lab" || st.includes("lab") || st.includes("ส่งสอบ") || st.includes("แล็บ") || st.includes("ซ่อม") || st.includes("in cal") || st.includes("in-cal") || st.includes("calib") || st.includes("สอบเทียบ")) {
+        if (effectiveStatus === "in_calibration") {
           deptMap[name].inLab++;
-        } else if (effectiveStatus === "overdue" || st === "overdue" || st.includes("overdue") || st.includes("เกิน") || st.includes("หมดอายุ")) {
+        } else if (effectiveStatus === "overdue") {
           deptMap[name].overdue++;
-        } else if (effectiveStatus === "due_soon" || st === "due_soon" || st.includes("due") || st.includes("ใกล้") || st.includes("soon") || st.includes("เตือน")) {
+        } else if (effectiveStatus === "due_soon") {
           deptMap[name].dueSoon++;
         } else {
           deptMap[name].inSpec++;
@@ -1699,8 +1696,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         }
         typeMap[t].count++;
         const effectiveStatus = P0(inst);
-        const st = (inst.status || inst.currentStatus || inst.calStatus || effectiveStatus || "").toString().toLowerCase().trim();
-        if (effectiveStatus === "overdue" || st === "overdue" || st.includes("overdue") || st.includes("เกิน") || st.includes("หมดอายุ")) typeMap[t].overdue++;
+        if (effectiveStatus === "overdue") typeMap[t].overdue++;
         else typeMap[t].inSpec++;
       });
 
@@ -2159,9 +2155,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     // ROW 0: CALIBRATION DEADLINES NOTIFICATION BADGE BAR (Real-time Supabase next_due_date)
     // =========================================================================
     h("div", {
-      className: "shrink-0 w-full flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs transition-all hover:border-amber-300 dark:hover:border-amber-800"
+      className: "shrink-0 w-full flex flex-nowrap items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs transition-all hover:border-amber-300 dark:hover:border-amber-800 overflow-x-auto no-scrollbar"
     },
-      h("div", { className: "flex items-center gap-2.5 min-w-0" },
+      h("div", { className: "flex items-center gap-2.5 shrink-0" },
         h("div", {
           onClick: () => setShowUpcomingModal(true),
           className: "relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black shadow-xs shrink-0 cursor-pointer transition active:scale-95 group",
@@ -2172,11 +2168,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           ),
           upcomingStats.overdueCount > 0 && h("span", { className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 animate-ping" }),          upcomingStats.overdueCount > 0 && h("span", { className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" })
         ),
-        h("div", { className: "flex flex-col min-w-0" },
-          h("div", { className: "flex items-center gap-2 flex-wrap" },
+        h("div", { className: "flex flex-col shrink-0" },
+          h("div", { className: "flex items-center gap-2 flex-nowrap whitespace-nowrap" },
             h("span", { className: "text-xs font-black text-slate-900 dark:text-white" }, "ระบบแจ้งเตือนกำหนดสอบเทียบ (Calibration Deadlines)")
           ),
-          h("div", { className: "flex items-center gap-2.5 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap" },
+          h("div", { className: "flex items-center gap-2.5 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-nowrap whitespace-nowrap" },
             upcomingStats.overdueCount > 0 && h("span", {
               onClick: () => { setUpcomingFilter("OVERDUE"); setShowUpcomingModal(true); },
               className: "text-rose-600 dark:text-rose-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
@@ -2199,7 +2195,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           )
         )
       ),
-      h("div", { className: "flex items-center gap-2 shrink-0 ml-auto flex-wrap" },
+      h("div", { className: "flex items-center gap-2 shrink-0 ml-auto flex-nowrap" },
         // Range Date Picker & Presets Control (Unified with Period Dropdown)
         h("div", { className: "flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700/80 text-[11px]" },
           h("span", { className: "text-slate-500 dark:text-slate-400 font-bold px-1 text-[10px] whitespace-nowrap" }, "📅 ช่วงเวลา:"),
@@ -5329,11 +5325,11 @@ async function exportInstrumentSummaryPdf(items = [], options = {}) {
     let totalCount = items.length;
     let inSpec = 0, dueSoon = 0, overdue = 0, inLab = 0, cancel = 0;
     items.forEach(it => {
-      const st = String(it.status || it.currentStatus || "").toLowerCase();
-      if (st.includes("overdue") || st.includes("เกิน")) overdue++;
-      else if (st.includes("due") || st.includes("ใกล้")) dueSoon++;
-      else if (st.includes("lab") || st.includes("cal")) inLab++;
-      else if (st.includes("cancel") || st.includes("inactive")) cancel++;
+      const status = P0(it);
+      if (status === "overdue") overdue++;
+      else if (status === "due_soon") dueSoon++;
+      else if (status === "in_calibration") inLab++;
+      else if (status === "inactive") cancel++;
       else inSpec++;
     });
 
@@ -5482,20 +5478,19 @@ async function exportInstrumentSummaryPdf(items = [], options = {}) {
         borderWidth: 0.5
       });
 
-      const remDays = (typeof ga === "function") ? ga(item.dueDate || item.next_due_date || item.due_date) : null;
-      const stRaw = String(item.status || item.currentStatus || "").toLowerCase();
+      const status = P0(item);
       let stBadge = "IN-SPEC";
       let stColor = rgb(0.05, 0.5, 0.2);
-      if (stRaw.includes("overdue") || stRaw.includes("เกิน") || (remDays !== null && remDays < 0)) {
+      if (status === "overdue") {
         stBadge = "OVERDUE";
         stColor = rgb(0.85, 0.1, 0.1);
-      } else if (stRaw.includes("due") || stRaw.includes("ใกล้") || (remDays !== null && remDays <= 30)) {
+      } else if (status === "due_soon") {
         stBadge = "DUE SOON";
         stColor = rgb(0.85, 0.45, 0.05);
-      } else if (stRaw.includes("lab") || stRaw.includes("cal")) {
+      } else if (status === "in_calibration") {
         stBadge = "IN LAB";
         stColor = rgb(0.1, 0.35, 0.8);
-      } else if (stRaw.includes("cancel") || stRaw.includes("inactive")) {
+      } else if (status === "inactive") {
         stBadge = "CANCEL";
         stColor = rgb(0.5, 0.5, 0.5);
       }
@@ -10253,11 +10248,11 @@ const InstrumentQrModal = ({ isOpen, onClose, instrument, onOpenControlCard }) =
   const serialNo = instrument.serialNo || "-";
   const deptLoc = [instrument.section || instrument.department, instrument.location].filter(Boolean).join(" / ") || "-";
   const calDate = instrument.calDate || instrument.lastCal || "-";
-  const dueDate = instrument.dueDate || instrument.next_due_date || "-";
+  const dueDate = instrument.next_due_date || instrument.nextDueDate || instrument.dueDate || instrument.due_date || instrument.dueYear || "-";
 
-  const remDays = (typeof ga === "function") ? ga(dueDate) : null;
-  const isOver = remDays !== null && remDays < 0;
-  const isSoon = !isOver && remDays !== null && remDays <= 30;
+  const status = P0(instrument);
+  const isOver = status === "overdue";
+  const isSoon = status === "due_soon";
 
   const targetLink = typeof window !== "undefined"
     ? `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(codeNo)}`
@@ -13734,6 +13729,7 @@ function aSe(){
     }
     ae();
   };
+  window.qapApplyImportedData = handleSupabasePullData;
   A.useEffect(() => {
     let isMounted = true;
     const initDatabaseLoad = async () => {
@@ -14037,7 +14033,19 @@ oe=A.useMemo(()=>(e==="normal_standard"?nsInstruments:e==="centralized"?centInst
       return;
     }
     const targetTab = (de.category === "CANCEL" ? "cancel" : de.category === "CENTRALIZED" ? "centralized" : de.category === "EACH SECTION" ? "each_section" : de.category === "NORMAL STANDARD" ? "normal_standard" : e);
-    const updateMatching = Re => Re.map(U => (U.id === de.id || (U.codeNo && de.codeNo && String(U.codeNo).trim().toUpperCase() === String(de.codeNo).trim().toUpperCase())) ? { ...U, ...de } : U);
+    const updateMatching = Re => Re.map(U => {
+      if (!(U.id === de.id || (U.codeNo && de.codeNo && String(U.codeNo).trim().toUpperCase() === String(de.codeNo).trim().toUpperCase()))) return U;
+      const updated = { ...U, ...de };
+      const dueFields = ["dueDate", "due_date", "next_due_date", "nextDueDate", "dueYear"];
+      if (dueFields.some(field => Object.prototype.hasOwnProperty.call(de, field))) {
+        const dueDate = de.dueDate ?? de.due_date ?? de.next_due_date ?? de.nextDueDate ?? de.dueYear ?? "";
+        updated.dueDate = dueDate;
+        updated.due_date = dueDate;
+        updated.next_due_date = dueDate;
+        updated.nextDueDate = dueDate;
+      }
+      return updated;
+    });
     f(updateMatching);
     setCentInstruments(updateMatching);
     setEachInstruments(updateMatching);
@@ -14288,7 +14296,7 @@ oe=A.useMemo(()=>(e==="normal_standard"?nsInstruments:e==="centralized"?centInst
         ...Fe,
         status:je,
         ...(U&&U.calDate?{calDate:U.calDate}:{}),
-        ...(nextDue?{dueDate:nextDue,dueYear:nextDueYear}:{}),
+        ...(nextDue?{dueDate:nextDue,due_date:nextDue,next_due_date:nextDue,nextDueDate:nextDue,dueYear:nextDueYear}:{}),
         ...(U&&U.calibratedBy?{calibratedBy:U.calibratedBy,labCal:U.calibratedBy}:{}),
         ...(U&&U.notes!==void 0?{notes:U.notes}:{}),
         ...(updatedHistory.length>0?{history:updatedHistory,calibrationHistory:updatedHistory}:{})

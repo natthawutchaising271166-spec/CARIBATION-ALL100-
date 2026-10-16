@@ -1,7 +1,20 @@
 import { defineConfig } from 'vite';
+import { copyFileSync } from 'node:fs';
 import { resolve } from 'path';
 
 export default defineConfig({
+  plugins: [
+    {
+      name: 'copy-classic-runtime-scripts',
+      apply: 'build',
+      writeBundle(outputOptions) {
+        const outputDir = resolve(__dirname, outputOptions.dir || 'dist');
+        for (const file of ['app.js', 'supabaseClient.js', 'pdf_compressor.js', 'data_backup.js']) {
+          copyFileSync(resolve(__dirname, file), resolve(outputDir, file));
+        }
+      },
+    },
+  ],
   server: {
     port: 3000,
     host: '0.0.0.0',
