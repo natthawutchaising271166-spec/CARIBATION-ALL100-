@@ -37,6 +37,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
     <style>
+      aside[class*="w-[72px]"] #qap-csv-backup-btn,
+      aside[class*="w-[72px]"] #qap-sidebar-doc-btn {
+        box-sizing: border-box;
+        width: 48px !important;
+        min-width: 48px;
+        max-width: 48px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        justify-content: center !important;
+        gap: 0 !important;
+      }
+
+      aside[class*="w-[72px]"] #qap-csv-backup-btn > :not(:first-child),
+      aside[class*="w-[72px]"] #qap-sidebar-doc-btn > :not(:first-child) {
+        display: none !important;
+      }
+
             /* Utility for hiding scrollbar while allowing smooth horizontal/vertical scroll */
       .no-scrollbar::-webkit-scrollbar {
         display: none !important;

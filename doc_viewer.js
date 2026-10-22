@@ -3,6 +3,26 @@
 // Uses PDF.js Canvas rendering so browsers like Edge/Chrome NEVER block PDFs in sandboxed iframes.
 
 (function() {
+  function formatDateForDisplay(value) {
+    if (!value || value === '-') return '-';
+    const dateText = String(value).trim();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const isoMatch = dateText.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    const dayFirstMatch = dateText.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    let date;
+
+    if (isoMatch) {
+      date = new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3]));
+    } else if (dayFirstMatch) {
+      date = new Date(Number(dayFirstMatch[3]), Number(dayFirstMatch[2]) - 1, Number(dayFirstMatch[1]));
+    } else {
+      date = new Date(dateText);
+    }
+
+    if (Number.isNaN(date.getTime())) return dateText;
+    return `${String(date.getDate()).padStart(2, '0')} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  }
+
   function dataUrlToUint8Array(dataUrl) {
     if (!dataUrl || typeof dataUrl !== 'string') return null;
     if (dataUrl.startsWith('data:')) {
@@ -52,8 +72,8 @@
     const inst = instrument || {};
 
     const certNo = it.certNo || inst.certNo || ('CERT-QAP-' + (inst.codeNo || 'INST'));
-    const calDate = it.calDate || inst.calDate || new Date().toISOString().split('T')[0];
-    const dueDate = it.dueDate || inst.dueDate || '-';
+    const calDate = formatDateForDisplay(it.calDate || inst.calDate || new Date().toISOString().split('T')[0]);
+    const dueDate = formatDateForDisplay(it.dueDate || inst.dueDate || '-');
     const lab = it.calibratedBy || inst.calibratedBy || 'NA CALTECHNOLOGIES';
     const codeNo = inst.codeNo || it.codeNo || '-';
     const name = inst.instrumentName || it.instrumentName || 'เครื่องมือวัด';

@@ -419,7 +419,7 @@ function matchesSmartDateFilter(dateVal, filter, item) {
 }
 window.matchesSmartDateFilter = matchesSmartDateFilter;
 
-function Ek(e){switch(e){case"normal":return{label:"ปกติ (In Spec)",badgeClass:"bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-500/20",dotClass:"bg-emerald-500",bgLight:"bg-emerald-50",textColor:"text-emerald-700"};case"due_soon":return{label:"ใกล้ครบกำหนด (Due Soon)",badgeClass:"bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-500/20",dotClass:"bg-amber-500 animate-pulse",bgLight:"bg-amber-50",textColor:"text-amber-700"};case"overdue":return{label:"เกินกำหนด (Overdue)",badgeClass:"bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-500/20",dotClass:"bg-rose-500 animate-ping",bgLight:"bg-rose-50",textColor:"text-rose-700"};case"in_calibration":return{label:"ส่งสอบเทียบ (In Cal.)",badgeClass:"bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-500/20",dotClass:"bg-blue-500",bgLight:"bg-blue-50",textColor:"text-blue-700"};case"inactive":return{label:"ระงับการใช้ (Inactive)",badgeClass:"bg-slate-100 text-slate-600 border-slate-200 ring-1 ring-slate-400/20",dotClass:"bg-slate-400",bgLight:"bg-slate-50",textColor:"text-slate-600"}}}function $8(e){if(!e)return"-";try{const t=new Date(e);return isNaN(t.getTime())?e:t.toLocaleDateString("th-TH",{year:"numeric",month:"short",day:"numeric"})}catch{return e}}const xq=[],iv=[];/**
+function Ek(e){switch(e){case"normal":return{label:"ปกติ (In Spec)",badgeClass:"bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-500/20",dotClass:"bg-emerald-500",bgLight:"bg-emerald-50",textColor:"text-emerald-700"};case"due_soon":return{label:"ใกล้ครบกำหนด (Due Soon)",badgeClass:"bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-500/20",dotClass:"bg-amber-500 animate-pulse",bgLight:"bg-amber-50",textColor:"text-amber-700"};case"overdue":return{label:"เกินกำหนด (Overdue)",badgeClass:"bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-500/20",dotClass:"bg-rose-500 animate-ping",bgLight:"bg-rose-50",textColor:"text-rose-700"};case"in_calibration":return{label:"ส่งสอบเทียบ (In Cal.)",badgeClass:"bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-500/20",dotClass:"bg-blue-500",bgLight:"bg-blue-50",textColor:"text-blue-700"};case"inactive":return{label:"ระงับการใช้ (Inactive)",badgeClass:"bg-slate-100 text-slate-600 border-slate-200 ring-1 ring-slate-400/20",dotClass:"bg-slate-400",bgLight:"bg-slate-50",textColor:"text-slate-600"}}}function $8(e){if(!e)return"-";try{const t=String(e).trim(),n=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/),r=n?new Date(+n[1],+n[2]-1,+n[3]):new Date(t);return isNaN(r.getTime())?e:r.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}catch{return e}}const xq=[],iv=[];/**
  * @license lucide-react v0.546.0 - ISC
  *
  * This source code is licensed under the ISC license.
@@ -9489,10 +9489,10 @@ const formatControlCardDate = (dateStr) => {
   const dmyMatch = s.match(/^(\d{1,2})[-/\s]([A-Za-z]+)[-/\s](\d{2,4})$/);
   if (dmyMatch) {
     const d = parseInt(dmyMatch[1], 10);
-    const m = dmyMatch[2];
+    const monthIndex = months.findIndex(month => month.toLowerCase() === dmyMatch[2].slice(0, 3).toLowerCase());
     let yr = parseInt(dmyMatch[3], 10);
     if (yr < 100) yr += 2000;
-    return `${d}-${m}-${yr}`;
+    if (monthIndex >= 0) return `${String(d).padStart(2, '0')} ${months[monthIndex]} ${yr}`;
   }
   // YYYY-MM-DD
   const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
@@ -9500,7 +9500,7 @@ const formatControlCardDate = (dateStr) => {
     const y = parseInt(isoMatch[1], 10);
     const m = parseInt(isoMatch[2], 10) - 1;
     const d = parseInt(isoMatch[3], 10);
-    return `${d}-${months[m] || 'Jan'}-${y}`;
+    if (m >= 0 && m < months.length) return `${String(d).padStart(2, '0')} ${months[m]} ${y}`;
   }
   // DD/MM/YYYY or D/M/YYYY or DD/MM/YY
   const slashMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})$/);
@@ -9509,11 +9509,11 @@ const formatControlCardDate = (dateStr) => {
     const m = parseInt(slashMatch[2], 10) - 1;
     let y = parseInt(slashMatch[3], 10);
     if (y < 100) y += 2000;
-    return `${d}-${months[m] || 'Jan'}-${y}`;
+    if (m >= 0 && m < months.length) return `${String(d).padStart(2, '0')} ${months[m]} ${y}`;
   }
   const dt = new Date(s);
   if (!isNaN(dt.getTime())) {
-    return `${dt.getDate()}-${months[dt.getMonth()]}-${dt.getFullYear()}`;
+    return `${String(dt.getDate()).padStart(2, '0')} ${months[dt.getMonth()]} ${dt.getFullYear()}`;
   }
   return s;
 };
@@ -10646,24 +10646,25 @@ const ControlCardModal = ({ isOpen, onClose, instrument, records = [] }) => {
 const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrument, currentTab = "calibration_all" }) => {
   const h = A.createElement;
 
-  // DATE FORMATTER: Uniform DD/MM/YYYY
+  // DATE FORMATTER: Uniform DD Mon YYYY
   const formatDateUniform = (dateStr) => {
     if (!dateStr) return '-';
     let trimmed = String(dateStr).trim();
     if (!trimmed || trimmed === '-') return '-';
+    const enMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     // If it's already in DD/MM/YYYY format, normalize it
     const cleanDmy = trimmed.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
     if (cleanDmy) {
       const [, d, m, y] = cleanDmy;
-      return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+      return `${d.padStart(2, '0')} ${enMonths[Number(m) - 1] || m} ${y}`;
     }
 
     // If it is in YYYY-MM-DD format
     const cleanIso = trimmed.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
     if (cleanIso) {
       const [, y, m, d] = cleanIso;
-      return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+      return `${d.padStart(2, '0')} ${enMonths[Number(m) - 1] || m} ${y}`;
     }
 
     // Thai or English month strings like "18 Sep 2026" or "18 ม.ค. 2026"
@@ -10677,11 +10678,11 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
         let m = 0;
         const thMonths = ["มค", "กพ", "มีค", "เมย", "พค", "มิย", "กค", "สค", "กย", "ตค", "พย", "ธค"];
         const thMonthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-        const enMonths = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        const enMonthNames = enMonths.map(month => month.toLowerCase());
         
         let thIdx = thMonths.findIndex(x => mStr.startsWith(x)) + 1;
         if (thIdx <= 0) thIdx = thMonthsFull.findIndex(x => mStr.startsWith(x)) + 1;
-        let enIdx = enMonths.findIndex(x => mStr.startsWith(x)) + 1;
+        let enIdx = enMonthNames.findIndex(x => mStr.startsWith(x)) + 1;
         
         if (thIdx > 0) m = thIdx;
         else if (enIdx > 0) m = enIdx;
@@ -10695,7 +10696,7 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
           y = y - 543; // convert Buddhist year to CE if present
         }
         if (m > 0 && m <= 12 && y > 1900) {
-          return `${d.padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+          return `${d.padStart(2, '0')} ${enMonths[m - 1]} ${y}`;
         }
       }
     }
@@ -10705,7 +10706,7 @@ const CalibrationHistoryModal = ({ isOpen, onClose, instrument, onUpdateInstrume
       const d = String(parsed.getDate()).padStart(2, '0');
       const m = String(parsed.getMonth() + 1).padStart(2, '0');
       const y = parsed.getFullYear();
-      return `${d}/${m}/${y}`;
+      return `${d} ${enMonths[Number(m) - 1]} ${y}`;
     }
 
     return trimmed;
